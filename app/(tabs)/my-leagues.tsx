@@ -2,19 +2,22 @@ import LeagueCard from '@/components/league/LeagueCard';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { leagueService } from '@/services/league';
+import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export default function HomeScreen() {
+export default function MyLeaguesScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
+  const router = useRouter();
 
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ['publicLeagues'],
-    queryFn: () => leagueService.getPublicLeagues(1, 10),
+    queryKey: ['myLeagues'],
+    queryFn: () => leagueService.getMyLeagues(),
   });
 
   const onRefresh = async () => {
@@ -29,18 +32,24 @@ export default function HomeScreen() {
         <>
           <ActivityIndicator size="large" color={colors.primary} />
           <Text style={[styles.emptyText, { color: colors.textSecondary || colors.icon }]}>
-            Đang tải giải đấu...
+            Đang tải giải đấu của bạn...
           </Text>
         </>
       ) : (
         <>
-          <Text style={styles.emptyIcon}>⚽</Text>
+          <Text style={styles.emptyIcon}>🏆</Text>
           <Text style={[styles.emptyTitle, { color: colors.text }]}>
             Chưa có giải đấu nào
           </Text>
           <Text style={[styles.emptyText, { color: colors.textSecondary || colors.icon }]}>
-            Hãy tạo giải đấu đầu tiên của bạn!
+            Bạn chưa tạo hoặc tham gia giải đấu nào
           </Text>
+          <TouchableOpacity
+            style={[styles.createButton, { backgroundColor: colors.primary }]}
+            onPress={() => router.push('/create-league' as any)}>
+            <Ionicons name="add" size={20} color="#FFFFFF" />
+            <Text style={styles.createButtonText}>Tạo giải đấu đầu tiên</Text>
+          </TouchableOpacity>
         </>
       )}
     </View>
@@ -53,8 +62,10 @@ export default function HomeScreen() {
         style={styles.header}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}>
-        <Text style={styles.headerTitle}>⚽ Bóng Đá Phủi</Text>
-        <Text style={styles.headerSubtitle}>Giải Đấu Công Khai</Text>
+        <Text style={styles.headerTitle}>🏆 Giải Của Tôi</Text>
+        <Text style={styles.headerSubtitle}>
+          {data?.total || 0} giải đấu
+        </Text>
       </LinearGradient>
 
       <FlatList
@@ -62,8 +73,8 @@ export default function HomeScreen() {
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => <LeagueCard league={item} />}
         refreshControl={
-          <RefreshControl 
-            refreshing={refreshing} 
+          <RefreshControl
+            refreshing={refreshing}
             onRefresh={onRefresh}
             colors={[colors.primary]}
             tintColor={colors.primary}
@@ -127,5 +138,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     lineHeight: 24,
+    marginBottom: 30,
+  },
+  createButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 25,
+  },
+  createButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
   },
 });

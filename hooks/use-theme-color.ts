@@ -16,6 +16,7 @@ export function useThemeColor(
   if (colorFromProps) {
     return colorFromProps;
   } else {
-    return Colors[theme][colorName];
+    const color = Colors[theme][colorName];
+    return typeof color === 'string' ? color : Colors[theme].text;
   }
 }

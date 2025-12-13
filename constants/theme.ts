@@ -5,25 +5,57 @@
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+const tintColorLight = '#B91C3C';  // Football red
+const tintColorDark = '#DC2626';
 
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
+    primary: '#B91C3C',      // Football red
+    secondary: '#059669',    // Grass green
+    accent: '#F59E0B',       // Golden yellow
+    background: '#FFFFFF',
+    card: '#F8FAFC',
+    surface: '#F1F5F9',
+    text: '#0F172A',
+    textSecondary: '#64748B',
+    border: '#E2E8F0',
+    win: '#059669',
+    draw: '#F59E0B',
+    lose: '#DC2626',
+    warning: '#F59E0B',
     tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
+    icon: '#64748B',
+    tabIconDefault: '#94A3B8',
     tabIconSelected: tintColorLight,
+    gradient: {
+      primary: ['#B91C3C', '#DC2626'],
+      secondary: ['#059669', '#10B981'],
+      surface: ['#F8FAFC', '#F1F5F9', '#FFFFFF'],
+    },
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
+    primary: '#DC2626',
+    secondary: '#10B981',
+    accent: '#FBBF24',
+    background: '#0F172A',
+    card: '#1E293B',
+    surface: '#334155',
+    text: '#F8FAFC',
+    textSecondary: '#94A3B8',
+    border: '#475569',
+    win: '#10B981',
+    draw: '#FBBF24',
+    lose: '#EF4444',
+    warning: '#FBBF24',
     tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
+    icon: '#94A3B8',
+    tabIconDefault: '#64748B',
     tabIconSelected: tintColorDark,
+    gradient: {
+      primary: ['#DC2626', '#EF4444'],
+      secondary: ['#10B981', '#34D399'],
+      surface: ['#0F172A', '#1E293B', '#334155'],
+    },
   },
 };
 
