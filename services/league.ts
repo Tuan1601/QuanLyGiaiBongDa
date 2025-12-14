@@ -30,8 +30,14 @@ export const leagueService = {
   },
 
   // PATCH /league/:id
-  updateLeague: async (id: string, formData: FormData) => {
-    const response = await api.patch(`/league/${id}`, formData);
+  updateLeague: async (id: string, payload: FormData | object) => {
+    const response = await api.patch(`/league/${id}`, payload);
+    return response.data;
+  },
+
+  // PATCH /league/:id/logo
+  updateLogo: async (id: string, formData: FormData) => {
+    const response = await api.patch(`/league/${id}/logo`, formData);
     return response.data;
   },
 

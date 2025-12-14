@@ -6,6 +6,8 @@ interface User {
     _id: string;
     username: string;
     email: string;
+    fullName?: string;
+    phone?: string;
     avatar: string | null;
 }
 
@@ -41,10 +43,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } catch (error: any) {
             console.error('Auth check failed:', error);
             
-            // Clear invalid tokens on 401/403
-            if (error.response?.status === 401 || error.response?.status === 403) {
+            // Check if it's a network error (no response from server)
+            if (!error.response) {
+                if (error.message === 'Network Error') {
+                    console.log('Network error - no internet connection or server unreachable');
+                } else if (error.message?.includes('timeout') || error.code === 'ECONNABORTED') {
+                    console.log('Auth check timeout - server may be slow');
+                } else {
+                    console.log('Auth check failed with unknown error:', error.message);
+                }
+                // Don't clear tokens for network errors - user might just be offline temporarily
+            } else if (error.response?.status === 401 || error.response?.status === 403) {
                 console.log('Token invalid, clearing auth data');
                 await AsyncStorage.multiRemove(['accessToken', 'refreshToken']);
+                setUser(null);
+            } else if (error.message === 'Authentication failed') {
+                // This comes from the interceptor when refresh token fails
+                console.log('Authentication failed, tokens cleared by interceptor');
                 setUser(null);
             }
         } finally {

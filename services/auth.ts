@@ -58,9 +58,8 @@ export const authService = {
 
   // PATCH /user/change-password
   changePassword: async (data: {
-    oldPassword: string;
+    currentPassword: string;
     newPassword: string;
-    confirmPassword: string;
   }) => {
     const response = await api.patch('/user/change-password', data);
     return response.data;

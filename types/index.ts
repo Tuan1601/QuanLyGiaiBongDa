@@ -2,6 +2,8 @@ export interface User {
   _id: string;
   username: string;
   email: string;
+  fullName?: string;
+  phone?: string;
   avatar: string | null;
   createdLeagues: string[];
   createdAt: string;
@@ -35,7 +37,7 @@ export interface Team {
   logo?: string;
   league: League | string;
   group?: string;
-  stats: {
+  stats?: {
     played: number;
     won: number;
     drawn: number;
@@ -45,7 +47,7 @@ export interface Team {
     goalDifference: number;
     points: number;
   };
-  form: ('W' | 'D' | 'L')[];
+  form?: ('W' | 'D' | 'L')[];
   createdAt: string;
 }
 
@@ -80,6 +82,6 @@ export interface Match {
 export interface Standings {
   position: number;
   team: Team;
-  stats: Team['stats'];
-  form: ('W' | 'D' | 'L')[];
+  stats?: Team['stats'];
+  form?: ('W' | 'D' | 'L')[];
 }
