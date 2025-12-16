@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../../../constants/theme';
 import { useColorScheme } from '../../../hooks/use-color-scheme';
 import { useToast } from '../../../hooks/useToast';
@@ -124,7 +124,7 @@ export default function LeagueActionsScreen() {
       <Stack.Screen
         options={{
           headerShown: true,
-          headerTitle: 'Hành động Giải Đấu',
+          headerTitle: 'Quản lý Giải Đấu',
           headerStyle: { backgroundColor: colors.background },
           headerTintColor: colors.text,
         }}
@@ -138,10 +138,12 @@ export default function LeagueActionsScreen() {
               <Text style={[styles.statValue, { color: colors.primary }]}>{totalMatches}</Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Tổng trận</Text>
             </View>
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
             <View style={styles.stat}>
               <Text style={[styles.statValue, { color: colors.win }]}>{finishedMatches}</Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Đã đấu</Text>
             </View>
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
             <View style={styles.stat}>
               <Text style={[styles.statValue, { color: colors.textSecondary }]}>
                 {totalMatches - finishedMatches}
@@ -152,46 +154,53 @@ export default function LeagueActionsScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>⚠️ Hành động nguy hiểm</Text>
-          <Text style={[styles.sectionDescription, { color: colors.textSecondary }]}>
-            Các hành động này áp dụng cho TOÀN BỘ giải đấu. Hãy cẩn thận!
-          </Text>
-          
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Hành động về giải đấu</Text>
+            <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>
+              Các hành động này áp dụng cho toàn bộ giải đấu
+            </Text>
+          </View>
+
           <TouchableOpacity
-            style={[styles.actionCard, { backgroundColor: colors.card, borderColor: '#FF9500' }]}
+            style={[
+              styles.actionCard,
+              { backgroundColor: colors.card },
+              resetAllMutation.isPending || totalMatches === 0 ? styles.actionCardDisabled : null
+            ]}
             onPress={handleResetAll}
             disabled={resetAllMutation.isPending || totalMatches === 0}
+            activeOpacity={0.7}
           >
-            <View style={[styles.actionIcon, { backgroundColor: '#FF9500' + '20' }]}>
-              <Ionicons name="refresh" size={32} color="#FF9500" />
+            <View style={[styles.actionIconContainer, { backgroundColor: '#FF9500' + '15' }]}>
+              <Ionicons name="refresh" size={24} color="#FF9500" />
             </View>
             <View style={styles.actionContent}>
               <Text style={[styles.actionTitle, { color: colors.text }]}>
                 Reset Toàn Bộ Kết Quả
               </Text>
               <Text style={[styles.actionDescription, { color: colors.textSecondary }]}>
-                Reset {totalMatches} trận về 0-0, xóa tất cả stats, form, media
+                Đặt lại {totalMatches} trận về 0-0, xóa stats và media
               </Text>
               {resetAllMutation.isPending && (
-                <Text style={[styles.actionProcessing, { color: '#FF9500' }]}>
-                  Đang reset...
+                <Text style={[styles.actionStatus, { color: '#FF9500' }]}>
+                  Đang xử lý...
                 </Text>
               )}
             </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[
               styles.actionCard,
-              { backgroundColor: colors.card, borderColor: colors.lose },
-              finishedMatches > 0 && styles.actionCardDisabled
+              { backgroundColor: colors.card },
+              (deleteScheduleMutation.isPending || totalMatches === 0 || finishedMatches > 0) ? styles.actionCardDisabled : null
             ]}
             onPress={handleDeleteSchedule}
             disabled={deleteScheduleMutation.isPending || totalMatches === 0 || finishedMatches > 0}
+            activeOpacity={0.7}
           >
-            <View style={[styles.actionIcon, { backgroundColor: colors.lose + '20' }]}>
-              <Ionicons name="trash" size={32} color={colors.lose} />
+            <View style={[styles.actionIconContainer, { backgroundColor: colors.lose + '15' }]}>
+              <Ionicons name="trash" size={24} color={colors.lose} />
             </View>
             <View style={styles.actionContent}>
               <Text style={[styles.actionTitle, { color: colors.text }]}>
@@ -199,37 +208,35 @@ export default function LeagueActionsScreen() {
               </Text>
               <Text style={[styles.actionDescription, { color: colors.textSecondary }]}>
                 {finishedMatches > 0
-                  ? `Không thể xóa (có ${finishedMatches} trận đã đấu). Reset trước!`
-                  : `Xóa vĩnh viễn ${totalMatches} trận, không thể hoàn tác`}
+                  ? `Không khả dụng do có ${finishedMatches} trận đã hoàn thành`
+                  : `Xóa vĩnh viễn ${totalMatches} trận đấu`}
               </Text>
               {deleteScheduleMutation.isPending && (
-                <Text style={[styles.actionProcessing, { color: colors.lose }]}>
-                  Đang xóa...
+                <Text style={[styles.actionStatus, { color: colors.lose }]}>
+                  Đang xử lý...
                 </Text>
               )}
             </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.warning, { backgroundColor: colors.lose + '10', borderColor: colors.lose }]}>
-          <Ionicons name="warning" size={28} color={colors.lose} />
-          <View style={styles.warningContent}>
-            <Text style={[styles.warningTitle, { color: colors.text }]}>Cảnh báo quan trọng</Text>
-            <Text style={[styles.warningText, { color: colors.text }]}>
-              • Các hành động này áp dụng cho TOÀN BỘ giải đấu{'\n'}
-              • Không thể hoàn tác sau khi thực hiện{'\n'}
-              • Hãy suy nghĩ kỹ trước khi tiếp tục{'\n'}
-              • Nên backup dữ liệu quan trọng trước
-            </Text>
-          </View>
+        <View style={[styles.notice, { backgroundColor: colors.lose + '08', borderLeftColor: colors.lose }]}>
+          <Text style={[styles.noticeTitle, { color: colors.text }]}>Lưu ý quan trọng</Text>
+          <Text style={[styles.noticeText, { color: colors.textSecondary }]}>
+            Các hành động này không thể hoàn tác. Vui lòng kiểm tra kỹ trước khi thực hiện và cân nhắc backup dữ liệu quan trọng.
+          </Text>
         </View>
 
         {totalMatches === 0 && (
           <View style={[styles.emptyState, { backgroundColor: colors.card }]}>
-            <Ionicons name="calendar-outline" size={48} color={colors.textSecondary} />
-            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+            <View style={[styles.emptyIconContainer, { backgroundColor: colors.border }]}>
+              <Ionicons name="calendar-outline" size={32} color={colors.textSecondary} />
+            </View>
+            <Text style={[styles.emptyTitle, { color: colors.text }]}>
               Chưa có lịch thi đấu
+            </Text>
+            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+              Giải đấu chưa có trận đấu nào được tạo
             </Text>
           </View>
         )}
@@ -241,109 +248,167 @@ export default function LeagueActionsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: 16,
   },
   leagueInfo: {
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 20,
-    marginBottom: 30,
+    marginBottom: 24,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
   },
   leagueTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: '700',
     textAlign: 'center',
     marginBottom: 20,
+    letterSpacing: 0.3,
   },
   statsRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-around',
   },
   stat: {
     alignItems: 'center',
+    flex: 1,
   },
   statValue: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 32,
+    fontWeight: '700',
     marginBottom: 4,
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  divider: {
+    width: 1,
+    height: 40,
+    marginHorizontal: 8,
   },
   section: {
-    marginBottom: 20,
+    marginBottom: 24,
+  },
+  sectionHeader: {
+    marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 5,
+    fontSize: 20,
+    fontWeight: '700',
+    marginBottom: 4,
+    letterSpacing: 0.2,
   },
-  sectionDescription: {
+  sectionSubtitle: {
     fontSize: 14,
-    marginBottom: 20,
+    lineHeight: 20,
   },
   actionCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
-    borderRadius: 12,
-    borderWidth: 2,
-    marginBottom: 15,
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 12,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.06,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 1,
+      },
+    }),
   },
   actionCardDisabled: {
     opacity: 0.5,
   },
-  actionIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+  actionIconContainer: {
+    width: 52,
+    height: 52,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 15,
+    marginRight: 14,
   },
   actionContent: {
     flex: 1,
   },
   actionTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
     marginBottom: 4,
+    letterSpacing: 0.1,
   },
   actionDescription: {
     fontSize: 13,
     lineHeight: 18,
+    fontWeight: '400',
   },
-  actionProcessing: {
+  actionStatus: {
     fontSize: 12,
     fontWeight: '600',
-    marginTop: 5,
+    marginTop: 6,
   },
-  warning: {
-    flexDirection: 'row',
-    padding: 15,
+  notice: {
+    padding: 16,
     borderRadius: 12,
-    borderWidth: 2,
-    marginBottom: 20,
-    gap: 12,
+    borderLeftWidth: 4,
+    marginBottom: 24,
   },
-  warningContent: {
-    flex: 1,
-  },
-  warningTitle: {
+  noticeTitle: {
     fontSize: 15,
-    fontWeight: 'bold',
-    marginBottom: 8,
+    fontWeight: '600',
+    marginBottom: 6,
+    letterSpacing: 0.1,
   },
-  warningText: {
+  noticeText: {
     fontSize: 13,
     lineHeight: 20,
   },
   emptyState: {
     padding: 40,
-    borderRadius: 12,
+    borderRadius: 16,
     alignItems: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.04,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 1,
+      },
+    }),
+  },
+  emptyIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  emptyTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    marginBottom: 6,
+    letterSpacing: 0.1,
   },
   emptyText: {
-    fontSize: 16,
-    marginTop: 15,
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
   },
 });

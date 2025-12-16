@@ -532,7 +532,7 @@ export default function CreateLeagueScreen() {
         style={styles.header}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}>
-        <Text style={styles.headerTitle}>⚽ Tạo Giải Đấu Mới</Text>
+        <Text style={styles.headerTitle}>Tạo Giải Đấu Mới</Text>
         <Text style={styles.headerSubtitle}>Bước {step}/3</Text>
       </LinearGradient>
 
@@ -560,11 +560,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: 60,
+    paddingTop: 50,
     paddingBottom: 20,
     paddingHorizontal: 20,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   headerTitle: {
     fontSize: 28,

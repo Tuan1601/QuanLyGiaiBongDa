@@ -117,7 +117,7 @@ export default function LeagueSettingsScreen() {
       <Stack.Screen
         options={{
           headerShown: true,
-          headerTitle: 'Cài đặt giải đấu',
+          headerTitle: 'Cài Đặt Giải Đấu',
           headerStyle: { backgroundColor: colors.background },
           headerTintColor: colors.text,
         }}
@@ -172,25 +172,25 @@ export default function LeagueSettingsScreen() {
           <TouchableOpacity
             style={[styles.menuItem, { borderBottomColor: colors.border }]}
             onPress={() => router.push(`/league/${id}/edit` as any)}>
-            <Ionicons name="create-outline" size={24} color={colors.primary} />
+            <Ionicons name="create-outline" size={20} color={colors.primary} />
             <Text style={[styles.menuText, { color: colors.text }]}>Chỉnh sửa thông tin</Text>
-            <Ionicons name="chevron-forward" size={24} color={colors.textSecondary || colors.icon} />
+            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary || colors.icon} />
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.menuItem, { borderBottomColor: colors.border }]}
             onPress={() => router.push(`/league/${id}/teams` as any)}>
-            <Ionicons name="people-outline" size={24} color={colors.primary} />
+            <Ionicons name="people-outline" size={20} color={colors.primary} />
             <Text style={[styles.menuText, { color: colors.text }]}>Quản lý đội bóng</Text>
-            <Ionicons name="chevron-forward" size={24} color={colors.textSecondary || colors.icon} />
+            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary || colors.icon} />
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.menuItem, { borderBottomColor: colors.border }]}
             onPress={() => router.push(`/league/${id}/matches` as any)}>
-            <Ionicons name="calendar-outline" size={24} color={colors.primary} />
+            <Ionicons name="calendar-outline" size={20} color={colors.primary} />
             <Text style={[styles.menuText, { color: colors.text }]}>Quản lý trận đấu</Text>
-            <Ionicons name="chevron-forward" size={24} color={colors.textSecondary || colors.icon} />
+            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary || colors.icon} />
           </TouchableOpacity>
         </View>
 
@@ -200,7 +200,7 @@ export default function LeagueSettingsScreen() {
           <TouchableOpacity
             style={[styles.menuItem, styles.dangerItem]}
             onPress={handleDelete}>
-            <Ionicons name="trash-outline" size={24} color={colors.lose} />
+            <Ionicons name="trash-outline" size={20} color={colors.lose} />
             <Text style={[styles.menuText, { color: colors.lose }]}>Xóa giải đấu</Text>
           </TouchableOpacity>
         </View>

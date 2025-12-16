@@ -33,35 +33,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, []);
 
     const checkAuth = async () => {
+        console.log('🔐 AuthContext: checkAuth() called');
         try {
             const token = await AsyncStorage.getItem('accessToken');
             if (!token) {
+                console.log('⚠️ AuthContext: No access token found');
                 setLoading(false);
                 return;
             }
 
+            console.log('📞 AuthContext: Fetching user profile...');
             const userData = await authService.getProfile();
+            console.log('✅ AuthContext: User profile fetched successfully:', userData.username);
             setUser(userData);
         } catch (error: any) {
-            console.error('Auth check failed:', error);
+            console.error('❌ AuthContext: Auth check failed:', error.message);
             
-            // Check if it's a network error (no response from server)
             if (!error.response) {
                 if (error.message === 'Network Error') {
-                    console.log('Network error - no internet connection or server unreachable');
+                    console.log('🌐 AuthContext: Network error - no internet connection or server unreachable');
                 } else if (error.message?.includes('timeout') || error.code === 'ECONNABORTED') {
-                    console.log('Auth check timeout - server may be slow');
+                    console.log('⏱️ AuthContext: Auth check timeout - server may be slow');
+                } else if (error.name === 'AuthenticationError') {
+                    console.log('🚪 AuthContext: Auth error from interceptor - tokens already cleared');
+                    setUser(null);
                 } else {
-                    console.log('Auth check failed with unknown error:', error.message);
+                    console.log('❓ AuthContext: Auth check failed with unknown error:', error.message);
                 }
-                // Don't clear tokens for network errors - user might just be offline temporarily
+
             } else if (error.response?.status === 401 || error.response?.status === 403) {
-                console.log('Token invalid, clearing auth data');
+                console.log('🔒 AuthContext: Token invalid (401/403), clearing auth data');
                 await AsyncStorage.multiRemove(['accessToken', 'refreshToken']);
                 setUser(null);
             } else if (error.message === 'Authentication failed') {
-                // This comes from the interceptor when refresh token fails
-                console.log('Authentication failed, tokens cleared by interceptor');
+                console.log('🚪 AuthContext: Authentication failed, tokens cleared by interceptor');
                 setUser(null);
             }
         } finally {
@@ -89,19 +94,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             await authService.logout();
         } catch (error) {
             console.error('Logout API call failed:', error);
-            // Continue with local logout even if API call fails
+
         } finally {
-            // Always clear local state and tokens
             await AsyncStorage.multiRemove(['accessToken', 'refreshToken']);
             setUser(null);
-            
-            // Clear all React Query cache to prevent data leakage between users
+
             queryClient.clear();
         }
     };
 
     const updateUser = (userData: User) => {
+        console.log('🔄 AuthContext: updateUser() called with:', userData);
         setUser(userData);
+        console.log('✅ AuthContext: User state updated');
     };
 
     return (

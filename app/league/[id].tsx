@@ -128,7 +128,7 @@ export default function LeagueDetailScreen() {
               <TouchableOpacity
                 onPress={() => router.push(`/league/${id}/settings` as any)}
                 style={styles.headerButton}>
-                <Ionicons name="settings-outline" size={24} color={colors.primary} />
+                <Ionicons name="settings-outline" size={22} color={colors.primary} />
               </TouchableOpacity>
             ) : null,
         }}
@@ -366,7 +366,7 @@ export default function LeagueDetailScreen() {
                 </View>
               ) : (
                 <View style={[styles.emptyState, { backgroundColor: colors.card }]}>
-                  <Ionicons name="people-outline" size={48} color={colors.textSecondary} />
+                  <Ionicons name="people-outline" size={40} color={colors.textSecondary} />
                   <Text style={[styles.emptyTitle, { color: colors.text }]}>Chưa có đội bóng</Text>
                   <Text style={[styles.emptyDescription, { color: colors.textSecondary }]}>
                     Thêm đội bóng để bắt đầu giải đấu
@@ -428,7 +428,7 @@ export default function LeagueDetailScreen() {
                 </View>
               ) : (
                 <View style={[styles.emptyState, { backgroundColor: colors.card }]}>
-                  <Ionicons name="calendar-outline" size={48} color={colors.textSecondary} />
+                  <Ionicons name="calendar-outline" size={40} color={colors.textSecondary} />
                   <Text style={[styles.emptyTitle, { color: colors.text }]}>Chưa có lịch thi đấu</Text>
                   <Text style={[styles.emptyDescription, { color: colors.textSecondary }]}>
                     Tạo lịch thi đấu để bắt đầu giải đấu
@@ -476,7 +476,7 @@ export default function LeagueDetailScreen() {
                 </View>
               ) : (
                 <View style={[styles.emptyState, { backgroundColor: colors.card }]}>
-                  <Ionicons name="trophy-outline" size={48} color={colors.textSecondary} />
+                  <Ionicons name="trophy-outline" size={40} color={colors.textSecondary} />
                   <Text style={[styles.emptyTitle, { color: colors.text }]}>Chưa có bảng xếp hạng</Text>
                   <Text style={[styles.emptyDescription, { color: colors.textSecondary }]}>
                     Cần có kết quả trận đấu để tạo bảng xếp hạng
@@ -534,7 +534,7 @@ export default function LeagueDetailScreen() {
                   <View style={[styles.topPerformers, { backgroundColor: colors.card }]}>
                     {statisticsData.topScorers && statisticsData.topScorers.length > 0 && (
                       <>
-                        <Text style={[styles.topPerformersTitle, { color: colors.text }]}>🔥 Tấn công tốt nhất</Text>
+                        <Text style={[styles.topPerformersTitle, { color: colors.text }]}>Tấn công tốt nhất</Text>
                         <TouchableOpacity 
                           style={styles.performerItem}
                           onPress={() => router.push(`/team/${statisticsData.topScorers[0].team._id}` as any)}
@@ -562,7 +562,7 @@ export default function LeagueDetailScreen() {
 
                     {statisticsData.bestDefense && statisticsData.bestDefense.length > 0 && (
                       <>
-                        <Text style={[styles.topPerformersTitle, { color: colors.text }]}>🛡️ Phòng thủ tốt nhất</Text>
+                        <Text style={[styles.topPerformersTitle, { color: colors.text }]}>Phòng thủ tốt nhất</Text>
                         <TouchableOpacity 
                           style={styles.performerItem}
                           onPress={() => router.push(`/team/${statisticsData.bestDefense[0].team._id}` as any)}
@@ -591,7 +591,7 @@ export default function LeagueDetailScreen() {
                 </View>
               ) : (
                 <View style={[styles.emptyState, { backgroundColor: colors.card }]}>
-                  <Ionicons name="stats-chart-outline" size={48} color={colors.textSecondary} />
+                  <Ionicons name="stats-chart-outline" size={40} color={colors.textSecondary} />
                   <Text style={[styles.emptyTitle, { color: colors.text }]}>Chưa có thống kê</Text>
                   <Text style={[styles.emptyDescription, { color: colors.textSecondary }]}>
                     Cần có kết quả trận đấu để tạo thống kê

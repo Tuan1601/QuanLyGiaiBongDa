@@ -162,10 +162,17 @@ const styles = StyleSheet.create({
     padding: 20,
     borderBottomWidth: 8,
   },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 16,
+    letterSpacing: 0.2,
+  },
   groupTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 15,
+    fontWeight: '700',
+    marginBottom: 16,
+    letterSpacing: 0.2,
   },
   empty: {
     padding: 50,

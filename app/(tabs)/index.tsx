@@ -195,7 +195,7 @@ export default function HomeScreen() {
         
         <View style={styles.headerTop}>
           <View style={styles.headerLeft}>
-            <Text style={styles.headerTitle}>⚽ Bóng Đá Phủi</Text>
+            <Text style={styles.headerTitle}>Bóng Đá Phủi</Text>
             <Text style={styles.headerSubtitle}>
               {user ? `Xin chào, ${user.fullName || user.username}!` : 'Giải Đấu Công Khai'}
             </Text>
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: 60,
+    paddingTop: 50,
     paddingBottom: 20,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 20,
@@ -331,6 +331,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
   avatarText: {
     fontSize: 18,
@@ -381,7 +386,7 @@ const styles = StyleSheet.create({
     paddingTop: 100,
   },
   emptyIcon: {
-    fontSize: 80,
+    fontSize: 100,
     marginBottom: 20,
   },
   emptyTitle: {

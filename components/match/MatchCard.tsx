@@ -32,6 +32,10 @@ export default function MatchCard({ match, onPress }: MatchCardProps) {
     }
   };
 
+  if (!match.homeTeam || !match.awayTeam) {
+    return null;
+  }
+
   return (
     <TouchableOpacity style={[styles.card, { backgroundColor: colors.card }]} onPress={onPress}>
       <View style={styles.header}>
@@ -43,24 +47,24 @@ export default function MatchCard({ match, onPress }: MatchCardProps) {
 
       <View style={styles.matchContent}>
         <View style={styles.team}>
-          {match.homeTeam.logo ? (
+          {match.homeTeam?.logo ? (
             <Image source={{ uri: match.homeTeam.logo }} style={styles.teamLogo} />
           ) : (
             <View style={[styles.teamLogoPlaceholder, { backgroundColor: colors.primary }]}>
-              <Text style={styles.teamLogoText}>{match.homeTeam.shortName}</Text>
+              <Text style={styles.teamLogoText}>{match.homeTeam?.shortName || '??'}</Text>
             </View>
           )}
           <Text style={[styles.teamName, { color: colors.text }]} numberOfLines={1}>
-            {match.homeTeam.name}
+            {match.homeTeam?.name || 'Đội chưa xác định'}
           </Text>
         </View>
 
         <View style={styles.scoreContainer}>
           {match.status === 'finished' ? (
             <View style={styles.score}>
-              <Text style={[styles.scoreText, { color: colors.primary }]}>{match.score.home}</Text>
+              <Text style={[styles.scoreText, { color: colors.primary }]}>{match.score?.home ?? 0}</Text>
               <Text style={[styles.scoreSeparator, { color: colors.textSecondary }]}>-</Text>
-              <Text style={[styles.scoreText, { color: colors.primary }]}>{match.score.away}</Text>
+              <Text style={[styles.scoreText, { color: colors.primary }]}>{match.score?.away ?? 0}</Text>
             </View>
           ) : (
             <Text style={[styles.vsText, { color: colors.textSecondary }]}>VS</Text>
@@ -76,15 +80,15 @@ export default function MatchCard({ match, onPress }: MatchCardProps) {
         </View>
 
         <View style={styles.team}>
-          {match.awayTeam.logo ? (
+          {match.awayTeam?.logo ? (
             <Image source={{ uri: match.awayTeam.logo }} style={styles.teamLogo} />
           ) : (
             <View style={[styles.teamLogoPlaceholder, { backgroundColor: colors.primary }]}>
-              <Text style={styles.teamLogoText}>{match.awayTeam.shortName}</Text>
+              <Text style={styles.teamLogoText}>{match.awayTeam?.shortName || '??'}</Text>
             </View>
           )}
           <Text style={[styles.teamName, { color: colors.text }]} numberOfLines={1}>
-            {match.awayTeam.name}
+            {match.awayTeam?.name || 'Đội chưa xác định'}
           </Text>
         </View>
       </View>

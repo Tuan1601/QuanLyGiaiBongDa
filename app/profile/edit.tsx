@@ -14,8 +14,6 @@ import { authService } from '../../services/auth';
 const schema = yup.object({
   username: yup.string().required('Tên người dùng là bắt buộc').min(3, 'Tối thiểu 3 ký tự'),
   email: yup.string().email('Email không hợp lệ').required('Email là bắt buộc'),
-  fullName: yup.string().required('Họ tên là bắt buộc'),
-  phone: yup.string().matches(/^[0-9]{10,11}$/, 'Số điện thoại không hợp lệ'),
 });
 
 export default function EditProfileScreen() {
@@ -30,23 +28,31 @@ export default function EditProfileScreen() {
     defaultValues: {
       username: user?.username || '',
       email: user?.email || '',
-      fullName: user?.fullName || '',
-      phone: user?.phone || '',
     },
   });
 
   const onSubmit = async (data: any) => {
     setLoading(true);
+    console.log('✏️ Edit: Starting profile update with data:', data);
     try {
+      console.log('📤 Edit: Calling updateProfile API...');
       const response = await authService.updateProfile(data);
+      console.log('✅ Edit: API response received:', response);
+      console.log('👤 Edit: Updating user state with:', response.user);
       updateUser(response.user);
+      console.log('🎉 Edit: User state updated successfully');
       Alert.alert('Thành công', 'Cập nhật thông tin thành công', [
-        { text: 'OK', onPress: () => router.back() }
+        { text: 'OK', onPress: () => {
+          console.log('⬅️ Edit: Navigating back...');
+          router.back();
+        }}
       ]);
     } catch (error: any) {
+      console.error('❌ Edit: Profile update failed:', error);
       Alert.alert('Lỗi', error.response?.data?.message || 'Không thể cập nhật thông tin');
     } finally {
       setLoading(false);
+      console.log('🏁 Edit: Profile update process finished');
     }
   };
 
@@ -73,7 +79,7 @@ export default function EditProfileScreen() {
                 onChangeText={onChange}
                 onBlur={onBlur}
                 error={errors.username?.message}
-                autoCapitalize="none"
+                autoCapitalize="words"
               />
             )}
           />
@@ -90,35 +96,6 @@ export default function EditProfileScreen() {
                 error={errors.email?.message}
                 keyboardType="email-address"
                 autoCapitalize="none"
-              />
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="fullName"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <AnimatedInput
-                label="Họ và tên"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={errors.fullName?.message}
-              />
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="phone"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <AnimatedInput
-                label="Số điện thoại"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={errors.phone?.message}
-                keyboardType="phone-pad"
               />
             )}
           />

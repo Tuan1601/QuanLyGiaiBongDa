@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../../../constants/theme';
 import { useColorScheme } from '../../../hooks/use-color-scheme';
 import { leagueService } from '../../../services/league';
@@ -88,30 +88,30 @@ export default function GenerateScheduleScreen() {
       <Stack.Screen
         options={{
           headerShown: true,
-          headerTitle: 'Tạo lịch thi đấu',
+          headerTitle: 'Tạo Lịch Thi Đấu',
           headerStyle: { backgroundColor: colors.background },
           headerTintColor: colors.text,
         }}
       />
       
       <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={[styles.preview, { backgroundColor: colors.card }]}>
-          <Text style={[styles.previewTitle, { color: colors.text }]}>Xem trước</Text>
-          <View style={styles.previewCard}>
+        <View style={[styles.previewCard, { backgroundColor: colors.card }]}>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>Xem trước</Text>
+          <View style={styles.previewRows}>
             <View style={[styles.previewRow, { borderBottomColor: colors.border }]}>
-              <Text style={[styles.previewLabel, { color: colors.textSecondary }]}>Thể thức:</Text>
+              <Text style={[styles.previewLabel, { color: colors.textSecondary }]}>Thể thức</Text>
               <Text style={[styles.previewValue, { color: colors.text }]}>
                 {league?.type === 'round-robin' ? 'Vòng tròn 1 lượt' : 'Chia bảng'}
               </Text>
             </View>
             <View style={[styles.previewRow, { borderBottomColor: colors.border }]}>
-              <Text style={[styles.previewLabel, { color: colors.textSecondary }]}>Số đội:</Text>
+              <Text style={[styles.previewLabel, { color: colors.textSecondary }]}>Số đội</Text>
               <Text style={[styles.previewValue, { color: colors.text }]}>
                 {teams?.teams?.length}/{league?.numberOfTeams}
               </Text>
             </View>
-            <View style={[styles.previewRow, { borderBottomColor: colors.border }]}>
-              <Text style={[styles.previewLabel, { color: colors.textSecondary }]}>Tổng số trận:</Text>
+            <View style={[styles.previewRow, { borderBottomWidth: 0 }]}>
+              <Text style={[styles.previewLabel, { color: colors.textSecondary }]}>Tổng số trận</Text>
               <Text style={[styles.previewValue, styles.highlight, { color: colors.primary }]}>
                 {totalMatches}
               </Text>
@@ -119,22 +119,42 @@ export default function GenerateScheduleScreen() {
           </View>
 
           {!canGenerate && (
-            <View style={[styles.warning, { backgroundColor: colors.draw + '20' }]}>
+            <View style={[styles.warning, { backgroundColor: colors.draw + '10', borderLeftColor: colors.draw }]}>
               <Text style={[styles.warningText, { color: colors.draw }]}>
-                ⚠️ Cần đủ {league?.numberOfTeams} đội để tạo lịch
+                Cần đủ {league?.numberOfTeams} đội để tạo lịch thi đấu
               </Text>
             </View>
           )}
         </View>
 
-        <View style={styles.info}>
+        <View style={[styles.infoCard, { backgroundColor: colors.card }]}>
           <Text style={[styles.infoTitle, { color: colors.text }]}>Lưu ý</Text>
-          <Text style={[styles.infoText, { color: colors.textSecondary }]}>
-            • Lịch thi đấu sẽ được tạo tự động{'\n'}
-            • Mỗi đội sẽ gặp tất cả các đội khác 1 lần{'\n'}
-            • Bạn có thể cập nhật ngày giờ và địa điểm sau{'\n'}
-            • Không thể tạo lại lịch khi đã có trận đấu
-          </Text>
+          <View style={styles.infoList}>
+            <View style={styles.infoItem}>
+              <View style={[styles.bullet, { backgroundColor: colors.primary }]} />
+              <Text style={[styles.infoText, { color: colors.textSecondary }]}>
+                Lịch thi đấu sẽ được tạo tự động
+              </Text>
+            </View>
+            <View style={styles.infoItem}>
+              <View style={[styles.bullet, { backgroundColor: colors.primary }]} />
+              <Text style={[styles.infoText, { color: colors.textSecondary }]}>
+                Mỗi đội sẽ gặp tất cả các đội khác 1 lần
+              </Text>
+            </View>
+            <View style={styles.infoItem}>
+              <View style={[styles.bullet, { backgroundColor: colors.primary }]} />
+              <Text style={[styles.infoText, { color: colors.textSecondary }]}>
+                Bạn có thể cập nhật ngày giờ và địa điểm sau
+              </Text>
+            </View>
+            <View style={styles.infoItem}>
+              <View style={[styles.bullet, { backgroundColor: colors.primary }]} />
+              <Text style={[styles.infoText, { color: colors.textSecondary }]}>
+                Không thể tạo lại lịch khi đã có trận đấu
+              </Text>
+            </View>
+          </View>
         </View>
 
         <TouchableOpacity
@@ -158,62 +178,121 @@ export default function GenerateScheduleScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-  },
-  preview: {
-    marginBottom: 30,
-    borderRadius: 12,
-    padding: 20,
-  },
-  previewTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 15,
+    padding: 16,
   },
   previewCard: {
+    marginBottom: 20,
+    borderRadius: 16,
+    padding: 20,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 16,
+    letterSpacing: 0.2,
+  },
+  previewRows: {
+    marginBottom: 12,
   },
   previewRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 12,
+    alignItems: 'center',
+    paddingVertical: 14,
     borderBottomWidth: 1,
   },
   previewLabel: {
     fontSize: 15,
+    fontWeight: '500',
   },
   previewValue: {
     fontSize: 15,
     fontWeight: '600',
+    letterSpacing: 0.1,
   },
   highlight: {
-    fontSize: 18,
+    fontSize: 22,
+    fontWeight: '700',
   },
   warning: {
-    padding: 12,
-    borderRadius: 8,
-    marginTop: 15,
+    padding: 14,
+    borderRadius: 10,
+    marginTop: 16,
+    borderLeftWidth: 4,
   },
   warningText: {
     fontSize: 14,
-    textAlign: 'center',
+    lineHeight: 20,
+    fontWeight: '500',
   },
-  info: {
-    marginBottom: 30,
+  infoCard: {
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 24,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.06,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 1,
+      },
+    }),
   },
   infoTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 10,
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 16,
+    letterSpacing: 0.2,
+  },
+  infoList: {
+    gap: 12,
+  },
+  infoItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  bullet: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginTop: 6,
   },
   infoText: {
+    flex: 1,
     fontSize: 14,
-    lineHeight: 22,
+    lineHeight: 20,
   },
   button: {
-    height: 50,
-    borderRadius: 8,
+    height: 56,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 6,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
   },
   buttonDisabled: {
     opacity: 0.5,
@@ -221,6 +300,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
+    letterSpacing: 0.3,
   },
 });

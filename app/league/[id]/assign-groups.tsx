@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View, Platform } from 'react-native';
 import { Colors } from '../../../constants/theme';
 import { useColorScheme } from '../../../hooks/use-color-scheme';
 import { leagueService } from '../../../services/league';
@@ -28,8 +28,8 @@ export default function AssignGroupsScreen() {
     mutationFn: () => teamService.assignGroups(id as string),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['teams', id] });
-      queryClient.invalidateQueries({ queryKey: ['league', id] }); // Update league detail
-      queryClient.invalidateQueries({ queryKey: ['group-standings', id] }); // Update group standings
+      queryClient.invalidateQueries({ queryKey: ['league', id] }); 
+      queryClient.invalidateQueries({ queryKey: ['group-standings', id] }); 
       Alert.alert('Thành công', 'Đã phân bảng tự động', [
         { text: 'OK', onPress: () => router.back() }
       ]);
@@ -43,8 +43,8 @@ export default function AssignGroupsScreen() {
     mutationFn: () => teamService.resetGroups(id as string),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['teams', id] });
-      queryClient.invalidateQueries({ queryKey: ['league', id] }); // Update league detail
-      queryClient.invalidateQueries({ queryKey: ['group-standings', id] }); // Update group standings
+      queryClient.invalidateQueries({ queryKey: ['league', id] }); 
+      queryClient.invalidateQueries({ queryKey: ['group-standings', id] }); 
       Alert.alert('Thành công', 'Đã reset phân bảng');
     },
   });
@@ -91,92 +91,120 @@ export default function AssignGroupsScreen() {
       <Stack.Screen
         options={{
           headerShown: true,
-          headerTitle: 'Phân bảng tự động',
+          headerTitle: 'Phân Bảng Tự Động',
           headerStyle: { backgroundColor: colors.background },
           headerTintColor: colors.text,
         }}
       />
       
       <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={[styles.info, { backgroundColor: colors.card }]}>
-          <Text style={[styles.infoTitle, { color: colors.text }]}>Thông tin phân bảng</Text>
+        <View style={[styles.infoCard, { backgroundColor: colors.card }]}>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>Thông tin cấu hình</Text>
           
-          <View style={[styles.infoRow, { borderBottomColor: colors.border }]}>
-            <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Số bảng:</Text>
-            <Text style={[styles.infoValue, { color: colors.text }]}>
-              {league?.groupSettings?.numberOfGroups}
-            </Text>
+          <View style={styles.infoGrid}>
+            <View style={styles.infoItem}>
+              <Text style={[styles.infoValue, { color: colors.primary }]}>
+                {league?.groupSettings?.numberOfGroups}
+              </Text>
+              <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Số bảng</Text>
+            </View>
+            
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
+            
+            <View style={styles.infoItem}>
+              <Text style={[styles.infoValue, { color: colors.primary }]}>
+                {league?.groupSettings?.teamsPerGroup}
+              </Text>
+              <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Đội/bảng</Text>
+            </View>
+            
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
+            
+            <View style={styles.infoItem}>
+              <Text style={[styles.infoValue, { color: colors.primary }]}>
+                {requiredTeams}
+              </Text>
+              <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Tổng cần</Text>
+            </View>
           </View>
-          
-          <View style={[styles.infoRow, { borderBottomColor: colors.border }]}>
-            <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Đội/bảng:</Text>
-            <Text style={[styles.infoValue, { color: colors.text }]}>
-              {league?.groupSettings?.teamsPerGroup}
-            </Text>
-          </View>
-          
-          <View style={[styles.infoRow, { borderBottomColor: colors.border }]}>
-            <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Tổng số đội cần:</Text>
-            <Text style={[styles.infoValue, { color: colors.text }]}>
-              {requiredTeams}
-            </Text>
-          </View>
-          
-          <View style={[styles.infoRow, { borderBottomColor: colors.border }]}>
-            <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Số đội hiện có:</Text>
-            <Text style={[
-              styles.infoValue,
-              { color: canAssign ? colors.text : colors.lose }
-            ]}>
-              {teamsCount}
-            </Text>
-          </View>
+        </View>
 
+        <View style={[styles.statusCard, { backgroundColor: colors.card }]}>
+          <View style={styles.statusRow}>
+            <Text style={[styles.statusLabel, { color: colors.textSecondary }]}>Số đội hiện có:</Text>
+            <Text style={[
+              styles.statusValue,
+              { color: canAssign ? colors.win : colors.lose }
+            ]}>
+              {teamsCount} / {requiredTeams}
+            </Text>
+          </View>
+          
           {!canAssign && (
-            <View style={[styles.warning, { backgroundColor: colors.draw + '20' }]}>
+            <View style={[styles.warning, { backgroundColor: colors.draw + '10', borderLeftColor: colors.draw }]}>
               <Text style={[styles.warningText, { color: colors.draw }]}>
-                ⚠️ Cần thêm {requiredTeams - teamsCount} đội nữa để phân bảng
+                Cần thêm {requiredTeams - teamsCount} đội để có thể phân bảng
               </Text>
             </View>
           )}
         </View>
 
-        <View style={styles.instructions}>
+        <View style={[styles.instructionsCard, { backgroundColor: colors.card }]}>
           <Text style={[styles.instructionsTitle, { color: colors.text }]}>Cách thức phân bảng</Text>
-          <Text style={[styles.instructionsText, { color: colors.textSecondary }]}>
-            • Các đội sẽ được phân đều vào các bảng{'\n'}
-            • Mỗi bảng có {league?.groupSettings?.teamsPerGroup} đội{'\n'}
-            • Phân bổ ngẫu nhiên để đảm bảo công bằng
-          </Text>
+          <View style={styles.instructionsList}>
+            <View style={styles.instructionItem}>
+              <View style={[styles.bullet, { backgroundColor: colors.primary }]} />
+              <Text style={[styles.instructionText, { color: colors.textSecondary }]}>
+                Các đội sẽ được phân đều vào {league?.groupSettings?.numberOfGroups} bảng
+              </Text>
+            </View>
+            <View style={styles.instructionItem}>
+              <View style={[styles.bullet, { backgroundColor: colors.primary }]} />
+              <Text style={[styles.instructionText, { color: colors.textSecondary }]}>
+                Mỗi bảng có {league?.groupSettings?.teamsPerGroup} đội
+              </Text>
+            </View>
+            <View style={styles.instructionItem}>
+              <View style={[styles.bullet, { backgroundColor: colors.primary }]} />
+              <Text style={[styles.instructionText, { color: colors.textSecondary }]}>
+                Phân bổ ngẫu nhiên đảm bảo công bằng
+              </Text>
+            </View>
+          </View>
         </View>
 
-        <TouchableOpacity
-          style={[
-            styles.button,
-            { backgroundColor: colors.primary },
-            !canAssign && styles.buttonDisabled
-          ]}
-          onPress={handleAssign}
-          disabled={!canAssign || assignMutation.isPending}
-        >
-          <Text style={styles.buttonText}>
-            {assignMutation.isPending ? 'Đang phân bảng...' : 'Phân bảng tự động'}
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.actions}>
+          <TouchableOpacity
+            style={[
+              styles.button,
+              styles.buttonPrimary,
+              { backgroundColor: colors.primary },
+              !canAssign && styles.buttonDisabled
+            ]}
+            onPress={handleAssign}
+            disabled={!canAssign || assignMutation.isPending}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.buttonText}>
+              {assignMutation.isPending ? 'Đang xử lý...' : 'Phân bảng tự động'}
+            </Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[
-            styles.button,
-            styles.buttonSecondary,
-            { borderColor: colors.lose }
-          ]}
-          onPress={handleReset}
-          disabled={resetMutation.isPending}
-        >
-          <Text style={[styles.buttonTextSecondary, { color: colors.lose }]}>
-            {resetMutation.isPending ? 'Đang reset...' : 'Reset phân bảng'}
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.button,
+              styles.buttonSecondary,
+              { borderColor: colors.lose }
+            ]}
+            onPress={handleReset}
+            disabled={resetMutation.isPending}
+            activeOpacity={0.8}
+          >
+            <Text style={[styles.buttonSecondaryText, { color: colors.lose }]}>
+              {resetMutation.isPending ? 'Đang xử lý...' : 'Reset phân bảng'}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </>
   );
@@ -185,73 +213,174 @@ export default function AssignGroupsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: 16,
   },
-  info: {
-    borderRadius: 12,
+  infoCard: {
+    borderRadius: 16,
     padding: 20,
-    marginBottom: 20,
+    marginBottom: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
   },
-  infoTitle: {
+  cardTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 15,
+    fontWeight: '700',
+    marginBottom: 20,
+    letterSpacing: 0.2,
   },
-  infoRow: {
+  infoGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'space-around',
   },
-  infoLabel: {
-    fontSize: 15,
+  infoItem: {
+    alignItems: 'center',
+    flex: 1,
   },
   infoValue: {
+    fontSize: 28,
+    fontWeight: '700',
+    marginBottom: 6,
+  },
+  infoLabel: {
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  divider: {
+    width: 1,
+    height: 40,
+    marginHorizontal: 8,
+  },
+  statusCard: {
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.06,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 1,
+      },
+    }),
+  },
+  statusRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  statusLabel: {
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '500',
+  },
+  statusValue: {
+    fontSize: 18,
+    fontWeight: '700',
+    letterSpacing: 0.2,
   },
   warning: {
-    padding: 12,
-    borderRadius: 8,
-    marginTop: 15,
+    padding: 14,
+    borderRadius: 10,
+    marginTop: 14,
+    borderLeftWidth: 4,
   },
   warningText: {
     fontSize: 14,
-    textAlign: 'center',
+    lineHeight: 20,
+    fontWeight: '500',
   },
-  instructions: {
-    marginBottom: 30,
+  instructionsCard: {
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 24,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.06,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 1,
+      },
+    }),
   },
   instructionsTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 10,
+    fontWeight: '700',
+    marginBottom: 16,
+    letterSpacing: 0.1,
   },
-  instructionsText: {
+  instructionsList: {
+    gap: 12,
+  },
+  instructionItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  bullet: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginTop: 6,
+  },
+  instructionText: {
+    flex: 1,
     fontSize: 14,
-    lineHeight: 22,
+    lineHeight: 20,
+  },
+  actions: {
+    gap: 12,
+    paddingBottom: 16,
   },
   button: {
-    height: 50,
-    borderRadius: 8,
+    height: 56,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 15,
+  },
+  buttonPrimary: {
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 6,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
   },
   buttonDisabled: {
     opacity: 0.5,
   },
   buttonSecondary: {
     backgroundColor: 'transparent',
-    borderWidth: 1,
+    borderWidth: 2,
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
+    letterSpacing: 0.3,
   },
-  buttonTextSecondary: {
+  buttonSecondaryText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
+    letterSpacing: 0.2,
   },
 });

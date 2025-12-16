@@ -21,7 +21,10 @@ function RootLayoutNav() {
   const router = useRouter();
 
   useEffect(() => {
-    if (loading) return;
+    if (loading) {
+      console.log('🔄 _layout: Still loading auth...');
+      return;
+    }
 
     const inAuthGroup = segments[0] === '(auth)';
     const inTabsGroup = segments[0] === '(tabs)';
@@ -35,15 +38,27 @@ function RootLayoutNav() {
       segments[0] === 'match' || 
       (inTabsGroup && currentTab === 'index'); 
 
+    console.log('🧭 _layout Navigation Check:', {
+      hasUser: !!user,
+      segments: segments.join('/'),
+      inAuthGroup,
+      isPublicRoute,
+    });
+
     if (!segments[0]) {
+      console.log('➡️ _layout: No segment, redirecting to /(tabs)');
       router.replace('/(tabs)');
       return;
     }
 
     if (!user && !inAuthGroup && !isPublicRoute) {
+      console.log('🔒 _layout: No user and private route, redirecting to /login');
       router.replace('/login');
     } else if (user && inAuthGroup) {
+      console.log('✅ _layout: User logged in but on auth screen, redirecting to /(tabs)');
       router.replace('/(tabs)');
+    } else {
+      console.log('✅ _layout: Navigation OK, staying on current route');
     }
   }, [user, loading, segments, router]);
 

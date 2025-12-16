@@ -57,7 +57,7 @@ export default function AccessPrivateLeagueScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.card, { backgroundColor: colors.card }]}>
         <View style={[styles.iconContainer, { backgroundColor: colors.primary + '20' }]}>
-          <Ionicons name="link" size={48} color={colors.primary} />
+          <Ionicons name="link" size={40} color={colors.primary} />
         </View>
         
         <Text style={[styles.title, { color: colors.text }]}>Truy cập giải riêng tư</Text>

@@ -1,9 +1,10 @@
+import { Ionicons } from '@expo/vector-icons';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, StatusBar } from 'react-native';
 import * as yup from 'yup';
 import { authService } from '../../services/auth';
 
@@ -12,7 +13,6 @@ const registerSchema = yup.object({
     .string()
     .min(3, 'Tên người dùng phải có ít nhất 3 ký tự')
     .max(30, 'Tên người dùng không được quá 30 ký tự')
-    .matches(/^[a-zA-Z0-9_]+$/, 'Tên người dùng chỉ được chứa chữ, số và dấu gạch dưới')
     .required('Tên người dùng là bắt buộc'),
   email: yup
     .string()
@@ -63,7 +63,7 @@ export default function RegisterScreen() {
         password: data.password,
       });
       Alert.alert(
-        'Đăng ký thành công! 🎉',
+        'Đăng ký thành công!',
         'Tài khoản của bạn đã được tạo. Vui lòng đăng nhập để tiếp tục.',
         [{ text: 'Đăng nhập ngay', onPress: () => router.replace('/login') }]
       );
@@ -79,6 +79,8 @@ export default function RegisterScreen() {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <StatusBar barStyle="light-content" />
+      
       <LinearGradient
         colors={['#B91C3C', '#DC2626']}
         style={styles.header}
@@ -86,11 +88,15 @@ export default function RegisterScreen() {
         end={{ x: 1, y: 1 }}>
 
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.backIcon}>←</Text>
+          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
 
         <View style={styles.logoContainer}>
-          <Text style={styles.footballIcon}>⚽</Text>
+          <Image 
+            source={require('../../assets/images/icon.png')} 
+            style={styles.logoImage}
+            resizeMode="cover"
+          />
         </View>
 
         <Text style={styles.pageTitle}>Tạo tài khoản</Text>
@@ -101,33 +107,33 @@ export default function RegisterScreen() {
         <View style={styles.formCard}>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Username</Text>
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputIcon}>👤</Text>
+            <Text style={styles.inputLabel}>Tên người dùng</Text>
+            <View style={[styles.inputContainer, errors.username && styles.inputError]}>
+              <Ionicons name="person-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
               <Controller
                 control={control}
                 name="username"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
                     style={styles.textInput}
-                    placeholder="johndoe"
+                    placeholder="Anh Tuấn"
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}
-                    autoCapitalize="none"
+                    autoCapitalize="words"
                     placeholderTextColor="#9CA3AF"
                   />
                 )}
               />
             </View>
-            <Text style={styles.hintText}>3-30 ký tự, chỉ chữ cái, số, dấu gạch dưới</Text>
+            <Text style={styles.hintText}>3-30 ký tự, có thể chứa chữ cái, số, dấu cách</Text>
             {errors.username && <Text style={styles.errorText}>{errors.username.message}</Text>}
           </View>
 
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Email</Text>
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputIcon}>✉️</Text>
+            <View style={[styles.inputContainer, errors.email && styles.inputError]}>
+              <Ionicons name="mail-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
               <Controller
                 control={control}
                 name="email"
@@ -150,8 +156,8 @@ export default function RegisterScreen() {
 
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Mật khẩu</Text>
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputIcon}>🔒</Text>
+            <View style={[styles.inputContainer, errors.password && styles.inputError]}>
+              <Ionicons name="lock-closed-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
               <Controller
                 control={control}
                 name="password"
@@ -168,17 +174,21 @@ export default function RegisterScreen() {
                 )}
               />
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                <Text style={styles.eyeIcon}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
+                <Ionicons 
+                  name={showPassword ? "eye-outline" : "eye-off-outline"} 
+                  size={20} 
+                  color="#9CA3AF" 
+                />
               </TouchableOpacity>
             </View>
-            <Text style={styles.hintText}>Tối thiểu 8 ký tự, có chữ thường, chữ hoa, số và ký tự @ (bắt buộc)</Text>
+            <Text style={styles.hintText}>Tối thiểu 8 ký tự, có chữ thường, chữ hoa, số và ký tự đặc biệt</Text>
             {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
           </View>
 
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Xác nhận mật khẩu</Text>
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputIcon}>🔒</Text>
+            <View style={[styles.inputContainer, errors.confirmPassword && styles.inputError]}>
+              <Ionicons name="lock-closed-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
               <Controller
                 control={control}
                 name="confirmPassword"
@@ -195,14 +205,18 @@ export default function RegisterScreen() {
                 )}
               />
               <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
-                <Text style={styles.eyeIcon}>{showConfirmPassword ? '👁️' : '👁️‍🗨️'}</Text>
+                <Ionicons 
+                  name={showConfirmPassword ? "eye-outline" : "eye-off-outline"} 
+                  size={20} 
+                  color="#9CA3AF" 
+                />
               </TouchableOpacity>
             </View>
             {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword.message}</Text>}
           </View>
 
           <TouchableOpacity
-            style={[styles.registerButton, isLoading && styles.registerButtonDisabled]}
+            style={[styles.registerButton, isLoading && styles.buttonDisabled]}
             onPress={handleSubmit(onSubmit)}
             disabled={isLoading}>
             <LinearGradient
@@ -213,6 +227,7 @@ export default function RegisterScreen() {
               <Text style={styles.registerButtonText}>
                 {isLoading ? 'Đang tạo tài khoản...' : 'Đăng ký'}
               </Text>
+              {!isLoading && <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />}
             </LinearGradient>
           </TouchableOpacity>
 
@@ -237,63 +252,57 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingTop: 60,
-    paddingBottom: 40,
+    paddingBottom: 50,
     paddingHorizontal: 24,
     alignItems: 'center',
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
     position: 'relative',
   },
   backButton: {
     position: 'absolute',
     top: 60,
-    left: 24,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    left: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  backIcon: {
-    fontSize: 20,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
   },
   logoContainer: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
-    borderWidth: 3,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    marginBottom: 16,
+    overflow: 'hidden',
   },
-  footballIcon: {
-    fontSize: 50,
+  logoImage: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
   },
   pageTitle: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: '#FFFFFF',
     marginBottom: 4,
   },
   pageSubtitle: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.85)',
     textAlign: 'center',
   },
   formContainer: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingTop: 20,
     paddingBottom: 40,
+    marginTop: -30,
   },
   formCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
+    borderRadius: 24,
     padding: 24,
     shadowColor: '#000',
     shadowOffset: {
@@ -301,14 +310,14 @@ const styles = StyleSheet.create({
       height: 4,
     },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowRadius: 12,
     elevation: 8,
   },
   inputGroup: {
     marginBottom: 20,
   },
   inputLabel: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#374151',
     marginBottom: 8,
@@ -319,33 +328,31 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB',
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderWidth: 1,
+    paddingVertical: 14,
+    borderWidth: 1.5,
     borderColor: '#E5E7EB',
   },
+  inputError: {
+    borderColor: '#DC2626',
+  },
   inputIcon: {
-    fontSize: 20,
     marginRight: 12,
   },
   textInput: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 15,
     color: '#1F2937',
-    paddingVertical: 4,
-  },
-  eyeIcon: {
-    fontSize: 20,
-    marginLeft: 8,
+    paddingVertical: 0,
   },
   hintText: {
     fontSize: 12,
     color: '#9CA3AF',
-    marginTop: 4,
+    marginTop: 6,
   },
   errorText: {
     fontSize: 12,
     color: '#DC2626',
-    marginTop: 4,
+    marginTop: 6,
   },
   registerButton: {
     borderRadius: 12,
@@ -353,17 +360,19 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 20,
   },
-  registerButtonDisabled: {
+  buttonDisabled: {
     opacity: 0.6,
   },
   buttonGradient: {
     paddingVertical: 16,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 8,
   },
   registerButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '700',
     color: '#FFFFFF',
   },
   loginContainer: {

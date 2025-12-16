@@ -66,7 +66,7 @@ export default function FavoritesScreen() {
         
         <View style={styles.headerTop}>
           <View style={styles.headerLeft}>
-            <Text style={styles.headerTitle}>⭐ Giải Quan Tâm</Text>
+            <Text style={styles.headerTitle}>Giải Quan Tâm</Text>
             <Text style={styles.headerSubtitle}>
               {favorites.length > 0 
                 ? `${favorites.length} giải đấu` 
@@ -126,11 +126,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: 60,
+    paddingTop: 50,
     paddingBottom: 20,
     paddingHorizontal: 20,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   headerTop: {
     flexDirection: 'row',
@@ -162,6 +162,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 2,
     borderColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
+    overflow: 'hidden',
   },
   avatarText: {
     fontSize: 18,
@@ -181,7 +187,7 @@ const styles = StyleSheet.create({
     padding: 40,
   },
   emptyIcon: {
-    fontSize: 80,
+    fontSize: 100,
     marginBottom: 20,
   },
   emptyTitle: {

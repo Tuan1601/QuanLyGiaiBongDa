@@ -61,14 +61,17 @@ api.interceptors.response.use(
 
     // Handle 401 Unauthorized - Try to refresh token
     if (error.response?.status === 401 && !originalRequest._retry) {
+      console.log('🔄 Got 401, attempting token refresh for URL:', originalRequest.url);
       originalRequest._retry = true;
 
       try {
         const refreshToken = await AsyncStorage.getItem('refreshToken');
         if (!refreshToken) {
+          console.log('❌ No refresh token found');
           throw new Error('No refresh token');
         }
 
+        console.log('🔄 Calling refresh token API...');
         const response = await axios.post(`${BASE_URL}/user/refresh`, {
           refreshToken,
         });
@@ -76,20 +79,28 @@ api.interceptors.response.use(
         const { accessToken, refreshToken: newRefreshToken } = response.data.tokens;
         await AsyncStorage.setItem('accessToken', accessToken);
         await AsyncStorage.setItem('refreshToken', newRefreshToken);
+        console.log('✅ Token refreshed successfully');
 
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
+        console.log('❌ Token refresh failed:', refreshError);
         await AsyncStorage.multiRemove(['accessToken', 'refreshToken']);
-        console.log('Refresh failed, user logged out');
-        return Promise.reject(new Error('Authentication failed'));
+        console.log('🚪 Tokens cleared - user will be logged out');
+        
+        // Create a more descriptive error for the user
+        const authError = new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+        authError.name = 'AuthenticationError';
+        return Promise.reject(authError);
       }
     }
 
     // Handle 403 Forbidden
     if (error.response?.status === 403) {
+      console.log('❌ Got 403 Forbidden for URL:', originalRequest.url);
+      console.log('403 Response data:', error.response?.data);
       await AsyncStorage.multiRemove(['accessToken', 'refreshToken']);
-      console.log('Access forbidden, clearing tokens');
+      console.log('🚪 Tokens cleared due to 403');
       return Promise.reject(new Error('Access forbidden'));
     }
 

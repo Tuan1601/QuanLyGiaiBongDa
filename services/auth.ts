@@ -53,10 +53,15 @@ export const authService = {
   // PATCH /user/update-profile
   updateProfile: async (formData: FormData) => {
     const response = await api.patch('/user/update-profile', formData);
-    return response.data;
+    // API returns: { message: "...", infoUser: {...} } or { message: "...", user: {...} }
+    // Need to return the user object, not the whole response
+    return {
+      user: response.data.infoUser || response.data.user,
+      message: response.data.message
+    };
   },
 
-  // PATCH /user/change-password
+  // PUT /user/change-password
   changePassword: async (data: {
     currentPassword: string;
     newPassword: string;
@@ -69,6 +74,28 @@ export const authService = {
   deleteAccount: async (password: string) => {
     const response = await api.delete('/user/delete-account', {
       data: { password },
+    });
+    return response.data;
+  },
+
+  // POST /auth/forgot-password - Send OTP to email
+  sendOTP: async (email: string) => {
+    const response = await api.post('/auth/forgot-password', { email });
+    return response.data;
+  },
+
+  // POST /auth/verify-otp - Verify OTP and get resetToken
+  verifyOTP: async (email: string, otp: string) => {
+    const response = await api.post('/auth/verify-otp', { email, otp });
+    return response.data;
+  },
+
+  // POST /auth/reset-password - Reset password with resetToken
+  resetPassword: async (email: string, resetToken: string, newPassword: string) => {
+    const response = await api.post('/auth/reset-password', { 
+      email, 
+      resetToken, 
+      newPassword 
     });
     return response.data;
   },

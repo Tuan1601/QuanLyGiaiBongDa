@@ -88,14 +88,14 @@ export default function TeamsListScreen() {
                   onPress={handleAssignGroups}
                   style={[styles.headerButton, { marginRight: 10 }]}
                 >
-                  <Ionicons name="grid-outline" size={24} color={colors.primary} />
+                  <Ionicons name="grid-outline" size={22} color={colors.primary} />
                 </TouchableOpacity>
               )}
               <TouchableOpacity
                 onPress={() => router.push(`/league/${id}/add-team`)}
                 style={styles.headerButton}
               >
-                <Ionicons name="add" size={28} color={colors.primary} />
+                <Ionicons name="add" size={24} color={colors.primary} />
               </TouchableOpacity>
             </View>
           ) : null,
@@ -209,7 +209,9 @@ export default function TeamsListScreen() {
           contentContainerStyle={styles.list}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Ionicons name="people-outline" size={60} color={colors.textSecondary} />
+              <View style={[styles.emptyIconContainer, { backgroundColor: colors.border }]}>
+                <Ionicons name="people-outline" size={32} color={colors.textSecondary} />
+              </View>
               <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
                 {isLoading ? 'Đang tải...' : 
                  error ? 'Không thể tải danh sách đội. Vui lòng thử lại.' : 
@@ -312,6 +314,14 @@ const styles = StyleSheet.create({
   emptyContainer: {
     alignItems: 'center',
     marginTop: 100,
+  },
+  emptyIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
   },
   emptyText: {
     fontSize: 16,

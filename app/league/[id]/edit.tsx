@@ -153,14 +153,13 @@ export default function EditLeagueScreen() {
       <Stack.Screen
         options={{
           headerShown: true,
-          headerTitle: 'Chỉnh sửa thông tin',
+          headerTitle: 'Chỉnh Sửa Giải Đấu',
           headerStyle: { backgroundColor: colors.background },
           headerTintColor: colors.text,
         }}
       />
       
       <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
-        {/* Logo Section */}
         <View style={[styles.logoSection, { backgroundColor: colors.card }]}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Logo giải đấu</Text>
           
@@ -169,7 +168,7 @@ export default function EditLeagueScreen() {
               <Image source={{ uri: league.logo }} style={styles.logo} />
             ) : (
               <View style={[styles.logoPlaceholder, { backgroundColor: colors.border }]}>
-                <Ionicons name="trophy-outline" size={40} color={colors.textSecondary} />
+                <Ionicons name="trophy-outline" size={36} color={colors.textSecondary} />
               </View>
             )}
             
@@ -178,14 +177,11 @@ export default function EditLeagueScreen() {
                 style={[styles.logoButton, { backgroundColor: colors.primary }]}
                 onPress={handleChangeLogo}
                 disabled={logoUploading}
+                activeOpacity={0.8}
               >
-                <Ionicons 
-                  name={logoUploading ? "hourglass" : "camera"} 
-                  size={16} 
-                  color="#fff" 
-                />
+                {!logoUploading && <Ionicons name="camera" size={18} color="#fff" />}
                 <Text style={styles.logoButtonText}>
-                  {logoUploading ? 'Đang tải...' : 'Thay đổi'}
+                  {logoUploading ? 'Đang tải lên...' : league?.logo ? 'Thay đổi logo' : 'Chọn logo'}
                 </Text>
               </TouchableOpacity>
               
@@ -193,9 +189,10 @@ export default function EditLeagueScreen() {
                 <TouchableOpacity
                   style={[styles.logoButton, styles.logoButtonSecondary, { borderColor: colors.lose }]}
                   onPress={handleRemoveLogo}
+                  activeOpacity={0.8}
                 >
-                  <Ionicons name="trash-outline" size={16} color={colors.lose} />
-                  <Text style={[styles.logoButtonText, { color: colors.lose }]}>Xóa</Text>
+                  <Ionicons name="trash-outline" size={18} color={colors.lose} />
+                  <Text style={[styles.logoButtonText, { color: colors.lose }]}>Xóa logo</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -311,22 +308,22 @@ export default function EditLeagueScreen() {
         <View style={[styles.infoSection, { backgroundColor: colors.card }]}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Thông tin giải đấu</Text>
           
-          <View style={styles.infoGrid}>
-            <View style={styles.infoItem}>
+          <View style={styles.infoList}>
+            <View style={[styles.infoRow, { borderBottomColor: colors.border }]}>
               <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Thể thức</Text>
               <Text style={[styles.infoValue, { color: colors.text }]}>
                 {league?.type === 'round-robin' ? 'Vòng tròn' : 'Chia bảng'}
               </Text>
             </View>
             
-            <View style={styles.infoItem}>
+            <View style={[styles.infoRow, { borderBottomColor: colors.border }]}>
               <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Số đội</Text>
               <Text style={[styles.infoValue, { color: colors.text }]}>
                 {league?.numberOfTeams}
               </Text>
             </View>
             
-            <View style={styles.infoItem}>
+            <View style={[styles.infoRow, { borderBottomColor: colors.border }]}>
               <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Trạng thái</Text>
               <Text style={[styles.infoValue, { color: colors.text }]}>
                 {league?.tournamentStatus === 'upcoming' ? 'Sắp diễn ra' :
@@ -334,7 +331,7 @@ export default function EditLeagueScreen() {
               </Text>
             </View>
             
-            <View style={styles.infoItem}>
+            <View style={[styles.infoRow, { borderBottomWidth: 0 }]}>
               <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Hiển thị</Text>
               <Text style={[styles.infoValue, { color: colors.text }]}>
                 {league?.visibility === 'public' ? 'Công khai' : 'Riêng tư'}
@@ -342,9 +339,12 @@ export default function EditLeagueScreen() {
             </View>
           </View>
           
-          <Text style={[styles.infoNote, { color: colors.textSecondary }]}>
-            * Thể thức và số đội không thể thay đổi sau khi tạo giải đấu
-          </Text>
+          <View style={[styles.infoNote, { backgroundColor: colors.border + '30' }]}>
+            <Ionicons name="information-circle-outline" size={16} color={colors.textSecondary} />
+            <Text style={[styles.infoNoteText, { color: colors.textSecondary }]}>
+              Thể thức và số đội không thể thay đổi sau khi tạo
+            </Text>
+          </View>
         </View>
 
         <View style={styles.submitSection}>
@@ -378,9 +378,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 15,
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 16,
+    letterSpacing: 0.2,
+  },
+  sectionSubtitle: {
+    fontSize: 14,
+    marginBottom: 16,
+    lineHeight: 20,
   },
   logoContainer: {
     alignItems: 'center',
@@ -394,10 +400,10 @@ const styles = StyleSheet.create({
   logoPlaceholder: {
     width: 100,
     height: 100,
-    borderRadius: 12,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 16,
   },
   logoActions: {
     flexDirection: 'row',
@@ -406,9 +412,9 @@ const styles = StyleSheet.create({
   logoButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 10,
     gap: 6,
   },
   logoButtonSecondary: {
@@ -417,8 +423,9 @@ const styles = StyleSheet.create({
   },
   logoButtonText: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
+    letterSpacing: 0.1,
   },
   form: {
     padding: 20,
@@ -428,26 +435,37 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 20,
   },
-  infoGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 15,
+  infoList: {
+    marginTop: 16,
   },
-  infoItem: {
-    width: '48%',
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 14,
+    borderBottomWidth: 1,
   },
   infoLabel: {
-    fontSize: 12,
-    marginBottom: 4,
+    fontSize: 15,
+    fontWeight: '500',
   },
   infoValue: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
+    letterSpacing: 0.1,
   },
   infoNote: {
-    fontSize: 12,
-    marginTop: 15,
-    fontStyle: 'italic',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 10,
+    marginTop: 20,
+    gap: 8,
+  },
+  infoNoteText: {
+    flex: 1,
+    fontSize: 13,
+    lineHeight: 18,
   },
   submitSection: {
     padding: 20,

@@ -73,7 +73,7 @@ export default function StatisticsScreen() {
       <Stack.Screen
         options={{
           headerShown: true,
-          headerTitle: 'Thống kê',
+          headerTitle: 'Thống Kê',
           headerStyle: { backgroundColor: colors.background },
           headerTintColor: colors.text,
         }}
@@ -112,7 +112,7 @@ export default function StatisticsScreen() {
 
         {sortedStats?.topScorers && sortedStats.topScorers.length > 0 && (
           <View style={[styles.section, { borderBottomColor: colors.card }]}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>🔥 Tấn công tốt nhất</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Tấn công tốt nhất</Text>
             {sortedStats.topScorers.map((item: any, index: number) => (
               <TopTeamCard
                 key={item.team._id}
@@ -128,7 +128,7 @@ export default function StatisticsScreen() {
 
         {sortedStats?.bestDefense && sortedStats.bestDefense.length > 0 && (
           <View style={[styles.section, { borderBottomColor: colors.card }]}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>🛡️ Phòng thủ tốt nhất</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Phòng thủ tốt nhất</Text>
             {sortedStats.bestDefense.map((item: any, index: number) => (
               <TopTeamCard
                 key={item.team._id}
@@ -144,7 +144,7 @@ export default function StatisticsScreen() {
 
         {sortedStats?.bestForm && sortedStats.bestForm.length > 0 && (
           <View style={[styles.section, { borderBottomColor: colors.card }]}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>📈 Phong độ tốt nhất</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Phong độ tốt nhất</Text>
             {sortedStats.bestForm.map((item: any, index: number) => (
               <TopTeamCard
                 key={item.team._id}

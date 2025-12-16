@@ -44,6 +44,7 @@ export default function ProfileScreen() {
 
     if (!result.canceled) {
       setUploading(true);
+      console.log('📸 Profile: Starting avatar upload...');
       try {
         const formData = new FormData();
         formData.append('avatar', {
@@ -52,13 +53,19 @@ export default function ProfileScreen() {
           name: 'avatar.jpg',
         } as any);
 
+        console.log('📤 Profile: Calling updateProfile API...');
         const response = await authService.updateProfile(formData);
+        console.log('✅ Profile: API response received:', response);
+        console.log('👤 Profile: Updating user state with:', response.user);
         updateUser(response.user);
+        console.log('🎉 Profile: User state updated successfully');
         Alert.alert('Thành công', 'Cập nhật avatar thành công');
       } catch (error: any) {
+        console.error('❌ Profile: Avatar update failed:', error);
         Alert.alert('Lỗi', error.response?.data?.message || 'Không thể cập nhật avatar');
       } finally {
         setUploading(false);
+        console.log('🏁 Profile: Avatar upload process finished');
       }
     }
   };

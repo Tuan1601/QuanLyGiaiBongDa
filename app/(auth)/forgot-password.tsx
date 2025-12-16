@@ -1,72 +1,140 @@
+import { Ionicons } from '@expo/vector-icons';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, StatusBar } from 'react-native';
 import * as yup from 'yup';
+import { authService } from '../../services/auth';
 
-const forgotPasswordSchema = yup.object({
+const emailSchema = yup.object({
   email: yup
     .string()
     .email('Email không hợp lệ')
     .required('Email là bắt buộc'),
 });
 
-type ForgotPasswordForm = yup.InferType<typeof forgotPasswordSchema>;
+const otpSchema = yup.object({
+  otp: yup
+    .string()
+    .length(6, 'OTP phải có 6 chữ số')
+    .required('OTP là bắt buộc'),
+});
+
+const passwordSchema = yup.object({
+  newPassword: yup
+    .string()
+    .min(6, 'Mật khẩu phải có ít nhất 6 ký tự')
+    .required('Mật khẩu là bắt buộc'),
+  confirmPassword: yup
+    .string()
+    .oneOf([yup.ref('newPassword')], 'Mật khẩu không khớp')
+    .required('Xác nhận mật khẩu là bắt buộc'),
+});
+
+type EmailForm = yup.InferType<typeof emailSchema>;
+type OTPForm = yup.InferType<typeof otpSchema>;
+type PasswordForm = yup.InferType<typeof passwordSchema>;
 
 export default function ForgotPasswordScreen() {
+  const router = useRouter();
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [isEmailSent, setIsEmailSent] = useState(false);
+  const [email, setEmail] = useState('');
+  const [resetToken, setResetToken] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-    getValues,
-  } = useForm<ForgotPasswordForm>({
-    resolver: yupResolver(forgotPasswordSchema),
-    defaultValues: {
-      email: '',
-    },
+  const emailForm = useForm<EmailForm>({
+    resolver: yupResolver(emailSchema),
+    defaultValues: { email: '' },
   });
 
-  const onSubmit = async (data: ForgotPasswordForm) => {
+  const otpForm = useForm<OTPForm>({
+    resolver: yupResolver(otpSchema),
+    defaultValues: { otp: '' },
+  });
+
+  const passwordForm = useForm<PasswordForm>({
+    resolver: yupResolver(passwordSchema),
+    defaultValues: { newPassword: '', confirmPassword: '' },
+  });
+
+  const handleSendOTP = async (data: EmailForm) => {
     setIsLoading(true);
     try {
-      console.log('Forgot password data:', data);
-      
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      setIsEmailSent(true);
-    } catch {
-      Alert.alert('Lỗi', 'Có lỗi xảy ra. Vui lòng thử lại.');
+      const response = await authService.sendOTP(data.email);
+      setEmail(data.email);
+      Alert.alert('Thành công', response.message || 'Đã gửi mã OTP đến email của bạn!');
+      setStep(2);
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Không thể gửi OTP. Vui lòng thử lại.';
+      Alert.alert('Lỗi', errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleResendEmail = async () => {
-    const email = getValues('email');
-    if (!email) return;
-    
+  const handleVerifyOTP = async (data: OTPForm) => {
     setIsLoading(true);
     try {
-      console.log('Resend email to:', email);
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      Alert.alert('Thành công', 'Email đã được gửi lại.');
-    } catch {
-      Alert.alert('Lỗi', 'Có lỗi xảy ra khi gửi lại email.');
+      const response = await authService.verifyOTP(email, data.otp);
+      setResetToken(response.resetToken);
+      Alert.alert('Thành công', response.message || 'Xác minh OTP thành công!');
+      setStep(3);
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'OTP không hợp lệ hoặc đã hết hạn.';
+      Alert.alert('Lỗi', errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (isEmailSent) {
+  const handleResetPassword = async (data: PasswordForm) => {
+    setIsLoading(true);
+    try {
+      const response = await authService.resetPassword(email, resetToken, data.newPassword);
+      Alert.alert(
+        'Thành công',
+        response.message || 'Đặt lại mật khẩu thành công!',
+        [{ text: 'OK', onPress: () => router.replace('/(auth)/login') }]
+      );
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Không thể đặt lại mật khẩu.';
+      Alert.alert('Lỗi', errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendOTP = async () => {
+    setIsLoading(true);
+    try {
+      await authService.sendOTP(email);
+      Alert.alert('Thành công', 'Đã gửi lại mã OTP!');
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Không thể gửi lại OTP.';
+      Alert.alert('Lỗi', errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleBackToEmail = () => {
+    setStep(1);
+    setEmail('');
+    setResetToken('');
+    otpForm.reset();
+    passwordForm.reset();
+  };
+
+
+  if (step === 1) {
     return (
       <View style={styles.container}>
+        <StatusBar barStyle="light-content" />
+        
         <LinearGradient
           colors={['#B91C3C', '#DC2626']}
           style={styles.header}
@@ -74,98 +142,288 @@ export default function ForgotPasswordScreen() {
           end={{ x: 1, y: 1 }}>
           
           <View style={styles.logoContainer}>
-            <Text style={styles.emailIcon}>📧</Text>
+            <Image 
+              source={require('../../assets/images/icon.png')} 
+              style={styles.logoImage}
+              resizeMode="cover"
+            />
           </View>
           
-          <Text style={styles.appTitle}>Kiểm tra email</Text>
-          <Text style={styles.appSubtitle}>Chúng tôi đã gửi hướng dẫn đặt lại mật khẩu</Text>
+          <Text style={styles.appTitle}>Quên mật khẩu</Text>
+          <Text style={styles.appSubtitle}>Nhập email để nhận mã OTP</Text>
         </LinearGradient>
 
         <View style={styles.formContainer}>
           <View style={styles.formCard}>
-            <View style={styles.emailSentContainer}>
-              <Text style={styles.emailSentText}>📧 Email đã được gửi đến:</Text>
-              <Text style={styles.emailText}>{getValues('email')}</Text>
-            </View>
-
-            <View style={styles.instructions}>
-              <Text style={styles.instructionText}>• Kiểm tra hộp thư đến của bạn</Text>
-              <Text style={styles.instructionText}>• Nếu không thấy email, hãy kiểm tra thư mục spam</Text>
-              <Text style={styles.instructionText}>• Nhấp vào liên kết trong email để đặt lại mật khẩu</Text>
+            
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Email</Text>
+              <View style={[styles.inputContainer, emailForm.formState.errors.email && styles.inputError]}>
+                <Ionicons name="mail-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
+                <Controller
+                  control={emailForm.control}
+                  name="email"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      style={styles.textInput}
+                      placeholder="example@email.com"
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      placeholderTextColor="#9CA3AF"
+                    />
+                  )}
+                />
+              </View>
+              {emailForm.formState.errors.email && (
+                <Text style={styles.errorText}>{emailForm.formState.errors.email.message}</Text>
+              )}
             </View>
 
             <TouchableOpacity
-              style={[styles.resendButton, isLoading && styles.buttonDisabled]}
-              onPress={handleResendEmail}
+              style={[styles.submitButton, isLoading && styles.buttonDisabled]}
+              onPress={emailForm.handleSubmit(handleSendOTP)}
               disabled={isLoading}>
-              <Text style={styles.resendButtonText}>
-                {isLoading ? 'Đang gửi...' : 'Gửi lại email'}
-              </Text>
+              <LinearGradient
+                colors={['#B91C3C', '#DC2626']}
+                style={styles.buttonGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}>
+                <Text style={styles.submitButtonText}>
+                  {isLoading ? 'Đang gửi...' : 'Gửi mã OTP'}
+                </Text>
+                {!isLoading && <Ionicons name="send" size={18} color="#FFFFFF" />}
+              </LinearGradient>
             </TouchableOpacity>
 
-            <Link href="/(auth)/login" asChild>
-              <TouchableOpacity style={styles.backToLoginButton}>
-                <Text style={styles.backToLoginText}>Quay lại đăng nhập</Text>
-              </TouchableOpacity>
-            </Link>
+            <View style={styles.linkContainer}>
+              <Text style={styles.linkText}>Nhớ mật khẩu rồi? </Text>
+              <Link href="/(auth)/login" asChild>
+                <TouchableOpacity>
+                  <Text style={styles.link}>Đăng nhập ngay</Text>
+                </TouchableOpacity>
+              </Link>
+            </View>
           </View>
         </View>
       </View>
     );
   }
 
+  if (step === 2) {
+    return (
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        <StatusBar barStyle="light-content" />
+        
+        <LinearGradient
+          colors={['#B91C3C', '#DC2626']}
+          style={styles.header}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}>
+          
+          <View style={styles.logoContainer}>
+            <Image 
+              source={require('../../assets/images/icon.png')} 
+              style={styles.logoImage}
+              resizeMode="cover"
+            />
+          </View>
+          
+          <Text style={styles.appTitle}>Xác thực OTP</Text>
+          <Text style={styles.appSubtitle}>Nhập mã OTP đã gửi đến email</Text>
+        </LinearGradient>
+
+        <View style={styles.formContainer}>
+          <View style={styles.formCard}>
+            
+            <View style={styles.emailDisplay}>
+              <Ionicons name="mail" size={16} color="#B91C3C" />
+              <Text style={styles.emailDisplayText}>{email}</Text>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Mã OTP</Text>
+              <View style={[styles.inputContainer, otpForm.formState.errors.otp && styles.inputError]}>
+                <Ionicons name="lock-closed-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
+                <Controller
+                  control={otpForm.control}
+                  name="otp"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      style={[styles.textInput, styles.otpInput]}
+                      placeholder="000000"
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      keyboardType="number-pad"
+                      maxLength={6}
+                      placeholderTextColor="#9CA3AF"
+                    />
+                  )}
+                />
+              </View>
+              {otpForm.formState.errors.otp && (
+                <Text style={styles.errorText}>{otpForm.formState.errors.otp.message}</Text>
+              )}
+            </View>
+
+            <View style={styles.infoBox}>
+              <View style={styles.infoRow}>
+                <Ionicons name="time-outline" size={16} color="#3B82F6" />
+                <Text style={styles.infoText}>OTP có hiệu lực trong 3 phút</Text>
+              </View>
+              <View style={styles.infoRow}>
+                <Ionicons name="mail-open-outline" size={16} color="#3B82F6" />
+                <Text style={styles.infoText}>Kiểm tra hộp thư spam nếu không thấy</Text>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={[styles.submitButton, isLoading && styles.buttonDisabled]}
+              onPress={otpForm.handleSubmit(handleVerifyOTP)}
+              disabled={isLoading}>
+              <LinearGradient
+                colors={['#B91C3C', '#DC2626']}
+                style={styles.buttonGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}>
+                <Text style={styles.submitButtonText}>
+                  {isLoading ? 'Đang xác thực...' : 'Xác thực'}
+                </Text>
+                {!isLoading && <Ionicons name="checkmark-circle" size={18} color="#FFFFFF" />}
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.secondaryButton, isLoading && styles.buttonDisabled]}
+              onPress={handleResendOTP}
+              disabled={isLoading}>
+              <Ionicons name="refresh" size={18} color="#B91C3C" />
+              <Text style={styles.secondaryButtonText}>
+                {isLoading ? 'Đang gửi...' : 'Gửi lại mã OTP'}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.backButtonContainer} onPress={handleBackToEmail}>
+              <Ionicons name="arrow-back" size={16} color="#6B7280" />
+              <Text style={styles.backButtonText}>Quay lại</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScrollView>
+    );
+  }
+
   return (
-    <View style={styles.container}>
-      {/* Header với gradient đỏ */}
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <StatusBar barStyle="light-content" />
+      
       <LinearGradient
         colors={['#B91C3C', '#DC2626']}
         style={styles.header}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}>
         
-        {/* Logo key */}
         <View style={styles.logoContainer}>
-          <Text style={styles.keyIcon}>🔑</Text>
+          <Image 
+            source={require('../../assets/images/icon.png')} 
+            style={styles.logoImage}
+            resizeMode="cover"
+          />
         </View>
         
-        {/* Tiêu đề */}
-        <Text style={styles.appTitle}>Quên mật khẩu</Text>
-        <Text style={styles.appSubtitle}>Nhập email để nhận hướng dẫn đặt lại mật khẩu</Text>
+        <Text style={styles.appTitle}>Đặt lại mật khẩu</Text>
+        <Text style={styles.appSubtitle}>Tạo mật khẩu mới cho tài khoản</Text>
       </LinearGradient>
 
-      {/* Form container trắng */}
       <View style={styles.formContainer}>
         <View style={styles.formCard}>
           
-          {/* Email Input */}
+          <View style={styles.emailDisplay}>
+            <Ionicons name="mail" size={16} color="#B91C3C" />
+            <Text style={styles.emailDisplayText}>{email}</Text>
+          </View>
+
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Email</Text>
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputIcon}>✉️</Text>
+            <Text style={styles.inputLabel}>Mật khẩu mới</Text>
+            <View style={[styles.inputContainer, passwordForm.formState.errors.newPassword && styles.inputError]}>
+              <Ionicons name="lock-closed-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
               <Controller
-                control={control}
-                name="email"
+                control={passwordForm.control}
+                name="newPassword"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
                     style={styles.textInput}
-                    placeholder="Nhập email của bạn"
+                    placeholder="Nhập mật khẩu mới"
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
+                    secureTextEntry={!showPassword}
                     placeholderTextColor="#9CA3AF"
                   />
                 )}
               />
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                <Ionicons 
+                  name={showPassword ? "eye-outline" : "eye-off-outline"} 
+                  size={20} 
+                  color="#9CA3AF" 
+                />
+              </TouchableOpacity>
             </View>
-            {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
+            {passwordForm.formState.errors.newPassword && (
+              <Text style={styles.errorText}>{passwordForm.formState.errors.newPassword.message}</Text>
+            )}
           </View>
 
-          {/* Submit Button */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>Xác nhận mật khẩu</Text>
+            <View style={[styles.inputContainer, passwordForm.formState.errors.confirmPassword && styles.inputError]}>
+              <Ionicons name="lock-closed-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
+              <Controller
+                control={passwordForm.control}
+                name="confirmPassword"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    style={styles.textInput}
+                    placeholder="Nhập lại mật khẩu"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    secureTextEntry={!showConfirmPassword}
+                    placeholderTextColor="#9CA3AF"
+                  />
+                )}
+              />
+              <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+                <Ionicons 
+                  name={showConfirmPassword ? "eye-outline" : "eye-off-outline"} 
+                  size={20} 
+                  color="#9CA3AF" 
+                />
+              </TouchableOpacity>
+            </View>
+            {passwordForm.formState.errors.confirmPassword && (
+              <Text style={styles.errorText}>{passwordForm.formState.errors.confirmPassword.message}</Text>
+            )}
+          </View>
+
+          <View style={styles.infoBox}>
+            <View style={styles.infoRow}>
+              <Ionicons name="shield-checkmark-outline" size={16} color="#3B82F6" />
+              <Text style={styles.infoText}>Mật khẩu phải có ít nhất 6 ký tự</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Ionicons name="checkmark-circle-outline" size={16} color="#3B82F6" />
+              <Text style={styles.infoText}>Nên kết hợp chữ hoa, thường và số</Text>
+            </View>
+          </View>
+
           <TouchableOpacity
             style={[styles.submitButton, isLoading && styles.buttonDisabled]}
-            onPress={handleSubmit(onSubmit)}
+            onPress={passwordForm.handleSubmit(handleResetPassword)}
             disabled={isLoading}>
             <LinearGradient
               colors={['#B91C3C', '#DC2626']}
@@ -173,23 +431,23 @@ export default function ForgotPasswordScreen() {
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}>
               <Text style={styles.submitButtonText}>
-                {isLoading ? 'Đang gửi...' : 'Gửi hướng dẫn 📧'}
+                {isLoading ? 'Đang cập nhật...' : 'Đặt lại mật khẩu'}
               </Text>
+              {!isLoading && <Ionicons name="checkmark-done" size={18} color="#FFFFFF" />}
             </LinearGradient>
           </TouchableOpacity>
 
-          {/* Back to Login */}
-          <View style={styles.loginContainer}>
-            <Text style={styles.loginText}>Nhớ mật khẩu rồi? </Text>
+          <View style={styles.linkContainer}>
             <Link href="/(auth)/login" asChild>
-              <TouchableOpacity>
-                <Text style={styles.loginLink}>Đăng nhập ngay</Text>
+              <TouchableOpacity style={styles.backButtonContainer}>
+                <Ionicons name="arrow-back" size={16} color="#B91C3C" />
+                <Text style={styles.link}>Quay lại đăng nhập</Text>
               </TouchableOpacity>
             </Link>
           </View>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -200,48 +458,45 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingTop: 60,
-    paddingBottom: 40,
+    paddingBottom: 50,
     paddingHorizontal: 24,
     alignItems: 'center',
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
   },
   logoContainer: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
-    borderWidth: 3,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    marginBottom: 16,
+    overflow: 'hidden',
   },
-  emailIcon: {
-    fontSize: 50,
-  },
-  keyIcon: {
-    fontSize: 50,
+  logoImage: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
   },
   appTitle: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: '#FFFFFF',
     marginBottom: 4,
   },
   appSubtitle: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.85)',
     textAlign: 'center',
   },
   formContainer: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingTop: 20,
+    paddingBottom: 40,
+    marginTop: -30,
   },
   formCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
+    borderRadius: 24,
     padding: 24,
     shadowColor: '#000',
     shadowOffset: {
@@ -249,14 +504,14 @@ const styles = StyleSheet.create({
       height: 4,
     },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowRadius: 12,
     elevation: 8,
   },
   inputGroup: {
-    marginBottom: 24,
+    marginBottom: 20,
   },
   inputLabel: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#374151',
     marginBottom: 8,
@@ -267,101 +522,124 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB',
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderWidth: 1,
+    paddingVertical: 14,
+    borderWidth: 1.5,
     borderColor: '#E5E7EB',
   },
+  inputError: {
+    borderColor: '#DC2626',
+  },
   inputIcon: {
-    fontSize: 20,
     marginRight: 12,
   },
   textInput: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 15,
     color: '#1F2937',
-    paddingVertical: 4,
+    paddingVertical: 0,
+  },
+  otpInput: {
+    fontSize: 20,
+    fontWeight: '600',
+    letterSpacing: 6,
+    textAlign: 'center',
   },
   errorText: {
     fontSize: 12,
     color: '#DC2626',
-    marginTop: 4,
+    marginTop: 6,
+  },
+  emailDisplay: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: '#FEF2F2',
+    marginBottom: 20,
+  },
+  emailDisplayText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#B91C3C',
+  },
+  infoBox: {
+    backgroundColor: '#EFF6FF',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 20,
+    gap: 10,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  infoText: {
+    fontSize: 13,
+    color: '#1E40AF',
+    flex: 1,
   },
   submitButton: {
     borderRadius: 12,
     overflow: 'hidden',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   buttonDisabled: {
     opacity: 0.6,
   },
   buttonGradient: {
     paddingVertical: 16,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 8,
   },
   submitButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '700',
     color: '#FFFFFF',
   },
-  loginContainer: {
+  secondaryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#B91C3C',
+    paddingVertical: 14,
+    marginBottom: 16,
+    backgroundColor: '#FEF2F2',
+  },
+  secondaryButtonText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#B91C3C',
+  },
+  linkContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  loginText: {
+  linkText: {
     fontSize: 14,
     color: '#6B7280',
   },
-  loginLink: {
+  link: {
     fontSize: 14,
     color: '#B91C3C',
     fontWeight: '600',
   },
-  emailSentContainer: {
+  backButtonContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    padding: 20,
-    borderRadius: 12,
-    backgroundColor: 'rgba(185, 28, 60, 0.1)',
-    marginBottom: 20,
-  },
-  emailSentText: {
-    fontSize: 16,
-    marginBottom: 8,
-    color: '#374151',
-  },
-  emailText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#B91C3C',
-  },
-  instructions: {
-    marginBottom: 20,
-  },
-  instructionText: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginBottom: 8,
-    lineHeight: 20,
-  },
-  resendButton: {
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#B91C3C',
-    paddingVertical: 12,
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  resendButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#B91C3C',
-  },
-  backToLoginButton: {
-    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
     paddingVertical: 8,
   },
-  backToLoginText: {
+  backButtonText: {
     fontSize: 14,
     color: '#6B7280',
   },

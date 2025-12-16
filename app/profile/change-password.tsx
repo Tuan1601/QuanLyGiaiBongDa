@@ -7,6 +7,7 @@ import * as yup from 'yup';
 import { AnimatedInput } from '../../components/ui/animated-input';
 import { Button } from '../../components/ui/button';
 import { Colors } from '../../constants/theme';
+import { useAuth } from '../../contexts/AuthContext';
 import { useColorScheme } from '../../hooks/use-color-scheme';
 import { authService } from '../../services/auth';
 
@@ -25,6 +26,7 @@ const schema = yup.object({
 
 export default function ChangePasswordScreen() {
   const router = useRouter();
+  const { logout } = useAuth();
   const [loading, setLoading] = useState(false);
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
@@ -46,10 +48,19 @@ export default function ChangePasswordScreen() {
         newPassword: data.newPassword,
       });
       
-      Alert.alert('Thành công', 'Đổi mật khẩu thành công', [
-        { text: 'OK', onPress: () => router.back() }
-      ]);
-      reset();
+      Alert.alert(
+        'Thành công', 
+        'Đổi mật khẩu thành công! Vui lòng đăng nhập lại.',
+        [
+          { 
+            text: 'OK', 
+            onPress: async () => {
+              await logout();
+              router.replace('/login' as any);
+            }
+          }
+        ]
+      );
     } catch (error: any) {
       Alert.alert('Lỗi', error.response?.data?.message || 'Không thể đổi mật khẩu');
     } finally {

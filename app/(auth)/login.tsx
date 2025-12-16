@@ -1,9 +1,10 @@
+import { Ionicons } from '@expo/vector-icons';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, StatusBar } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as yup from 'yup';
 import { useAuth } from '../../contexts/AuthContext';
@@ -97,6 +98,8 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
+      
       <LinearGradient
         colors={['#B91C3C', '#DC2626']}
         style={styles.header}
@@ -104,11 +107,15 @@ export default function LoginScreen() {
         end={{ x: 1, y: 1 }}>
         
         <View style={styles.logoContainer}>
-          <Text style={styles.footballIcon}>⚽</Text>
+          <Image 
+            source={require('../../assets/images/icon.png')} 
+            style={styles.logoImage}
+            resizeMode="cover"
+          />
         </View>
         
         <Text style={styles.appTitle}>Bóng Đá Phủi</Text>
-        <Text style={styles.appSubtitle}>Quản lý giải đấu chuyên nghiệp</Text>
+        <Text style={styles.appSubtitle}>Tournament Management System</Text>
       </LinearGradient>
 
       <View style={styles.formContainer}>
@@ -118,15 +125,15 @@ export default function LoginScreen() {
           
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Email</Text>
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputIcon}>✉️</Text>
+            <View style={[styles.inputContainer, errors.email && styles.inputError]}>
+              <Ionicons name="mail-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
               <Controller
                 control={control}
                 name="email"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
                     style={styles.textInput}
-                    placeholder="Tuan123@gmail.com"
+                    placeholder="example@email.com"
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}
@@ -142,8 +149,8 @@ export default function LoginScreen() {
 
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Mật khẩu</Text>
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputIcon}>🔒</Text>
+            <View style={[styles.inputContainer, errors.password && styles.inputError]}>
+              <Ionicons name="lock-closed-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
               <Controller
                 control={control}
                 name="password"
@@ -160,7 +167,11 @@ export default function LoginScreen() {
                 )}
               />
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                <Text style={styles.eyeIcon}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
+                <Ionicons 
+                  name={showPassword ? "eye-outline" : "eye-off-outline"} 
+                  size={20} 
+                  color="#9CA3AF" 
+                />
               </TouchableOpacity>
             </View>
             {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
@@ -169,9 +180,12 @@ export default function LoginScreen() {
           <View style={styles.actionRow}>
             <TouchableOpacity 
               style={styles.rememberContainer}
-              onPress={() => setRememberMe(!rememberMe)}
-            >
-              <Text style={styles.checkIcon}>{rememberMe ? '✅' : '⬜'}</Text>
+              onPress={() => setRememberMe(!rememberMe)}>
+              <Ionicons 
+                name={rememberMe ? "checkbox" : "square-outline"} 
+                size={20} 
+                color={rememberMe ? "#B91C3C" : "#9CA3AF"} 
+              />
               <Text style={styles.rememberText}>Nhớ mật khẩu</Text>
             </TouchableOpacity>
             
@@ -181,7 +195,7 @@ export default function LoginScreen() {
           </View>
 
           <TouchableOpacity
-            style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
+            style={[styles.loginButton, isLoading && styles.buttonDisabled]}
             onPress={handleSubmit(onSubmit)}
             disabled={isLoading}>
             <LinearGradient
@@ -190,12 +204,17 @@ export default function LoginScreen() {
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}>
               <Text style={styles.loginButtonText}>
-                {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập →'}
+                {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
               </Text>
+              {!isLoading && <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />}
             </LinearGradient>
           </TouchableOpacity>
 
-          <Text style={styles.divider}>hoặc</Text>
+          <View style={styles.dividerContainer}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>hoặc</Text>
+            <View style={styles.dividerLine} />
+          </View>
 
           <View style={styles.registerContainer}>
             <Text style={styles.registerText}>Chưa có tài khoản? </Text>
@@ -218,45 +237,44 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingTop: 60,
-    paddingBottom: 40,
+    paddingBottom: 50,
     paddingHorizontal: 24,
     alignItems: 'center',
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
   },
   logoContainer: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
-    borderWidth: 3,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    marginBottom: 16,
+    overflow: 'hidden',
   },
-  footballIcon: {
-    fontSize: 50,
+  logoImage: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
   },
   appTitle: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: '#FFFFFF',
     marginBottom: 4,
   },
   appSubtitle: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.85)',
     textAlign: 'center',
   },
   formContainer: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingTop: 20,
+    marginTop: -30,
   },
   formCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
+    borderRadius: 24,
     padding: 24,
     shadowColor: '#000',
     shadowOffset: {
@@ -264,17 +282,17 @@ const styles = StyleSheet.create({
       height: 4,
     },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowRadius: 12,
     elevation: 8,
   },
   formTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: '#1F2937',
     marginBottom: 4,
   },
   formSubtitle: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#6B7280',
     marginBottom: 24,
   },
@@ -282,7 +300,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   inputLabel: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#374151',
     marginBottom: 8,
@@ -293,28 +311,26 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB',
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderWidth: 1,
+    paddingVertical: 14,
+    borderWidth: 1.5,
     borderColor: '#E5E7EB',
   },
+  inputError: {
+    borderColor: '#DC2626',
+  },
   inputIcon: {
-    fontSize: 20,
     marginRight: 12,
   },
   textInput: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 15,
     color: '#1F2937',
-    paddingVertical: 4,
-  },
-  eyeIcon: {
-    fontSize: 20,
-    marginLeft: 8,
+    paddingVertical: 0,
   },
   errorText: {
     fontSize: 12,
     color: '#DC2626',
-    marginTop: 4,
+    marginTop: 6,
   },
   actionRow: {
     flexDirection: 'row',
@@ -325,10 +341,7 @@ const styles = StyleSheet.create({
   rememberContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  checkIcon: {
-    fontSize: 16,
-    marginRight: 6,
+    gap: 8,
   },
   rememberText: {
     fontSize: 14,
@@ -344,24 +357,35 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginBottom: 20,
   },
-  loginButtonDisabled: {
+  buttonDisabled: {
     opacity: 0.6,
   },
   buttonGradient: {
     paddingVertical: 16,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 8,
   },
   loginButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '700',
     color: '#FFFFFF',
   },
-  divider: {
-    textAlign: 'center',
-    fontSize: 14,
-    color: '#9CA3AF',
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 20,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#E5E7EB',
+  },
+  dividerText: {
+    paddingHorizontal: 12,
+    fontSize: 13,
+    color: '#9CA3AF',
   },
   registerContainer: {
     flexDirection: 'row',
