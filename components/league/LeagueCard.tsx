@@ -1,18 +1,26 @@
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { League } from '../../types/index';
+import { useFavorites } from '@/contexts/FavoritesContext';
+import FavoriteButton from './FavoriteButton';
+import { useToast } from '@/hooks/useToast';
 
 interface LeagueCardProps {
   league: League;
 }
 
-export default function LeagueCard({ league }: LeagueCardProps) {
+function LeagueCard({ league }: LeagueCardProps) {
   const router = useRouter();
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
+
+  const handlePress = useCallback(() => {
+    router.push(`/league/${league._id}` as any);
+  }, [league._id, router]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -32,13 +40,50 @@ export default function LeagueCard({ league }: LeagueCardProps) {
     }
   };
 
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const toast = useToast();
+  const [favoriteLoading, setFavoriteLoading] = React.useState(false);
+
+  const handleFavoritePress = async (e: any) => {
+    e.stopPropagation(); 
+    setFavoriteLoading(true);
+    try {
+      const isNowFavorite = await toggleFavorite({
+        _id: league._id,
+        name: league.name,
+        logo: league.logo,
+        type: league.type,
+        visibility: league.visibility,
+      });
+      toast.showSuccess(
+        isNowFavorite ? 'Đã thêm quan tâm' : 'Đã bỏ quan tâm',
+        league.name
+      );
+    } catch (error) {
+      toast.showError('Lỗi', 'Không thể cập nhật');
+    } finally {
+      setFavoriteLoading(false);
+    }
+  };
+
   return (
     <TouchableOpacity
       style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}
-      onPress={() => router.push(`/league/${league._id}` as any)}>
+      onPress={handlePress}
+      accessible={true}
+      accessibilityRole="button"
+      accessibilityLabel={`Giải đấu ${league.name}`}
+      accessibilityHint="Nhấn để xem chi tiết giải đấu"
+    >
       
       {league.logo && (
-        <Image source={{ uri: league.logo }} style={styles.logo} />
+        <Image 
+          source={{ uri: league.logo }}
+          style={styles.logo}
+          contentFit="cover"
+          transition={200}
+          placeholder={require('@/assets/images/icon.png')}
+        />
       )}
       
       <View style={styles.info}>
@@ -62,9 +107,20 @@ export default function LeagueCard({ league }: LeagueCardProps) {
           </Text>
         </View>
       </View>
+
+
+      <View style={styles.favoriteButton}>
+        <FavoriteButton
+          isFavorite={isFavorite(league._id)}
+          onPress={handleFavoritePress}
+          loading={favoriteLoading}
+        />
+      </View>
     </TouchableOpacity>
   );
 }
+
+export default React.memo(LeagueCard);
 
 const styles = StyleSheet.create({
   card: {
@@ -117,5 +173,11 @@ const styles = StyleSheet.create({
   teams: {
     fontSize: 14,
     fontWeight: '500',
+  },
+  favoriteButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    zIndex: 10,
   },
 });

@@ -27,7 +27,17 @@ export default function TeamDetailScreen() {
   const deleteMutation = useMutation({
     mutationFn: () => teamService.deleteTeam(id as string),
     onSuccess: () => {
+      const leagueId = team?.league?._id;
+      
       queryClient.invalidateQueries({ queryKey: ['teams'] });
+      if (leagueId) {
+        queryClient.invalidateQueries({ queryKey: ['league', leagueId] }); 
+        queryClient.invalidateQueries({ queryKey: ['standings', leagueId] });
+        queryClient.invalidateQueries({ queryKey: ['group-standings', leagueId] });
+        queryClient.invalidateQueries({ queryKey: ['matches', leagueId] }); 
+        queryClient.invalidateQueries({ queryKey: ['statistics', leagueId] });
+      }
+      
       Alert.alert('Thành công', 'Đã xóa đội', [
         { 
           text: 'OK', 
@@ -74,7 +84,7 @@ export default function TeamDetailScreen() {
           headerRight: () => isOwner ? (
             <TouchableOpacity
               onPress={() => router.push(`/team/${id}/edit` as any)}
-              style={{ marginRight: 16 }}
+              style={{ padding:5,marginLeft:3}}
             >
               <Ionicons name="create-outline" size={24} color={colors.primary} />
             </TouchableOpacity>

@@ -30,6 +30,9 @@ export default function EditTeamScreen() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['team', id] });
       queryClient.invalidateQueries({ queryKey: ['teams'] });
+      queryClient.invalidateQueries({ queryKey: ['league'] }); 
+      queryClient.invalidateQueries({ queryKey: ['standings'] }); 
+      queryClient.invalidateQueries({ queryKey: ['group-standings'] }); 
       Alert.alert('Thành công', 'Cập nhật đội thành công', [
         { text: 'OK', onPress: () => router.back() }
       ]);

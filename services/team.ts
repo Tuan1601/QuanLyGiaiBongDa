@@ -32,7 +32,7 @@ export const teamService = {
 
   // PUT /team/:id
   updateTeam: async (id: string, formData: FormData) => {
-    const response = await api.put(`/team/${id}`, formData);
+    const response = await api.patch(`/team/${id}`, formData);
     return response.data;
   },
 

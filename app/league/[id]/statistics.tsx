@@ -17,6 +17,39 @@ export default function StatisticsScreen() {
     queryFn: () => standingsService.getLeagueStats(id as string),
   });
 
+  const calculateFormPoints = (form: any): number => {
+    if (!form) return 0;
+    
+    const formString = Array.isArray(form) ? form.join('') : String(form);
+    
+    return formString.split('').reduce((total, result) => {
+      if (result === 'W') return total + 3;
+      if (result === 'D') return total + 1;
+      return total;
+    }, 0);
+  };
+
+  const sortedStats = React.useMemo(() => {
+    if (!stats) return null;
+
+    return {
+      ...stats,
+      topScorers: stats.topScorers ? [...stats.topScorers].sort((a: any, b: any) => {
+        return (b.stats?.goalsFor || 0) - (a.stats?.goalsFor || 0);
+      }) : [],
+      
+      bestDefense: stats.bestDefense ? [...stats.bestDefense].sort((a: any, b: any) => {
+        return (a.stats?.goalsAgainst || 0) - (b.stats?.goalsAgainst || 0);
+      }) : [],
+
+      bestForm: stats.bestForm ? [...stats.bestForm].sort((a: any, b: any) => {
+        const aPoints = calculateFormPoints(a.form);
+        const bPoints = calculateFormPoints(b.form);
+        return bPoints - aPoints;
+      }) : [],
+    };
+  }, [stats]);
+
   if (isLoading) {
     return (
       <>
@@ -52,35 +85,35 @@ export default function StatisticsScreen() {
           <View style={styles.statsGrid}>
             <View style={[styles.statCard, { backgroundColor: colors.card }]}>
               <Text style={[styles.statValue, { color: colors.primary }]}>
-                {stats?.stats?.totalTeams || 0}
+                {sortedStats?.stats?.totalTeams || 0}
               </Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Đội</Text>
             </View>
             <View style={[styles.statCard, { backgroundColor: colors.card }]}>
               <Text style={[styles.statValue, { color: colors.primary }]}>
-                {stats?.stats?.matchesPlayed || 0}
+                {sortedStats?.stats?.matchesPlayed || 0}
               </Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Trận đã đấu</Text>
             </View>
             <View style={[styles.statCard, { backgroundColor: colors.card }]}>
               <Text style={[styles.statValue, { color: colors.primary }]}>
-                {stats?.stats?.totalGoals || 0}
+                {sortedStats?.stats?.totalGoals || 0}
               </Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Bàn thắng</Text>
             </View>
             <View style={[styles.statCard, { backgroundColor: colors.card }]}>
               <Text style={[styles.statValue, { color: colors.primary }]}>
-                {stats?.stats?.averageGoalsPerMatch?.toFixed(1) || '0.0'}
+                {sortedStats?.stats?.averageGoalsPerMatch?.toFixed(1) || '0.0'}
               </Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary }]}>TB bàn/trận</Text>
             </View>
           </View>
         </View>
 
-        {stats?.topScorers && stats.topScorers.length > 0 && (
+        {sortedStats?.topScorers && sortedStats.topScorers.length > 0 && (
           <View style={[styles.section, { borderBottomColor: colors.card }]}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>🔥 Tấn công tốt nhất</Text>
-            {stats.topScorers.map((item: any, index: number) => (
+            {sortedStats.topScorers.map((item: any, index: number) => (
               <TopTeamCard
                 key={item.team._id}
                 position={index + 1}
@@ -93,10 +126,10 @@ export default function StatisticsScreen() {
           </View>
         )}
 
-        {stats?.bestDefense && stats.bestDefense.length > 0 && (
+        {sortedStats?.bestDefense && sortedStats.bestDefense.length > 0 && (
           <View style={[styles.section, { borderBottomColor: colors.card }]}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>🛡️ Phòng thủ tốt nhất</Text>
-            {stats.bestDefense.map((item: any, index: number) => (
+            {sortedStats.bestDefense.map((item: any, index: number) => (
               <TopTeamCard
                 key={item.team._id}
                 position={index + 1}
@@ -109,10 +142,10 @@ export default function StatisticsScreen() {
           </View>
         )}
 
-        {stats?.bestForm && stats.bestForm.length > 0 && (
+        {sortedStats?.bestForm && sortedStats.bestForm.length > 0 && (
           <View style={[styles.section, { borderBottomColor: colors.card }]}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>📈 Phong độ tốt nhất</Text>
-            {stats.bestForm.map((item: any, index: number) => (
+            {sortedStats.bestForm.map((item: any, index: number) => (
               <TopTeamCard
                 key={item.team._id}
                 position={index + 1}
@@ -124,7 +157,7 @@ export default function StatisticsScreen() {
           </View>
         )}
 
-        {!stats?.topScorers?.length && !stats?.bestDefense?.length && !stats?.bestForm?.length && (
+        {!sortedStats?.topScorers?.length && !sortedStats?.bestDefense?.length && !sortedStats?.bestForm?.length && (
           <View style={styles.empty}>
             <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
               Chưa có dữ liệu thống kê

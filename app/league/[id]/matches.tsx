@@ -1,6 +1,7 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MatchCard from '../../../components/match/MatchCard';
 import { Colors } from '../../../constants/theme';
@@ -15,9 +16,15 @@ export default function MatchesListScreen() {
   const [selectedRound, setSelectedRound] = useState<number | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
 
+  const { data: allMatchesData } = useQuery({
+    queryKey: ['matches', id],
+    queryFn: () => matchService.getMatchesByLeague(id as string),
+    staleTime: 30000, 
+  });
+
   const { data, isLoading, error } = useQuery({
     queryKey: ['matches', id, selectedRound, selectedStatus],
-    queryFn: () => matchService.getMatchesByLeague(id as string, {
+    queryFn: () => matchService.getMatchesByLeague(id as string, undefined, {
       round: selectedRound || undefined,
       status: selectedStatus || undefined,
     }),
@@ -30,9 +37,10 @@ export default function MatchesListScreen() {
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
-  const rounds = data?.matches
-    ? [...new Set(data.matches.map((m: any) => m.round))].sort((a: any, b: any) => a - b)
-    : [];
+  const rounds = useMemo(() => {
+    if (!allMatchesData?.matches) return [];
+    return [...new Set(allMatchesData.matches.map((m: any) => m.round))].sort((a: any, b: any) => a - b);
+  }, [allMatchesData]);
 
   const statuses = [
     { value: 'scheduled', label: 'Sắp đấu' },
@@ -48,6 +56,15 @@ export default function MatchesListScreen() {
           headerTitle: 'Lịch thi đấu',
           headerStyle: { backgroundColor: colors.background },
           headerTintColor: colors.text,
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => router.push(`/league/${id}/standings` as any)}
+              style={{ marginRight: 16, flexDirection: 'row', alignItems: 'center', gap: 4 }}
+            >
+              <Ionicons name="podium-outline" size={20} style={{marginLeft:15}} color={colors.primary} />
+              <Text style={{ color: colors.primary, fontSize: 14, fontWeight: '600'}}>BXH</Text>
+            </TouchableOpacity>
+          ),
         }}
       />
       
@@ -179,7 +196,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1,
-    backgroundColor: '#fff',
   },
   filterChipActive: {
   },

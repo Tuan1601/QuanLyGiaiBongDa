@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useQueryClient } from '@tanstack/react-query';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { authService } from '../services/auth';
 
@@ -25,6 +26,7 @@ const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
 
     useEffect(() => {
         checkAuth();
@@ -92,6 +94,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // Always clear local state and tokens
             await AsyncStorage.multiRemove(['accessToken', 'refreshToken']);
             setUser(null);
+            
+            // Clear all React Query cache to prevent data leakage between users
+            queryClient.clear();
         }
     };
 

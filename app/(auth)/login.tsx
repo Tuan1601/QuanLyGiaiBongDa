@@ -1,9 +1,10 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as yup from 'yup';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -20,9 +21,13 @@ const loginSchema = yup.object({
 
 type LoginForm = yup.InferType<typeof loginSchema>;
 
+const REMEMBER_ME_KEY = '@remember_me';
+const CREDENTIALS_KEY = '@saved_credentials';
+
 export default function LoginScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
 
@@ -30,6 +35,7 @@ export default function LoginScreen() {
     control,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<LoginForm>({
     resolver: yupResolver(loginSchema),
     defaultValues: {
@@ -38,10 +44,46 @@ export default function LoginScreen() {
     },
   });
 
+  useEffect(() => {
+    loadSavedCredentials();
+  }, []);
+
+  const loadSavedCredentials = async () => {
+    try {
+      const savedRememberMe = await AsyncStorage.getItem(REMEMBER_ME_KEY);
+      if (savedRememberMe === 'true') {
+        const savedCredentials = await AsyncStorage.getItem(CREDENTIALS_KEY);
+        if (savedCredentials) {
+          const { email, password } = JSON.parse(savedCredentials);
+          setValue('email', email);
+          setValue('password', password);
+          setRememberMe(true);
+        }
+      }
+    } catch (error) {
+      console.log('Error loading saved credentials:', error);
+    }
+  };
+
+  const saveCredentials = async (email: string, password: string) => {
+    try {
+      if (rememberMe) {
+        await AsyncStorage.setItem(REMEMBER_ME_KEY, 'true');
+        await AsyncStorage.setItem(CREDENTIALS_KEY, JSON.stringify({ email, password }));
+      } else {
+        await AsyncStorage.removeItem(REMEMBER_ME_KEY);
+        await AsyncStorage.removeItem(CREDENTIALS_KEY);
+      }
+    } catch (error) {
+      console.log('Error saving credentials:', error);
+    }
+  };
+
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true);
     try {
       await login(data.email, data.password);
+      await saveCredentials(data.email, data.password);
       router.replace('/(tabs)');
     } catch (error: any) {
       Alert.alert(
@@ -125,8 +167,11 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.actionRow}>
-            <TouchableOpacity style={styles.rememberContainer}>
-              <Text style={styles.checkIcon}>✅</Text>
+            <TouchableOpacity 
+              style={styles.rememberContainer}
+              onPress={() => setRememberMe(!rememberMe)}
+            >
+              <Text style={styles.checkIcon}>{rememberMe ? '✅' : '⬜'}</Text>
               <Text style={styles.rememberText}>Nhớ mật khẩu</Text>
             </TouchableOpacity>
             

@@ -7,6 +7,8 @@ import { Colors } from '../../constants/theme';
 import { useAuth } from '../../contexts/AuthContext';
 import { useColorScheme } from '../../hooks/use-color-scheme';
 import { matchService } from '../../services/match';
+import { leagueService } from '../../services/league';
+import VideoPlayer from '../../components/media/VideoPlayer';
 
 export default function MatchDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -15,21 +17,62 @@ export default function MatchDetailScreen() {
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
 
-  const { data: match, isLoading } = useQuery({
+  const { data: match, isLoading: matchLoading, isError, error } = useQuery({
     queryKey: ['match', id],
     queryFn: () => matchService.getMatchById(id as string),
+    retry: 1, 
   });
 
-  const isOwner = user?._id === match?.league?.owner?._id;
+  const leagueId = typeof match?.league === 'object' ? match.league._id : match?.league;
+
+  const { data: league } = useQuery({
+    queryKey: ['league', leagueId],
+    queryFn: () => leagueService.getLeagueById(leagueId as string),
+    enabled: !!leagueId,
+    retry: 1,
+  });
+
+  const leagueOwnerId = typeof league?.owner === 'object' ? league.owner._id : league?.owner;
+  const isOwner = user?._id && leagueOwnerId && user._id === leagueOwnerId;
 
   const handleOpenVideo = (url: string) => {
     Linking.openURL(url);
   };
 
-  if (isLoading) {
+  if (matchLoading) {
     return (
       <View style={[styles.loading, { backgroundColor: colors.background }]}>
         <Text style={{ color: colors.text }}>Đang tải...</Text>
+      </View>
+    );
+  }
+
+  if (isError) {
+    return (
+      <View style={[styles.loading, { backgroundColor: colors.background }]}>
+        <Text style={{ fontSize: 40, marginBottom: 16 }}>⚠️</Text>
+        <Text style={{ color: colors.text, fontSize: 18, fontWeight: '600', marginBottom: 8 }}>
+          Không thể tải trận đấu
+        </Text>
+        <Text style={{ color: colors.textSecondary, fontSize: 14, textAlign: 'center', paddingHorizontal: 40 }}>
+          {error?.message?.includes('500') 
+            ? 'Server đang gặp sự cố. Vui lòng thử lại sau.' 
+            : 'Vui lòng kiểm tra kết nối mạng và thử lại.'}
+        </Text>
+        <TouchableOpacity 
+          onPress={() => router.back()}
+          style={{ marginTop: 20, paddingHorizontal: 24, paddingVertical: 12, backgroundColor: colors.primary, borderRadius: 8 }}
+        >
+          <Text style={{ color: '#fff', fontWeight: '600' }}>Quay lại</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  if (!match) {
+    return (
+      <View style={[styles.loading, { backgroundColor: colors.background }]}>
+        <Text style={{ color: colors.text }}>Không tìm thấy trận đấu</Text>
       </View>
     );
   }
@@ -73,18 +116,18 @@ export default function MatchDetailScreen() {
               {match.status === 'finished' ? (
                 <>
                   <View style={styles.scoreDisplay}>
-                    <Text style={[styles.scoreNumber, { color: colors.primary }]}>{match.score.home}</Text>
+                    <Text style={[styles.scoreNumber, { color: colors.primary }]}>{match.score?.home || 0}</Text>
                     <Text style={[styles.scoreSep, { color: colors.textSecondary }]}>-</Text>
-                    <Text style={[styles.scoreNumber, { color: colors.primary }]}>{match.score.away}</Text>
+                    <Text style={[styles.scoreNumber, { color: colors.primary }]}>{match.score?.away || 0}</Text>
                   </View>
                   <Text style={[styles.statusFinished, { color: colors.win }]}>Kết thúc</Text>
                 </>
               ) : match.status === 'live' ? (
                 <>
                   <View style={styles.scoreDisplay}>
-                    <Text style={[styles.scoreNumber, { color: colors.primary }]}>{match.score.home}</Text>
+                    <Text style={[styles.scoreNumber, { color: colors.primary }]}>{match.score?.home || 0}</Text>
                     <Text style={[styles.scoreSep, { color: colors.textSecondary }]}>-</Text>
-                    <Text style={[styles.scoreNumber, { color: colors.primary }]}>{match.score.away}</Text>
+                    <Text style={[styles.scoreNumber, { color: colors.primary }]}>{match.score?.away || 0}</Text>
                   </View>
                   <View style={[styles.liveBadge, { backgroundColor: colors.lose }]}>
                     <Text style={styles.liveText}>LIVE</Text>
@@ -148,21 +191,17 @@ export default function MatchDetailScreen() {
         {match.highlightVideos && match.highlightVideos.length > 0 && (
           <View style={[styles.section, { borderBottomColor: colors.border }]}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>
-              Highlights ({match.highlightVideos.length})
+              🎬 Highlights ({match.highlightVideos.length})
             </Text>
-            {match.highlightVideos.map((highlight: any) => (
-              <TouchableOpacity
-                key={highlight._id}
-                style={[styles.highlightItem, { backgroundColor: colors.card }]}
-                onPress={() => handleOpenVideo(highlight.url)}
-              >
-                <Ionicons name="videocam" size={24} color={colors.primary} />
-                <Text style={[styles.highlightTitle, { color: colors.text }]} numberOfLines={1}>
-                  {highlight.title || 'Highlight'}
-                </Text>
-                <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
-              </TouchableOpacity>
-            ))}
+            <View style={styles.highlightsContainer}>
+              {match.highlightVideos.map((highlight: any) => (
+                <VideoPlayer
+                  key={highlight._id}
+                  uri={highlight.url}
+                  title={highlight.title || 'Highlight'}
+                />
+              ))}
+            </View>
           </View>
         )}
 
@@ -202,15 +241,44 @@ export default function MatchDetailScreen() {
               </Text>
             </TouchableOpacity>
             
-            <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }]}
-              onPress={() => router.push(`/match/${id}/upload-media` as any)}
-            >
-              <Ionicons name="cloud-upload-outline" size={20} color={colors.primary} />
-              <Text style={[styles.actionButtonText, { color: colors.primary }]}>Upload ảnh/video</Text>
-            </TouchableOpacity>
+            <View style={styles.actionRow}>
+              <TouchableOpacity
+                style={[styles.actionButtonSmall, { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }]}
+                onPress={() => router.push(`/match/${id}/status` as any)}
+              >
+                <Ionicons name="swap-horizontal-outline" size={20} color={colors.primary} />
+                <Text style={[styles.actionButtonTextSmall, { color: colors.primary }]}>Trạng thái</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[styles.actionButtonSmall, { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }]}
+                onPress={() => router.push(`/match/${id}/upload-media` as any)}
+              >
+                <Ionicons name="cloud-upload-outline" size={20} color={colors.primary} />
+                <Text style={[styles.actionButtonTextSmall, { color: colors.primary }]}>Upload</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[styles.actionButtonSmall, { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }]}
+                onPress={() => router.push(`/match/${id}/actions` as any)}
+              >
+                <Ionicons name="ellipsis-horizontal" size={20} color={colors.primary} />
+                <Text style={[styles.actionButtonTextSmall, { color: colors.primary }]}>Khác</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
+
+        <View style={styles.standingsSection}>
+          <TouchableOpacity
+            style={[styles.standingsButton, { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }]}
+            onPress={() => router.push(`/league/${leagueId}/standings` as any)}
+          >
+            <Ionicons name="podium-outline" size={22} color={colors.primary} />
+            <Text style={[styles.standingsButtonText, { color: colors.primary }]}>Xem Bảng xếp hạng</Text>
+            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </>
   );
@@ -226,7 +294,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerButton: {
-    marginRight: 15,
+    padding: 5,
+    marginLeft:3,
   },
   matchHeader: {
     padding: 20,
@@ -371,6 +440,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 22,
   },
+  highlightsContainer: {
+    gap: 10,
+  },
   actions: {
     padding: 20,
     gap: 10,
@@ -384,6 +456,39 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   actionButtonText: {
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  actionRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  actionButtonSmall: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    borderRadius: 12,
+    gap: 6,
+  },
+  actionButtonTextSmall: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  standingsSection: {
+    padding: 20,
+    paddingTop: 10,
+  },
+  standingsButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 12,
+    gap: 10,
+  },
+  standingsButtonText: {
+    flex: 1,
     fontSize: 15,
     fontWeight: '600',
   },

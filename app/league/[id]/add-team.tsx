@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../../../constants/theme';
 import { useColorScheme } from '../../../hooks/use-color-scheme';
+import { useToast } from '../../../hooks/useToast';
 import { leagueService } from '../../../services/league';
 import { teamService } from '../../../services/team';
 
@@ -18,8 +19,8 @@ export default function AddTeamScreen() {
   
   const [name, setName] = useState('');
   const [shortName, setShortName] = useState('');
-  const [group, setGroup] = useState('');
   const [logo, setLogo] = useState<any>(null);
+  const toast = useToast();
 
   const { data: league } = useQuery({
     queryKey: ['league', id],
@@ -30,9 +31,9 @@ export default function AddTeamScreen() {
     mutationFn: (formData: FormData) => teamService.createTeam(formData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['teams', id] });
-      Alert.alert('Thành công', 'Thêm đội thành công', [
-        { text: 'OK', onPress: () => router.back() }
-      ]);
+      queryClient.invalidateQueries({ queryKey: [' league', id] }); // Update team count in league detail
+      toast.showSuccess('Thành công', 'Đã thêm đội mới');
+      setTimeout(() => router.back(), 500);
     },
     onError: (error: any) => {
       console.error('Team creation error:', error);
@@ -49,7 +50,7 @@ export default function AddTeamScreen() {
         errorMessage = error.response.data.message;
       }
       
-      Alert.alert('Lỗi', errorMessage);
+      toast.showError('Lỗi', errorMessage);
     },
   });
 
@@ -82,9 +83,7 @@ export default function AddTeamScreen() {
     formData.append('shortName', shortName.toUpperCase());
     formData.append('leagueId', id as string);
 
-    if (group && league?.type === 'group-stage') {
-      formData.append('group', group);
-    }
+
 
     if (logo) {
       formData.append('logo', {
@@ -98,19 +97,13 @@ export default function AddTeamScreen() {
       name,
       shortName: shortName.toUpperCase(),
       leagueId: id,
-      group: group || 'none',
       hasLogo: !!logo,
-      leagueType: league?.type,
     });
 
     createMutation.mutate(formData);
   };
 
-  const groups = league?.groupSettings
-    ? Array.from({ length: league.groupSettings.numberOfGroups }, (_, i) =>
-        String.fromCharCode(65 + i)
-      )
-    : [];
+
 
   return (
     <>
@@ -145,33 +138,6 @@ export default function AddTeamScreen() {
             maxLength={5}
           />
 
-          {league?.type === 'group-stage' && groups.length > 0 && (
-            <>
-              <Text style={[styles.label, { color: colors.text }]}>Bảng đấu</Text>
-              <View style={styles.groupContainer}>
-                {groups.map((g) => (
-                  <TouchableOpacity
-                    key={g}
-                    style={[
-                      styles.groupButton,
-                      { borderColor: colors.border },
-                      group === g && [styles.groupButtonActive, { backgroundColor: colors.primary, borderColor: colors.primary }]
-                    ]}
-                    onPress={() => setGroup(g)}
-                  >
-                    <Text style={[
-                      styles.groupText,
-                      { color: colors.text },
-                      group === g && styles.groupTextActive
-                    ]}>
-                      Bảng {g}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </>
-          )}
-
           <Text style={[styles.label, { color: colors.text }]}>Logo đội</Text>
           <TouchableOpacity 
             style={[styles.logoPicker, { borderColor: colors.border }]} 
@@ -181,7 +147,7 @@ export default function AddTeamScreen() {
               <Text style={[styles.logoText, { color: colors.win }]}>✓ Đã chọn logo</Text>
             ) : (
               <>
-                <Ionicons name="image-outline" size={40} color={colors.textSecondary} />
+                <Ionicons name="image-outline" size={60} color={colors.textSecondary} />
                 <Text style={[styles.logoText, { color: colors.textSecondary }]}>Chọn logo</Text>
               </>
             )}
@@ -226,27 +192,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     fontSize: 16,
   },
-  groupContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    marginBottom: 20,
-  },
-  groupButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-  },
-  groupButtonActive: {
-  },
-  groupText: {
-    fontSize: 14,
-  },
-  groupTextActive: {
-    color: '#fff',
-    fontWeight: '600',
-  },
+
   logoPicker: {
     height: 120,
     borderWidth: 2,

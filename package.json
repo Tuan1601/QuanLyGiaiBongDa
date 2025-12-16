@@ -15,6 +15,7 @@
     "@gorhom/bottom-sheet": "^5.2.8",
     "@hookform/resolvers": "^5.2.2",
     "@react-native-async-storage/async-storage": "2.2.0",
+    "@react-native-community/datetimepicker": "8.4.4",
     "@react-native-community/slider": "5.0.1",
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/drawer": "^7.5.0",
@@ -26,6 +27,7 @@
     "axios": "^1.13.2",
     "dayjs": "^1.11.19",
     "expo": "~54.0.29",
+    "expo-av": "~16.0.8",
     "expo-constants": "~18.0.12",
     "expo-document-picker": "~14.0.8",
     "expo-file-system": "~19.0.21",
@@ -48,6 +50,7 @@
     "react-dom": "19.1.0",
     "react-hook-form": "^7.68.0",
     "react-native": "0.81.5",
+    "react-native-chart-kit": "^6.12.0",
     "react-native-dotenv": "^3.4.11",
     "react-native-flash-message": "^0.4.2",
     "react-native-gesture-handler": "~2.28.0",
@@ -68,6 +71,8 @@
     "@types/react": "~19.1.0",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "prettier": "^3.7.4",
     "typescript": "~5.9.2"
   },
   "private": true

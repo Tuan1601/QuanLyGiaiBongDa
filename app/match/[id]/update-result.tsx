@@ -34,8 +34,18 @@ export default function UpdateResultScreen() {
       matchService.updateMatchResult(id as string, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['match', id] });
+      
+      queryClient.invalidateQueries({ queryKey: ['matches'] });
+      
       queryClient.invalidateQueries({ queryKey: ['teams'] });
+      
       queryClient.invalidateQueries({ queryKey: ['standings'] });
+      queryClient.invalidateQueries({ queryKey: ['group-standings'] });
+      
+      queryClient.invalidateQueries({ queryKey: ['statistics'] });
+      
+      queryClient.invalidateQueries({ queryKey: ['league'] });
+      
       Alert.alert(
         'Thành công',
         'Đã cập nhật kết quả. Stats của các đội đã được tính tự động.',
@@ -55,6 +65,13 @@ export default function UpdateResultScreen() {
       Alert.alert('Lỗi', 'Vui lòng nhập tỷ số hợp lệ');
       return;
     }
+
+    console.log('📤 Update Result Request:', {
+      matchId: id,
+      payload: { homeScore: home, awayScore: away },
+      homeTeam: match?.homeTeam.name,
+      awayTeam: match?.awayTeam.name,
+    });
 
     Alert.alert(
       'Xác nhận',

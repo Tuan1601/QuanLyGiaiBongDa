@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { hideOfflineBanner, showOfflineBanner } from '../components/ui/offline-indicator';
 
 const BASE_URL = 'https://fleague-tournament-system.onrender.com/api/v1';
 
@@ -29,7 +30,11 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Connection successful - hide offline banner if showing
+    hideOfflineBanner();
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
 
@@ -45,8 +50,10 @@ api.interceptors.response.use(
 
       if (error.message === 'Network Error') {
         console.warn('Network Error - No internet connection or server unreachable');
+        showOfflineBanner(); // Show offline indicator
       } else if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
         console.warn('Request timeout - server may be slow or unavailable');
+        showOfflineBanner(); // Show offline indicator
       }
 
       return Promise.reject(error);

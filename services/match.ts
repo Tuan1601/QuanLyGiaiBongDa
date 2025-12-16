@@ -8,13 +8,15 @@ export const matchService = {
   },
 
   // GET /match/league/:leagueId
-  getMatchesByLeague: async (leagueId: string, filters?: {
+  getMatchesByLeague: async (leagueId: string, token?: string, filters?: {
     round?: number;
     group?: string;
     status?: string;
   }) => {
     let url = `/match/league/${leagueId}`;
     const params = new URLSearchParams();
+    
+    if (token) params.append('token', token);
     
     if (filters?.round) params.append('round', filters.round.toString());
     if (filters?.group) params.append('group', filters.group);

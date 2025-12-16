@@ -28,6 +28,8 @@ export default function AssignGroupsScreen() {
     mutationFn: () => teamService.assignGroups(id as string),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['teams', id] });
+      queryClient.invalidateQueries({ queryKey: ['league', id] }); // Update league detail
+      queryClient.invalidateQueries({ queryKey: ['group-standings', id] }); // Update group standings
       Alert.alert('Thành công', 'Đã phân bảng tự động', [
         { text: 'OK', onPress: () => router.back() }
       ]);
@@ -41,6 +43,8 @@ export default function AssignGroupsScreen() {
     mutationFn: () => teamService.resetGroups(id as string),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['teams', id] });
+      queryClient.invalidateQueries({ queryKey: ['league', id] }); // Update league detail
+      queryClient.invalidateQueries({ queryKey: ['group-standings', id] }); // Update group standings
       Alert.alert('Thành công', 'Đã reset phân bảng');
     },
   });

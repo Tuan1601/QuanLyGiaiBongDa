@@ -7,6 +7,7 @@ import TeamCard from '../../../components/team/TeamCard';
 import { Colors } from '../../../constants/theme';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useColorScheme } from '../../../hooks/use-color-scheme';
+import { useLeagueToken } from '../../../hooks/useLeagueToken';
 import { leagueService } from '../../../services/league';
 import { teamService } from '../../../services/team';
 
@@ -17,17 +18,20 @@ export default function TeamsListScreen() {
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const { savedToken, tokenLoaded } = useLeagueToken(id);
 
   const { data: league } = useQuery({
-    queryKey: ['league', id],
-    queryFn: () => leagueService.getLeagueById(id as string),
+    queryKey: ['league', id, savedToken],
+    queryFn: () => leagueService.getLeagueById(id as string, savedToken || undefined),
+    enabled: tokenLoaded,
   });
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['teams', id, selectedGroup],
+    queryKey: ['teams', id, selectedGroup, savedToken],
     queryFn: () => selectedGroup 
-     ? teamService.getTeamsByGroup(id as string, selectedGroup)
-      : teamService.getTeamsByLeague(id as string),
+     ? teamService.getTeamsByGroup(id as string, selectedGroup, savedToken || undefined)
+      : teamService.getTeamsByLeague(id as string, savedToken || undefined),
+    enabled: tokenLoaded,
     retry: (failureCount, error: any) => {
       if (error.message?.includes('timeout') && failureCount < 3) {
         return true;
@@ -292,7 +296,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1,
-    backgroundColor: '#fff',
   },
   filterChipActive: {
   },

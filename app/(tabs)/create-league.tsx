@@ -8,7 +8,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Platform } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function CreateLeagueScreen() {
   const router = useRouter();
@@ -55,6 +56,8 @@ export default function CreateLeagueScreen() {
   };
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handlePickLogo = async () => {
@@ -444,22 +447,60 @@ export default function CreateLeagueScreen() {
       </View>
 
       <Text style={[styles.label, { color: colors.text }]}>Ngày bắt đầu (Tùy chọn)</Text>
-      <TextInput
-        style={[styles.input, { borderColor: colors.border, color: colors.text }]}
-        placeholder="YYYY-MM-DD"
-        placeholderTextColor={colors.textSecondary || colors.icon}
-        value={startDate}
-        onChangeText={setStartDate}
-      />
+      <TouchableOpacity
+        style={[styles.dateButton, { borderColor: colors.border, backgroundColor: colors.card }]}
+        onPress={() => setShowStartDatePicker(true)}
+      >
+        <Ionicons name="calendar-outline" size={20} color={colors.primary} />
+        <Text style={[styles.dateButtonText, { color: startDate ? colors.text : colors.textSecondary }]}>
+          {startDate ? new Date(startDate).toLocaleDateString('vi-VN', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          }) : 'Chọn ngày bắt đầu'}
+        </Text>
+      </TouchableOpacity>
+      {showStartDatePicker && (
+        <DateTimePicker
+          value={startDate ? new Date(startDate) : new Date()}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={(event, selectedDate) => {
+            setShowStartDatePicker(Platform.OS === 'ios');
+            if (selectedDate) {
+              setStartDate(selectedDate.toISOString().split('T')[0]);
+            }
+          }}
+        />
+      )}
 
       <Text style={[styles.label, { color: colors.text }]}>Ngày kết thúc (Tùy chọn)</Text>
-      <TextInput
-        style={[styles.input, { borderColor: colors.border, color: colors.text }]}
-        placeholder="YYYY-MM-DD"
-        placeholderTextColor={colors.textSecondary || colors.icon}
-        value={endDate}
-        onChangeText={setEndDate}
-      />
+      <TouchableOpacity
+        style={[styles.dateButton, { borderColor: colors.border, backgroundColor: colors.card }]}
+        onPress={() => setShowEndDatePicker(true)}
+      >
+        <Ionicons name="calendar-outline" size={20} color={colors.primary} />
+        <Text style={[styles.dateButtonText, { color: endDate ? colors.text : colors.textSecondary }]}>
+          {endDate ? new Date(endDate).toLocaleDateString('vi-VN', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          }) : 'Chọn ngày kết thúc'}
+        </Text>
+      </TouchableOpacity>
+      {showEndDatePicker && (
+        <DateTimePicker
+          value={endDate ? new Date(endDate) : new Date()}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={(event, selectedDate) => {
+            setShowEndDatePicker(Platform.OS === 'ios');
+            if (selectedDate) {
+              setEndDate(selectedDate.toISOString().split('T')[0]);
+            }
+          }}
+        />
+      )}
 
       <View style={styles.buttonRow}>
         <TouchableOpacity
@@ -520,10 +561,10 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingTop: 60,
-    paddingBottom: 24,
+    paddingBottom: 20,
     paddingHorizontal: 20,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
   },
   headerTitle: {
     fontSize: 28,
@@ -668,5 +709,19 @@ const styles = StyleSheet.create({
   buttonTextSecondary: {
     fontSize: 16,
     fontWeight: '600',
+  },
+  dateButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 10,
+    marginBottom: 20,
+  },
+  dateButtonText: {
+    fontSize: 15,
+    flex: 1,
   },
 });

@@ -6,11 +6,13 @@ import { matchService } from '@/services/match';
 import { standingsService } from '@/services/standings';
 import { teamService } from '@/services/team';
 import StandingsTable from '@/components/standings/StandingsTable';
+import MatchCard from '@/components/match/MatchCard';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { getLeagueToken } from '@/utils/leagueLink';
 
 export default function LeagueDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -19,45 +21,63 @@ export default function LeagueDetailScreen() {
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
   const [activeTab, setActiveTab] = useState('overview');
+  const [savedToken, setSavedToken] = useState<string | null>(null);
+  const [tokenLoaded, setTokenLoaded] = useState(false);
+
+  useEffect(() => {
+    const loadToken = async () => {
+      try {
+        const token = await getLeagueToken(id as string);
+        setSavedToken(token);
+      } catch (error) {
+        console.error('Error loading saved token:', error);
+      } finally {
+        setTokenLoaded(true);
+      }
+    };
+    loadToken();
+  }, [id]);
 
   const { data: league, isLoading } = useQuery({
-    queryKey: ['league', id],
-    queryFn: () => leagueService.getLeagueById(id as string),
+    queryKey: ['league', id, savedToken],
+    queryFn: () => leagueService.getLeagueById(id as string, savedToken || undefined),
+    enabled: tokenLoaded,
   });
 
   const { data: teamsData } = useQuery({
-    queryKey: ['teams', id],
-    queryFn: () => teamService.getTeamsByLeague(id as string, league?.accessToken),
-    enabled: !!id,
+    queryKey: ['teams', id, savedToken],
+    queryFn: () => teamService.getTeamsByLeague(id as string, savedToken || league?.accessToken),
+    enabled: !!id && tokenLoaded,
   });
 
   const { data: matchesData } = useQuery({
-    queryKey: ['matches', id],
-    queryFn: () => matchService.getMatchesByLeague(id as string),
-    enabled: !!id,
+    queryKey: ['matches', id, savedToken],
+    queryFn: () => matchService.getMatchesByLeague(id as string, savedToken || league?.accessToken),
+    enabled: !!id && tokenLoaded,
   });
 
   const isGroupStage = league?.type === 'group-stage';
   
   const { data: standingsData } = useQuery({
-    queryKey: ['standings', id],
-    queryFn: () => standingsService.getStandings(id as string, league?.accessToken),
-    enabled: !!id && !isGroupStage,
+    queryKey: ['standings', id, savedToken],
+    queryFn: () => standingsService.getStandings(id as string, savedToken || league?.accessToken),
+    enabled: !!id && !isGroupStage && tokenLoaded,
   });
 
   const { data: groupStandingsData } = useQuery({
-    queryKey: ['group-standings', id],
-    queryFn: () => standingsService.getAllGroupsStandings(id as string, league?.accessToken),
-    enabled: !!id && isGroupStage,
+    queryKey: ['group-standings', id, savedToken],
+    queryFn: () => standingsService.getAllGroupsStandings(id as string, savedToken || league?.accessToken),
+    enabled: !!id && isGroupStage && tokenLoaded,
   });
 
   const { data: statisticsData } = useQuery({
-    queryKey: ['statistics', id],
-    queryFn: () => standingsService.getLeagueStats(id as string, league?.accessToken),
-    enabled: !!id,
+    queryKey: ['statistics', id, savedToken],
+    queryFn: () => standingsService.getLeagueStats(id as string, savedToken || league?.accessToken),
+    enabled: !!id && tokenLoaded,
   });
 
-  const isOwner = user?._id === league?.owner?._id;
+  const leagueOwnerId = typeof league?.owner === 'object' ? league.owner._id : league?.owner;
+  const isOwner = user?._id && leagueOwnerId && user._id === leagueOwnerId;
 
   const handleShareToken = () => {
     if (league?.accessToken) {
@@ -101,6 +121,8 @@ export default function LeagueDetailScreen() {
         options={{
           headerShown: true,
           headerTitle: league?.name || 'Chi tiết giải đấu',
+          headerStyle: { backgroundColor: colors.background },
+          headerTintColor: colors.text,
           headerRight: () =>
             isOwner ? (
               <TouchableOpacity
@@ -113,6 +135,28 @@ export default function LeagueDetailScreen() {
       />
       
       <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+        {!user && (
+          <View style={[styles.guestPrompt, { backgroundColor: colors.primary + '15', borderColor: colors.primary }]}>
+            <View style={styles.guestPromptContent}>
+              <Ionicons name="log-in-outline" size={24} color={colors.primary} />
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.guestPromptTitle, { color: colors.text }]}>
+                  Tạo giải đấu của riêng bạn!
+                </Text>
+                <Text style={[styles.guestPromptText, { color: colors.textSecondary }]}>
+                  Đăng nhập để tạo và quản lý giải đấu
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={[styles.guestPromptButton, { backgroundColor: colors.primary }]}
+                onPress={() => router.push('/login')}
+              >
+                <Text style={{ color: '#fff', fontWeight: '600' }}>Đăng nhập</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
         <View style={[styles.header, { backgroundColor: colors.card }]}>
           {league?.logo && (
             <Image source={{ uri: league.logo }} style={styles.logo} />
@@ -255,6 +299,15 @@ export default function LeagueDetailScreen() {
                   </TouchableOpacity>
                 </View>
               )}
+              
+              {isOwner && matchesData?.matches && matchesData.matches.length > 0 && (
+                <TouchableOpacity
+                  style={[styles.actionButton, styles.dangerButton, { backgroundColor: '#FF9500' + '10', borderWidth: 1, borderColor: '#FF9500' }]}
+                  onPress={() => router.push(`/league/${id}/actions` as any)}>
+                  <Ionicons name="warning"  size={20} color="#FF9500" />
+                  <Text style={[styles.actionButtonText, { color: '#FF9500' }]}>Hành động</Text>
+                </TouchableOpacity>
+              )}
             </View>
           )}
 
@@ -340,50 +393,38 @@ export default function LeagueDetailScreen() {
               </View>
 
               {matchesData?.matches && matchesData.matches.length > 0 ? (
-                <View style={[styles.matchesPreview, { backgroundColor: colors.card }]}>
-                  {matchesData.matches.slice(0, 3).map((match: any, index: number) => (
-                    <TouchableOpacity 
-                      key={match._id || index} 
-                      style={styles.matchItem}
-                      onPress={() => router.push(`/match/${match._id}` as any)}
-                    >
-                      <View style={styles.matchTeams}>
-                        <Text style={[styles.matchTeam, { color: colors.text }]}>
-                          {match.homeTeam?.shortName || match.homeTeam?.name}
-                        </Text>
-                        <Text style={[styles.matchVs, { color: colors.textSecondary }]}>vs</Text>
-                        <Text style={[styles.matchTeam, { color: colors.text }]}>
-                          {match.awayTeam?.shortName || match.awayTeam?.name}
-                        </Text>
-                      </View>
-                      <View style={styles.matchInfo}>
-                        {match.status === 'finished' ? (
-                          <Text style={[styles.matchScore, { color: colors.primary }]}>
-                            {match.score?.home || 0} - {match.score?.away || 0}
-                          </Text>
-                        ) : (
-                          <Text style={[styles.matchTime, { color: colors.textSecondary }]}>
-                            {match.scheduledDate ? 
-                              new Date(match.scheduledDate).toLocaleTimeString('vi-VN', { 
-                                hour: '2-digit', 
-                                minute: '2-digit' 
-                              }) : 
-                              'TBD'
-                            }
-                          </Text>
-                        )}
-                        <Text style={[styles.matchDate, { color: colors.textSecondary }]}>
-                          {match.scheduledDate ? 
-                            new Date(match.scheduledDate).toLocaleDateString('vi-VN', { 
-                              day: '2-digit', 
-                              month: '2-digit' 
-                            }) : 
-                            'TBD'
-                          }
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  ))}
+                <View>
+                  {(() => {
+                    const now = new Date();
+                    
+                    const sortedMatches = [...matchesData.matches].sort((a: any, b: any) => {
+                      if (a.status === 'live' && b.status !== 'live') return -1;
+                      if (a.status !== 'live' && b.status === 'live') return 1;
+                      
+                      const aDate = a.scheduledDate ? new Date(a.scheduledDate) : new Date(0);
+                      const bDate = b.scheduledDate ? new Date(b.scheduledDate) : new Date(0);
+                      
+                      const aIsPast = a.status === 'finished' || aDate < now;
+                      const bIsPast = b.status === 'finished' || bDate < now;
+                      
+                      if (!aIsPast && !bIsPast) {
+                        return aDate.getTime() - bDate.getTime();
+                      }
+                      
+                      if (!aIsPast && bIsPast) return -1;
+                      if (aIsPast && !bIsPast) return 1;
+                      
+                      return bDate.getTime() - aDate.getTime();
+                    });
+                    
+                    return sortedMatches.slice(0, 3).map((match: any, index: number) => (
+                      <MatchCard
+                        key={match._id || index}
+                        match={match}
+                        onPress={() => router.push(`/match/${match._id}` as any)}
+                      />
+                    ));
+                  })()}
                 </View>
               ) : (
                 <View style={[styles.emptyState, { backgroundColor: colors.card }]}>
@@ -592,7 +633,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   headerButton: {
-    marginRight: 15,
+    padding:5,
+ 
   },
   header: {
     alignItems: 'center',
@@ -715,6 +757,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
+  dangerButton: {
+    width: '100%',
+  },
   viewAllButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -787,7 +832,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  // Match preview styles
   matchesPreview: {
     borderRadius: 12,
     padding: 15,
@@ -830,7 +874,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 2,
   },
-  // Standings preview styles
   standingsPreview: {
     borderRadius: 12,
     padding: 15,
@@ -996,5 +1039,29 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 14,
     fontWeight: '600',
+  },
+  guestPrompt: {
+    margin: 16,
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 2,
+  },
+  guestPromptContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  guestPromptTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  guestPromptText: {
+    fontSize: 14,
+  },
+  guestPromptButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
   },
 });

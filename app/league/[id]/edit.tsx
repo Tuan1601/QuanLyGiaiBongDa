@@ -5,7 +5,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, Platform } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import * as yup from 'yup';
 import { AnimatedInput } from '../../../components/ui/animated-input';
 import { Button } from '../../../components/ui/button';
@@ -26,6 +27,8 @@ export default function EditLeagueScreen() {
   const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
   const [logoUploading, setLogoUploading] = useState(false);
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
 
@@ -235,30 +238,72 @@ export default function EditLeagueScreen() {
           <Controller
             control={control}
             name="startDate"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <AnimatedInput
-                label="Ngày bắt đầu"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={errors.startDate?.message}
-                placeholder="YYYY-MM-DD"
-              />
+            render={({ field: { onChange, value } }) => (
+              <View style={{ marginBottom: 20 }}>
+                <Text style={[styles.dateLabel, { color: colors.text }]}>Ngày bắt đầu</Text>
+                <TouchableOpacity
+                  style={[styles.dateButton, { borderColor: colors.border, backgroundColor: colors.card }]}
+                  onPress={() => setShowStartDatePicker(true)}
+                >
+                  <Ionicons name="calendar-outline" size={20} color={colors.primary} />
+                  <Text style={[styles.dateButtonText, { color: value ? colors.text : colors.textSecondary }]}>
+                    {value ? new Date(value).toLocaleDateString('vi-VN', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    }) : 'Chọn ngày bắt đầu'}
+                  </Text>
+                </TouchableOpacity>
+                {showStartDatePicker && (
+                  <DateTimePicker
+                    value={value ? new Date(value) : new Date()}
+                    mode="date"
+                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    onChange={(event, selectedDate) => {
+                      setShowStartDatePicker(Platform.OS === 'ios');
+                      if (selectedDate) {
+                        onChange(selectedDate.toISOString().split('T')[0]);
+                      }
+                    }}
+                  />
+                )}
+              </View>
             )}
           />
 
           <Controller
             control={control}
             name="endDate"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <AnimatedInput
-                label="Ngày kết thúc"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={errors.endDate?.message}
-                placeholder="YYYY-MM-DD"
-              />
+            render={({ field: { onChange, value } }) => (
+              <View style={{ marginBottom: 20 }}>
+                <Text style={[styles.dateLabel, { color: colors.text }]}>Ngày kết thúc</Text>
+                <TouchableOpacity
+                  style={[styles.dateButton, { borderColor: colors.border, backgroundColor: colors.card }]}
+                  onPress={() => setShowEndDatePicker(true)}
+                >
+                  <Ionicons name="calendar-outline" size={20} color={colors.primary} />
+                  <Text style={[styles.dateButtonText, { color: value ? colors.text : colors.textSecondary }]}>
+                    {value ? new Date(value).toLocaleDateString('vi-VN', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    }) : 'Chọn ngày kết thúc'}
+                  </Text>
+                </TouchableOpacity>
+                {showEndDatePicker && (
+                  <DateTimePicker
+                    value={value ? new Date(value) : new Date()}
+                    mode="date"
+                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    onChange={(event, selectedDate) => {
+                      setShowEndDatePicker(Platform.OS === 'ios');
+                      if (selectedDate) {
+                        onChange(selectedDate.toISOString().split('T')[0]);
+                      }
+                    }}
+                  />
+                )}
+              </View>
             )}
           />
         </View>
@@ -407,5 +452,23 @@ const styles = StyleSheet.create({
   submitSection: {
     padding: 20,
     paddingBottom: 40,
+  },
+  dateLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  dateButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: 8,
+    borderWidth: 1,
+    gap: 10,
+  },
+  dateButtonText: {
+    fontSize: 15,
+    flex: 1,
   },
 });

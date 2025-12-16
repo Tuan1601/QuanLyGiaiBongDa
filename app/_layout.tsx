@@ -1,7 +1,10 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { useEffect } from 'react';
+import FlashMessage from 'react-native-flash-message';
+import { OfflineIndicator } from '../components/ui/offline-indicator';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
+import { FavoritesProvider } from '../contexts/FavoritesContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,8 +24,23 @@ function RootLayoutNav() {
     if (loading) return;
 
     const inAuthGroup = segments[0] === '(auth)';
+    const inTabsGroup = segments[0] === '(tabs)';
+    const currentTab = String(segments[1] || 'index');
+    const onHomeScreen = inTabsGroup && (currentTab === 'index' || !segments[1]);
+    
+    const isPublicRoute = 
+      onHomeScreen ||
+      segments[0] === 'league' || 
+      segments[0] === 'team' || 
+      segments[0] === 'match' || 
+      (inTabsGroup && currentTab === 'index'); 
 
-    if (!user && !inAuthGroup) {
+    if (!segments[0]) {
+      router.replace('/(tabs)');
+      return;
+    }
+
+    if (!user && !inAuthGroup && !isPublicRoute) {
       router.replace('/login');
     } else if (user && inAuthGroup) {
       router.replace('/(tabs)');
@@ -41,7 +59,11 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <RootLayoutNav />
+        <FavoritesProvider>
+          <RootLayoutNav />
+          <FlashMessage position="top" />
+          <OfflineIndicator />
+        </FavoritesProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

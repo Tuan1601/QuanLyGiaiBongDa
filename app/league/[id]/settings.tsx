@@ -1,11 +1,13 @@
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useToast } from '@/hooks/useToast';
 import { leagueService } from '@/services/league';
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Clipboard, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { generateLeagueLink } from '@/utils/leagueLink';
 
 export default function LeagueSettingsScreen() {
   const { id } = useLocalSearchParams();
@@ -13,6 +15,7 @@ export default function LeagueSettingsScreen() {
   const queryClient = useQueryClient();
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
+  const toast = useToast();
 
   const { data: league } = useQuery({
     queryKey: ['league', id],
@@ -26,7 +29,12 @@ export default function LeagueSettingsScreen() {
       leagueService.updateVisibility(id as string, visibility),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['league', id] });
-      Alert.alert('Thành công', 'Đã cập nhật chế độ hiển thị');
+      queryClient.invalidateQueries({ queryKey: ['myLeagues'] });
+      queryClient.invalidateQueries({ queryKey: ['publicLeagues'] });
+      toast.showSuccess('Thành công', 'Đã cập nhật chế độ hiển thị');
+    },
+    onError: (error: any) => {
+      toast.showError('Lỗi', error.response?.data?.message || 'Không thể cập nhật');
     },
   });
 
@@ -38,15 +46,23 @@ export default function LeagueSettingsScreen() {
         `Mã: ${data.accessToken}\n\nChia sẻ mã này để người khác có thể xem giải đấu.`
       );
       queryClient.invalidateQueries({ queryKey: ['league', id] });
+      toast.showSuccess('Đã tạo mã mới', 'Mã truy cập mới đã được tạo');
+    },
+    onError: (error: any) => {
+      toast.showError('Lỗi', error.response?.data?.message || 'Không thể tạo mã mới');
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: () => leagueService.deleteLeague(id as string),
     onSuccess: () => {
-      Alert.alert('Thành công', 'Đã xóa giải đấu', [
-        { text: 'OK', onPress: () => router.replace('/my-leagues' as any) }
-      ]);
+      queryClient.invalidateQueries({ queryKey: ['myLeagues'] });
+      queryClient.invalidateQueries({ queryKey: ['publicLeagues'] });
+      toast.showSuccess('Đã xóa giải đấu', 'Giải đấu đã được xóa thành công');
+      setTimeout(() => router.replace('/my-leagues' as any), 500);
+    },
+    onError: (error: any) => {
+      toast.showError('Lỗi', error.response?.data?.message || 'Không thể xóa giải đấu');
     },
   });
 
@@ -64,6 +80,20 @@ export default function LeagueSettingsScreen() {
         { text: 'Tạo mới', onPress: () => generateTokenMutation.mutate() }
       ]
     );
+  };
+
+  const handleShareLink = () => {
+    if (!league?.accessToken || !id) return;
+    
+    const shareableLink = generateLeagueLink(id as string, league.accessToken);
+    Clipboard.setString(shareableLink);
+    
+    Alert.alert(
+      'Đã sao chép!',
+      `Mã truy cập đã được sao chép vào clipboard.\n\nChia sẻ mã này để người khác có thể truy cập giải đấu:\n\n${shareableLink}`,
+      [{ text: 'OK' }]
+    );
+    toast.showSuccess('Đã sao chép', 'Mã đã được sao chép vào clipboard');
   };
 
   const handleDelete = () => {
@@ -88,6 +118,8 @@ export default function LeagueSettingsScreen() {
         options={{
           headerShown: true,
           headerTitle: 'Cài đặt giải đấu',
+          headerStyle: { backgroundColor: colors.background },
+          headerTintColor: colors.text,
         }}
       />
       
@@ -118,7 +150,14 @@ export default function LeagueSettingsScreen() {
                 {league.accessToken}
               </Text>
               <TouchableOpacity
-                style={[styles.tokenButton, { borderColor: colors.primary }]}
+                style={[styles.tokenButton, styles.shareButton, { backgroundColor: colors.primary }]}
+                onPress={handleShareLink}>
+                <Ionicons name="copy-outline" size={16} color="#fff" />
+                <Text style={[styles.tokenButtonText, { color: '#fff' }]}>Sao chép</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[styles.tokenButton, { borderColor: colors.primary, marginTop: 8 }]}
                 onPress={handleGenerateToken}>
                 <Ionicons name="refresh" size={16} color={colors.primary} />
                 <Text style={[styles.tokenButtonText, { color: colors.primary }]}>Tạo mã mới</Text>
@@ -222,6 +261,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     gap: 8,
+  },
+  shareButton: {
+    borderWidth: 0,
   },
   tokenButtonText: {
     fontSize: 14,

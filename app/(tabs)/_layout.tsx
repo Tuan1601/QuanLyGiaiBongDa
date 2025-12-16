@@ -32,6 +32,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="favorites"
+        options={{
+          title: 'Quan tâm',
+          tabBarIcon: ({ color }) => <Ionicons name="star" size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="create-league"
         options={{
           title: 'Tạo giải',
