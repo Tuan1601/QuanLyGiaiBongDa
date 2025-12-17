@@ -9,6 +9,9 @@ export interface FavoriteLeague {
   logo?: string;
   type: string;
   visibility: string;
+  description?: string;
+  numberOfTeams?: number;
+  teamsCount?: number; 
   addedAt: string;
 }
 

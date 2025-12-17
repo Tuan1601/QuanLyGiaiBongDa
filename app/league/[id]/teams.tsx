@@ -106,14 +106,6 @@ export default function TeamsListScreen() {
         {isOwner && (
           <View style={[styles.ownerActions, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
             <View style={styles.actionRow}>
-              <TouchableOpacity
-                style={[styles.actionButton, { backgroundColor: colors.primary }]}
-                onPress={() => router.push(`/league/${id}/add-team` as any)}
-              >
-                <Ionicons name="add" size={20} color="#fff" />
-                <Text style={styles.actionButtonText}>Thêm đội</Text>
-              </TouchableOpacity>
-              
               {isGroupStage && (
                 <TouchableOpacity
                   style={[

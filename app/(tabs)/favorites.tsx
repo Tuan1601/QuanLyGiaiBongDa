@@ -106,9 +106,9 @@ export default function FavoritesScreen() {
             logo: item.logo,
             type: item.type,
             visibility: item.visibility,
-            description: '',
-            numberOfTeams: 0,
-            teams: [],
+            description: item.description || '',
+            numberOfTeams: item.numberOfTeams || 0,
+            teams: new Array(item.teamsCount || 0).fill(null), 
             tournamentStatus: 'ongoing',
           };
           return <LeagueCard league={league as any} />;

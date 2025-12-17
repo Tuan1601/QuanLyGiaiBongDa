@@ -77,15 +77,34 @@ api.interceptors.response.use(
         });
 
         const { accessToken, refreshToken: newRefreshToken } = response.data.tokens;
-        await AsyncStorage.setItem('accessToken', accessToken);
-        await AsyncStorage.setItem('refreshToken', newRefreshToken);
-        console.log('✅ Token refreshed successfully');
+        
+        // Calculate expiry timestamps
+        const accessTokenExpiry = new Date();
+        accessTokenExpiry.setMinutes(accessTokenExpiry.getMinutes() + 15); // 15 minutes (theo doc)
+        
+        const refreshTokenExpiry = new Date();
+        refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 7); // 7 days
+        
+        // Save tokens with expiry
+        await AsyncStorage.multiSet([
+          ['accessToken', accessToken],
+          ['refreshToken', newRefreshToken],
+          ['accessTokenExpiry', accessTokenExpiry.toISOString()],
+          ['refreshTokenExpiry', refreshTokenExpiry.toISOString()],
+        ]);
+        
+        console.log('✅ Token refreshed successfully with 7-day expiry');
 
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
         console.log('❌ Token refresh failed:', refreshError);
-        await AsyncStorage.multiRemove(['accessToken', 'refreshToken']);
+        await AsyncStorage.multiRemove([
+          'accessToken', 
+          'refreshToken',
+          'accessTokenExpiry',
+          'refreshTokenExpiry',
+        ]);
         console.log('🚪 Tokens cleared - user will be logged out');
         
         // Create a more descriptive error for the user
@@ -99,7 +118,12 @@ api.interceptors.response.use(
     if (error.response?.status === 403) {
       console.log('❌ Got 403 Forbidden for URL:', originalRequest.url);
       console.log('403 Response data:', error.response?.data);
-      await AsyncStorage.multiRemove(['accessToken', 'refreshToken']);
+      await AsyncStorage.multiRemove([
+        'accessToken', 
+        'refreshToken',
+        'accessTokenExpiry',
+        'refreshTokenExpiry',
+      ]);
       console.log('🚪 Tokens cleared due to 403');
       return Promise.reject(new Error('Access forbidden'));
     }

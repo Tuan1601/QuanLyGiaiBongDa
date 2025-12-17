@@ -54,6 +54,9 @@ function LeagueCard({ league }: LeagueCardProps) {
         logo: league.logo,
         type: league.type,
         visibility: league.visibility,
+        description: league.description,
+        numberOfTeams: league.numberOfTeams,
+        teamsCount: Array.isArray(league.teams) ? league.teams.length : 0,
       });
       toast.showSuccess(
         isNowFavorite ? 'Đã thêm quan tâm' : 'Đã bỏ quan tâm',

@@ -317,7 +317,12 @@ export default function ForgotPasswordScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView 
+      style={styles.container} 
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="on-drag"
+    >
       <StatusBar barStyle="light-content" />
       
       <LinearGradient
@@ -362,6 +367,7 @@ export default function ForgotPasswordScreen() {
                     onBlur={onBlur}
                     secureTextEntry={!showPassword}
                     placeholderTextColor="#9CA3AF"
+                    autoFocus
                   />
                 )}
               />

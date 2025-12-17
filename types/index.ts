@@ -4,6 +4,7 @@ export interface User {
   email: string;
   fullName?: string;
   phone?: string;
+  address?: string;
   avatar: string | null;
   createdLeagues: string[];
   createdAt: string;

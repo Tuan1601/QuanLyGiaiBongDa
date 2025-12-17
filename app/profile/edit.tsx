@@ -12,8 +12,24 @@ import { useColorScheme } from '../../hooks/use-color-scheme';
 import { authService } from '../../services/auth';
 
 const schema = yup.object({
-  username: yup.string().required('Tên người dùng là bắt buộc').min(3, 'Tối thiểu 3 ký tự'),
-  email: yup.string().email('Email không hợp lệ').required('Email là bắt buộc'),
+  username: yup
+    .string()
+    .required('Tên người dùng là bắt buộc')
+    .min(3, 'Tối thiểu 3 ký tự')
+    .max(30, 'Tối đa 30 ký tự')
+    .matches(/^[a-zA-ZÀ-ỹ0-9_ ]+$/, 'Chỉ gồm chữ cái, số, dấu gạch dưới và khoảng trắng'),
+  email: yup
+    .string()
+    .email('Email không hợp lệ')
+    .required('Email là bắt buộc'),
+  phone: yup
+    .string()
+    .matches(/^(0|\+84)[0-9]{9,10}$/, 'Số điện thoại không hợp lệ (VD: 0912345678 hoặc +84912345678)')
+    .optional(),
+  address: yup
+    .string()
+    .max(255, 'Địa chỉ tối đa 255 ký tự')
+    .optional(),
 });
 
 export default function EditProfileScreen() {
@@ -28,6 +44,8 @@ export default function EditProfileScreen() {
     defaultValues: {
       username: user?.username || '',
       email: user?.email || '',
+      phone: user?.phone || '',
+      address: user?.address || '',
     },
   });
 
@@ -96,6 +114,41 @@ export default function EditProfileScreen() {
                 error={errors.email?.message}
                 keyboardType="email-address"
                 autoCapitalize="none"
+                editable={false}
+              />
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="phone"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <AnimatedInput
+                label="Số điện thoại"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={errors.phone?.message}
+                keyboardType="phone-pad"
+                placeholder="0912345678 hoặc +84912345678"
+              />
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="address"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <AnimatedInput
+                label="Địa chỉ"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={errors.address?.message}
+                autoCapitalize="words"
+                placeholder="Nhập địa chỉ của bạn"
+                multiline
+                numberOfLines={3}
               />
             )}
           />
