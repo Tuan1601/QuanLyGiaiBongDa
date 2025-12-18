@@ -28,8 +28,7 @@ export default function ChangePasswordScreen() {
   const router = useRouter();
   const { logout } = useAuth();
   const [loading, setLoading] = useState(false);
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
 
   const { control, handleSubmit, formState: { errors }, reset } = useForm({
     resolver: yupResolver(schema),

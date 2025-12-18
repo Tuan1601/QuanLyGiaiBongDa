@@ -8,13 +8,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import TabsBackground from '@/components/tabs/TabsBackground';
 
 export default function ProfileScreen() {
   const { user, logout, updateUser } = useAuth();
   const router = useRouter();
   const [uploading, setUploading] = useState(false);
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
 
   const handleLogout = () => {
     Alert.alert(
@@ -108,77 +108,109 @@ export default function ProfileScreen() {
     },
   ];
 
+  const accountMenuItems = menuItems.filter(item => ['edit-profile', 'change-password'].includes(item.id));
+  const appMenuItems = menuItems.filter(item => ['settings', 'help'].includes(item.id));
+  const logoutItem = menuItems.find(item => item.id === 'logout');
+
+  const renderMenuCard = (item: typeof menuItems[0]) => (
+    <TouchableOpacity
+      key={item.id}
+      style={[
+        styles.menuCard,
+        item.id === 'logout' && styles.logoutCard
+      ]}
+      onPress={item.onPress}
+      activeOpacity={0.7}
+    >
+      <View style={[
+        styles.iconContainer,
+        item.id === 'logout' && { backgroundColor: 'rgba(244, 67, 54, 0.15)' }
+      ]}>
+        <Ionicons 
+          name={item.icon as any} 
+          size={24} 
+          color={item.id === 'logout' ? colors.lose : '#FFFFFF'} 
+        />
+      </View>
+      <Text style={[
+        styles.menuCardText,
+        item.id === 'logout' && { color: colors.lose }
+      ]}>
+        {item.title}
+      </Text>
+      {item.id !== 'logout' && (
+        <Ionicons name="chevron-forward" size={20} color="rgba(255, 255, 255, 0.5)" />
+      )}
+    </TouchableOpacity>
+  );
+
   return (
-    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
-      <LinearGradient
-        colors={(colors.gradient?.primary as unknown as readonly [string, string, ...string[]]) || ([colors.primary, colors.primary] as unknown as readonly [string, string, ...string[]])}
-        style={styles.header}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}>
-        
-        <TouchableOpacity 
-          onPress={handleChangeAvatar} 
-          style={styles.avatarContainer}
-          disabled={uploading}>
+    <TabsBackground>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <LinearGradient
+            colors={['rgba(0, 0, 0, 0.3)', 'transparent']}
+            style={styles.headerGradient}
+          />
           
-          {user?.avatar ? (
-            <Image source={{ uri: user.avatar }} style={styles.avatar} />
-          ) : (
-            <View style={[styles.avatar, styles.avatarPlaceholder]}>
-              <Ionicons name="person" size={50} color="#FFFFFF" />
-            </View>
-          )}
-          
-          <View style={styles.cameraIcon}>
-            {uploading ? (
-              <Ionicons name="hourglass" size={16} color="#FFFFFF" />
+          <TouchableOpacity 
+            onPress={handleChangeAvatar} 
+            style={styles.avatarContainer}
+            disabled={uploading}
+            activeOpacity={0.8}
+          >
+            {user?.avatar ? (
+              <Image source={{ uri: user.avatar }} style={styles.avatar} />
             ) : (
-              <Ionicons name="camera" size={16} color="#FFFFFF" />
+              <View style={[styles.avatar, styles.avatarPlaceholder]}>
+                <Ionicons name="person" size={56} color="#FFFFFF" />
+              </View>
             )}
-          </View>
-        </TouchableOpacity>
-
-        <Text style={styles.username}>{user?.username}</Text>
-        <Text style={styles.email}>{user?.email}</Text>
-      </LinearGradient>
-
-      <View style={styles.menu}>
-        {menuItems.map((item) => (
-          <TouchableOpacity
-            key={item.id}
-            style={[styles.menuItem, { borderBottomColor: colors.border }]}
-            onPress={item.onPress}>
             
-            <View style={styles.menuLeft}>
-              <Ionicons name={item.icon as any} size={24} color={item.color} />
-              <Text style={[
-                styles.menuText, 
-                { color: item.id === 'logout' ? item.color : colors.text }
-              ]}>
-                {item.title}
-              </Text>
-            </View>
-            
-            {item.id !== 'logout' && (
-              <Ionicons 
-                name="chevron-forward" 
-                size={20} 
-                color={colors.textSecondary || colors.icon} 
-              />
-            )}
+            <LinearGradient
+              colors={[colors.primary, colors.secondary || colors.primary]}
+              style={styles.cameraIcon}
+            >
+              {uploading ? (
+                <Ionicons name="hourglass" size={18} color="#FFFFFF" />
+              ) : (
+                <Ionicons name="camera" size={18} color="#FFFFFF" />
+              )}
+            </LinearGradient>
           </TouchableOpacity>
-        ))}
-      </View>
 
-      <View style={styles.appInfo}>
-        <Text style={[styles.appInfoText, { color: colors.textSecondary || colors.icon }]}>
-          Bóng Đá Phủi v1.0.0
-        </Text>
-        <Text style={[styles.appInfoText, { color: colors.textSecondary || colors.icon }]}>
-          © 2024 Football League Management
-        </Text>
-      </View>
-    </ScrollView>
+          <Text style={styles.username}>{user?.username}</Text>
+          <Text style={styles.email}>{user?.email}</Text>
+        </View>
+
+        <View style={styles.content}>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Tài khoản</Text>
+            <View style={styles.menuGroup}>
+              {accountMenuItems.map(renderMenuCard)}
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Ứng dụng</Text>
+            <View style={styles.menuGroup}>
+              {appMenuItems.map(renderMenuCard)}
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <View style={styles.menuGroup}>
+              {logoutItem && renderMenuCard(logoutItem)}
+            </View>
+          </View>
+
+          <View style={styles.appInfo}>
+            <Text style={styles.appInfoText}>Bóng Đá Phủi v1.0.0</Text>
+            <Text style={styles.appInfoText}>© 2025 Football League Management</Text>
+          </View>
+        </View>
+      </ScrollView>
+    </TabsBackground>
   );
 }
 
@@ -189,76 +221,121 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     paddingTop: 60,
-    paddingBottom: 30,
-    paddingHorizontal: 20,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    paddingBottom: 32,
+    paddingHorizontal: 24,
+    position: 'relative',
+  },
+  headerGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 200,
   },
   avatarContainer: {
     position: 'relative',
-    marginBottom: 16,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
   },
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     borderWidth: 4,
     borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   avatarPlaceholder: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   cameraIcon: {
     position: 'absolute',
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    right: 4,
+    bottom: 4,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 3,
+    borderColor: '#FFFFFF',
   },
   username: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#FFFFFF',
-    marginBottom: 4,
+    marginBottom: 6,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   email: {
     fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: 'rgba(255, 255, 255, 0.85)',
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
-  menu: {
-    marginTop: 20,
+  content: {
     paddingHorizontal: 20,
+    paddingTop: 8,
   },
-  menuItem: {
+  section: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: 'rgba(255, 255, 255, 0.7)',
+    marginBottom: 12,
+    marginLeft: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  menuGroup: {
+    gap: 12,
+  },
+  menuCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 16,
-    borderBottomWidth: 1,
+    backgroundColor: 'rgba(59, 5, 5, 0.78)',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
   },
-  menuLeft: {
-    flexDirection: 'row',
+  logoutCard: {
+    backgroundColor: 'rgba(244, 67, 54, 0.08)',
+    borderColor: 'rgba(244, 67, 54, 0.2)',
+  },
+  iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    justifyContent: 'center',
     alignItems: 'center',
+    marginRight: 16,
+  },
+  menuCardText: {
     flex: 1,
-  },
-  menuText: {
     fontSize: 16,
-    marginLeft: 16,
-    fontWeight: '500',
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
   appInfo: {
     alignItems: 'center',
-    paddingVertical: 30,
-    paddingHorizontal: 20,
+    paddingVertical: 32,
+    paddingBottom: 40,
   },
   appInfoText: {
-    fontSize: 12,
+    fontSize: 13,
+    color: 'rgba(255, 255, 255, 0.4)',
     marginBottom: 4,
   },
 });

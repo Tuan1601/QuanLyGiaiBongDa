@@ -9,10 +9,10 @@ import React, { useEffect } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/contexts/AuthContext';
+import TabsBackground from '@/components/tabs/TabsBackground';
 
 export default function FavoritesScreen() {
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
   const router = useRouter();
   const { user } = useAuth();
   const { favorites, isLoading } = useFavorites();
@@ -57,12 +57,9 @@ export default function FavoritesScreen() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <LinearGradient
-        colors={(colors.gradient?.primary as unknown as readonly [string, string, ...string[]]) || ([colors.primary, colors.primary] as unknown as readonly [string, string, ...string[]])}
-        style={styles.header}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}>
+    <TabsBackground>
+      <View style={styles.container}>
+      <View style={styles.header}>
         
         <View style={styles.headerTop}>
           <View style={styles.headerLeft}>
@@ -94,7 +91,7 @@ export default function FavoritesScreen() {
             </TouchableOpacity>
           )}
         </View>
-      </LinearGradient>
+      </View>
 
       <FlatList
         data={favorites}
@@ -117,7 +114,8 @@ export default function FavoritesScreen() {
         contentContainerStyle={favorites.length === 0 ? styles.emptyList : styles.list}
         showsVerticalScrollIndicator={false}
       />
-    </View>
+      </View>
+    </TabsBackground>
   );
 }
 
@@ -126,11 +124,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: 50,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    paddingTop: 60,
+    paddingBottom: 30,
+    paddingHorizontal: 24,
+    backgroundColor: 'transparent',
   },
   headerTop: {
     flexDirection: 'row',

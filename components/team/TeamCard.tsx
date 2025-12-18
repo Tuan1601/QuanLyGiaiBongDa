@@ -37,8 +37,7 @@ export default function TeamCard({
   isMenuOpen = false,
   onToggleMenu,
 }: TeamCardProps) {
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
   const queryClient = useQueryClient();
 
   const cardRef = useRef<View>(null);

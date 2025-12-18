@@ -10,8 +10,7 @@ interface UploadProgressProps {
 }
 
 export function UploadProgress({ progress, fileName, isUploading }: UploadProgressProps) {
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
 
   if (!isUploading) return null;
 

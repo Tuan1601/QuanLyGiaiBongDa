@@ -12,8 +12,7 @@ export default function EditTeamScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
 
   const [name, setName] = useState('');
   const [shortName, setShortName] = useState('');

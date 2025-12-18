@@ -22,8 +22,8 @@ const TOKEN_KEYS = {
 
 // Token expiry durations
 const TOKEN_EXPIRY = {
-  ACCESS_TOKEN_MINUTES: 15, // Access token valid for 15 minutes (theo doc)
-  REFRESH_TOKEN_DAYS: 7, // Refresh token valid for 7 days
+  ACCESS_TOKEN_MINUTES: 15, 
+  REFRESH_TOKEN_DAYS: 7, 
 };
 
 // Helper to calculate expiry timestamp

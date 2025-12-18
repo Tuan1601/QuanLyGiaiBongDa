@@ -7,6 +7,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, StatusBar } from 'react-native';
 import * as yup from 'yup';
 import { authService } from '../../services/auth';
+import AuthBackground from '../../components/auth/AuthBackground';
 
 const registerSchema = yup.object({
   username: yup
@@ -78,30 +79,26 @@ export default function RegisterScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <StatusBar barStyle="light-content" />
-      
-      <LinearGradient
-        colors={['#B91C3C', '#DC2626']}
-        style={styles.header}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}>
+    <AuthBackground>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <StatusBar barStyle="light-content" />
+        
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
-        </TouchableOpacity>
+          <View style={styles.logoContainer}>
+            <Image 
+              source={require('../../assets/images/icon.png')} 
+              style={styles.logoImage}
+              resizeMode="cover"
+            />
+          </View>
 
-        <View style={styles.logoContainer}>
-          <Image 
-            source={require('../../assets/images/icon.png')} 
-            style={styles.logoImage}
-            resizeMode="cover"
-          />
+          <Text style={styles.pageTitle}>Tạo tài khoản</Text>
+          <Text style={styles.pageSubtitle}>Bắt đầu quản lý giải đấu của bạn</Text>
         </View>
-
-        <Text style={styles.pageTitle}>Tạo tài khoản</Text>
-        <Text style={styles.pageSubtitle}>Bắt đầu quản lý giải đấu của bạn</Text>
-      </LinearGradient>
 
       <View style={styles.formContainer}>
         <View style={styles.formCard}>
@@ -140,7 +137,7 @@ export default function RegisterScreen() {
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
                     style={styles.textInput}
-                    placeholder="john@example.com"
+                    placeholder="AnhTuan16@email.com"
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}
@@ -241,18 +238,18 @@ export default function RegisterScreen() {
           </View>
         </View>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </AuthBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
   },
   header: {
     paddingTop: 60,
-    paddingBottom: 50,
+    paddingBottom: 40,
     paddingHorizontal: 24,
     alignItems: 'center',
     position: 'relative',

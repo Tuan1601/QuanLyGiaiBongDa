@@ -7,6 +7,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, StatusBar } from 'react-native';
 import * as yup from 'yup';
 import { authService } from '../../services/auth';
+import AuthBackground from '../../components/auth/AuthBackground';
 
 const emailSchema = yup.object({
   email: yup
@@ -132,26 +133,22 @@ export default function ForgotPasswordScreen() {
 
   if (step === 1) {
     return (
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" />
-        
-        <LinearGradient
-          colors={['#B91C3C', '#DC2626']}
-          style={styles.header}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}>
+      <AuthBackground>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <StatusBar barStyle="light-content" />
           
-          <View style={styles.logoContainer}>
-            <Image 
-              source={require('../../assets/images/icon.png')} 
-              style={styles.logoImage}
-              resizeMode="cover"
-            />
+          <View style={styles.header}>
+            <View style={styles.logoContainer}>
+              <Image 
+                source={require('../../assets/images/icon.png')} 
+                style={styles.logoImage}
+                resizeMode="cover"
+              />
+            </View>
+            
+            <Text style={styles.appTitle}>Quên mật khẩu</Text>
+            <Text style={styles.appSubtitle}>Nhập email để nhận mã OTP</Text>
           </View>
-          
-          <Text style={styles.appTitle}>Quên mật khẩu</Text>
-          <Text style={styles.appSubtitle}>Nhập email để nhận mã OTP</Text>
-        </LinearGradient>
 
         <View style={styles.formContainer}>
           <View style={styles.formCard}>
@@ -208,32 +205,29 @@ export default function ForgotPasswordScreen() {
             </View>
           </View>
         </View>
-      </View>
+        </ScrollView>
+      </AuthBackground>
     );
   }
 
   if (step === 2) {
     return (
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        <StatusBar barStyle="light-content" />
-        
-        <LinearGradient
-          colors={['#B91C3C', '#DC2626']}
-          style={styles.header}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}>
+      <AuthBackground>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <StatusBar barStyle="light-content" />
           
-          <View style={styles.logoContainer}>
-            <Image 
-              source={require('../../assets/images/icon.png')} 
-              style={styles.logoImage}
-              resizeMode="cover"
-            />
+          <View style={styles.header}>
+            <View style={styles.logoContainer}>
+              <Image 
+                source={require('../../assets/images/icon.png')} 
+                style={styles.logoImage}
+                resizeMode="cover"
+              />
+            </View>
+            
+            <Text style={styles.appTitle}>Xác thực OTP</Text>
+            <Text style={styles.appSubtitle}>Nhập mã OTP đã gửi đến email</Text>
           </View>
-          
-          <Text style={styles.appTitle}>Xác thực OTP</Text>
-          <Text style={styles.appSubtitle}>Nhập mã OTP đã gửi đến email</Text>
-        </LinearGradient>
 
         <View style={styles.formContainer}>
           <View style={styles.formCard}>
@@ -312,36 +306,33 @@ export default function ForgotPasswordScreen() {
             </TouchableOpacity>
           </View>
         </View>
-      </ScrollView>
+        </ScrollView>
+      </AuthBackground>
     );
   }
 
   return (
-    <ScrollView 
-      style={styles.container} 
-      showsVerticalScrollIndicator={false}
-      keyboardShouldPersistTaps="handled"
-      keyboardDismissMode="on-drag"
-    >
-      <StatusBar barStyle="light-content" />
-      
-      <LinearGradient
-        colors={['#B91C3C', '#DC2626']}
-        style={styles.header}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}>
+    <AuthBackground>
+      <ScrollView 
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        contentContainerStyle={{ paddingBottom: 40 }}
+      >
+        <StatusBar barStyle="light-content" />
         
-        <View style={styles.logoContainer}>
-          <Image 
-            source={require('../../assets/images/icon.png')} 
-            style={styles.logoImage}
-            resizeMode="cover"
-          />
+        <View style={styles.header}>
+          <View style={styles.logoContainer}>
+            <Image 
+              source={require('../../assets/images/icon.png')} 
+              style={styles.logoImage}
+              resizeMode="cover"
+            />
+          </View>
+          
+          <Text style={styles.appTitle}>Đặt lại mật khẩu</Text>
+          <Text style={styles.appSubtitle}>Tạo mật khẩu mới cho tài khoản</Text>
         </View>
-        
-        <Text style={styles.appTitle}>Đặt lại mật khẩu</Text>
-        <Text style={styles.appSubtitle}>Tạo mật khẩu mới cho tài khoản</Text>
-      </LinearGradient>
 
       <View style={styles.formContainer}>
         <View style={styles.formCard}>
@@ -453,18 +444,18 @@ export default function ForgotPasswordScreen() {
           </View>
         </View>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </AuthBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
   },
   header: {
     paddingTop: 60,
-    paddingBottom: 50,
+    paddingBottom: 40,
     paddingHorizontal: 24,
     alignItems: 'center',
   },

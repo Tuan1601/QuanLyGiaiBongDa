@@ -28,8 +28,7 @@ export const Button = forwardRef<React.ElementRef<typeof TouchableOpacity>, Butt
     disabled,
     ...props 
   }, ref) => {
-    const colorScheme = useColorScheme() ?? 'light';
-    const colors = Colors[colorScheme];
+    const colors = Colors;
 
     const getButtonStyle = (): ViewStyle => {
       const baseStyle: ViewStyle = {

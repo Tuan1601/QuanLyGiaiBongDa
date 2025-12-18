@@ -22,7 +22,7 @@ function AnimatedTabIcon({
   index?: number;
   totalTabs?: number;
 }) {
-  const colorScheme = useColorScheme() ?? 'light';
+
 
   return (
     <View style={styles.iconWrapper}>
@@ -43,7 +43,7 @@ function AnimatedTabIcon({
         style={[
           styles.raisedCircle,
           { 
-            backgroundColor: focused ? Colors[colorScheme].primary : 'transparent',
+            backgroundColor: focused ? Colors.primary : 'transparent',
           }
         ]}
       />
@@ -79,8 +79,7 @@ function CurvedTabBar({
   descriptors, 
   navigation 
 }: any) {
-  const colorScheme = useColorScheme() ?? 'light';
-  const primaryColor = Colors[colorScheme].primary;
+  const primaryColor = Colors.primary;
   const focusedIndex = state.index;
   const totalTabs = state.routes.length;
 
@@ -181,7 +180,7 @@ function CurvedTabBar({
 }
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme() ?? 'light';
+
 
   return (
     <Tabs

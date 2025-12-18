@@ -38,8 +38,7 @@ export const AnimatedInput = forwardRef<TextInput, AnimatedInputProps>(
     onBlur,
     ...props 
   }, ref) => {
-    const colorScheme = useColorScheme() ?? 'light';
-    const colors = Colors[colorScheme];
+    const colors = Colors;
     const [isFocused, setIsFocused] = useState(false);
     
     const focusAnimation = useSharedValue(0);

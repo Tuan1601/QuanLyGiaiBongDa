@@ -36,8 +36,7 @@ export default function EditProfileScreen() {
   const { user, updateUser } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
 
   const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),

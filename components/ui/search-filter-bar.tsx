@@ -21,8 +21,7 @@ export function SearchFilterBar({
   filterStatus,
   onStatusChange,
 }: SearchFilterBarProps) {
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
 
   return (
     <View style={styles.container}>
@@ -106,12 +105,19 @@ function FilterChip({ label, active, onPress, colors }: FilterChipProps) {
     <TouchableOpacity
       style={[
         styles.chip,
-        { borderColor: colors.border },
-        active && { backgroundColor: colors.primary, borderColor: colors.primary },
+        { 
+          borderColor: active ? colors.primary : 'rgba(255, 255, 255, 0.5)',
+          backgroundColor: active ? colors.primary : 'rgba(255, 255, 255, 0.15)',
+        },
       ]}
       onPress={onPress}
     >
-      <Text style={[styles.chipText, { color: active ? '#fff' : colors.text }]}>{label}</Text>
+      <Text style={[
+        styles.chipText, 
+        { color: '#FFFFFF' } // Always white text for readability on gradient
+      ]}>
+        {label}
+      </Text>
     </TouchableOpacity>
   );
 }

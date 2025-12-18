@@ -9,8 +9,7 @@ import { leagueService } from '@/services/league';
 
 export default function AccessPrivateLeagueScreen() {
   const router = useRouter();
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
   
   const [linkCode, setLinkCode] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);

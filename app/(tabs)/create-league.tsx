@@ -10,12 +10,12 @@ import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import TabsBackground from '@/components/tabs/TabsBackground';
 
 export default function CreateLeagueScreen() {
   const router = useRouter();
   const { logout } = useAuth();
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
   const [step, setStep] = useState(1);
 
   const [name, setName] = useState('');
@@ -74,21 +74,37 @@ export default function CreateLeagueScreen() {
   };
 
   const handleCreate = async () => {
+    console.log('=== CREATE LEAGUE DEBUG ===');
+    console.log('RAW STATE VALUES:', {
+      numberOfTeams,
+      numberOfGroups,
+      teamsPerGroup,
+      type,
+    });
+  
     if (!name.trim()) {
       Alert.alert('Lỗi', 'Vui lòng nhập tên giải đấu');
       return;
     }
-
+  
     const token = await AsyncStorage.getItem('accessToken');
     if (!token) {
       Alert.alert('Lỗi', 'Vui lòng đăng nhập để tạo giải đấu');
       return;
     }
-
+  
     const totalTeams = Number(numberOfTeams);
     const groups = Number(numberOfGroups);
     const perGroup = Number(teamsPerGroup);
-
+  
+    console.log('CONVERTED VALUES:', {
+      totalTeams,
+      groups,
+      perGroup,
+      calculation: `${groups} × ${perGroup} = ${groups * perGroup}`,
+      isValid: groups * perGroup === totalTeams,
+    });
+  
     if (type === 'group-stage') {
       console.log('Final validation before submit:', {
         totalTeams,
@@ -97,7 +113,7 @@ export default function CreateLeagueScreen() {
         calculation: groups * perGroup,
         isValid: groups * perGroup === totalTeams
       });
-
+  
       if (groups * perGroup !== totalTeams) {
         Alert.alert(
           'Lỗi cài đặt bảng đấu',
@@ -105,107 +121,121 @@ export default function CreateLeagueScreen() {
         );
         return;
       }
-
+  
       if (groups < 2) {
         Alert.alert('Lỗi', 'Giải chia bảng phải có ít nhất 2 bảng');
         return;
       }
-
+  
       if (perGroup < 2) {
         Alert.alert('Lỗi', 'Mỗi bảng phải có ít nhất 2 đội');
         return;
       }
     }
-
+  
+    const actualNumberOfTeams = type === 'group-stage' ? groups * perGroup : totalTeams;
+  
+    const shouldUseJson = type === 'group-stage' || !logo;
+  
     let payload: FormData | object;
-
-    if (logo) {
+    let createdLeagueId: string | null = null;
+  
+    if (shouldUseJson) {
+      const jsonPayload: any = {
+        name: name.trim(),
+        type,
+        visibility,
+        numberOfTeams: actualNumberOfTeams,
+      };
+  
+      if (description.trim()) {
+        jsonPayload.description = description.trim();
+      }
+  
+      if (type === 'group-stage') {
+        jsonPayload.groupSettings = {
+          numberOfGroups: groups,
+          teamsPerGroup: perGroup,
+        };
+      }
+  
+      if (startDate) jsonPayload.startDate = startDate;
+      if (endDate) jsonPayload.endDate = endDate;
+  
+      payload = jsonPayload;
+      
+      console.log('📤 JSON PAYLOAD:', JSON.stringify(jsonPayload, null, 2));
+    } else {
       const formData = new FormData();
       formData.append('name', name.trim());
       formData.append('type', type);
       formData.append('visibility', visibility);
-      formData.append('numberOfTeams', String(totalTeams));
-
+      formData.append('numberOfTeams', String(actualNumberOfTeams));
+  
       if (description.trim()) {
         formData.append('description', description.trim());
       }
-
-      if (type === 'group-stage') {
-        formData.append('groupSettings', JSON.stringify({
-          numberOfGroups: groups,
-          teamsPerGroup: perGroup
-        }));
-      }
-
+  
       if (startDate) formData.append('startDate', startDate);
       if (endDate) formData.append('endDate', endDate);
-
+  
       formData.append('logo', {
         uri: logo.uri,
         name: 'logo.jpg',
         type: 'image/jpeg',
       } as any);
-
+  
       payload = formData;
-    } else {
-      const jsonPayload: any = {
-        name: name.trim(),
-        type,
-        visibility,
-        numberOfTeams: totalTeams,
-      };
-
-      if (description.trim()) {
-        jsonPayload.description = description.trim();
-      }
-
-      if (type === 'group-stage') {
-        jsonPayload.groupSettings = {
-          numberOfGroups: groups,
-          teamsPerGroup: perGroup
-        };
-      }
-
-      if (startDate) jsonPayload.startDate = startDate;
-      if (endDate) jsonPayload.endDate = endDate;
-
-      payload = jsonPayload;
+      
+      console.log('📤 FORMDATA for round-robin with logo');
     }
-
+  
     try {
       setLoading(true);
-
-      console.log('CREATE LEAGUE PAYLOAD:', {
-        type,
-        name: name.trim(),
-        visibility,
-        numberOfTeams: type === 'group-stage' ? String(groups * perGroup) : String(totalTeams),
-        ...(type === 'group-stage' && {
-          'groupSettings[numberOfGroups]': String(groups),
-          'groupSettings[teamsPerGroup]': String(perGroup),
-        }),
-      });
-
+  
+      console.log('=== CREATE LEAGUE ===');
+      console.log('Using:', shouldUseJson ? 'JSON' : 'FormData');
+      console.log('Type:', type);
+      console.log('Teams:', actualNumberOfTeams);
+      if (type === 'group-stage') {
+        console.log('Groups:', groups, '× Teams/Group:', perGroup, '=', groups * perGroup);
+      }
+      console.log('Has logo:', !!logo);
+  
       const response = await leagueService.createLeague(payload);
-
+      
+      console.log('✅ League created successfully:', response);
+      console.log('League ID:', response.league._id);
+      
+      if (shouldUseJson && logo) {
+        console.log('📤 Uploading logo separately...');
+        try {
+          const logoFormData = new FormData();
+          logoFormData.append('logo', {
+            uri: logo.uri,
+            name: 'logo.jpg',
+            type: 'image/jpeg',
+          } as any);
+          
+          await leagueService.updateLeague(response.league._id, logoFormData);
+          console.log('✅ Logo uploaded successfully');
+        } catch (logoError) {
+          console.warn('⚠️ Logo upload failed, but league was created:', logoError);
+        }
+      }
+  
+      router.push(`/league/${response.league._id}` as any);
       Alert.alert(
         'Thành công',
-        response.message || 'Tạo giải đấu thành công',
-        [
-          {
-            text: 'OK',
-            onPress: () =>
-              router.push(`/league/${response.league._id}` as any),
-          },
-        ]
+        response.message || 'Tạo giải đấu thành công!'
       );
     } catch (error: any) {
       console.error('League creation error:', error);
       console.error('Error response:', error.response?.data);
       console.error('Error status:', error.response?.status);
-
+  
       let errorMessage = 'Không thể tạo giải đấu';
-
+  
       if (error.message === 'Access forbidden' || error.response?.status === 403) {
         await logout();
         Alert.alert(
@@ -220,7 +250,7 @@ export default function CreateLeagueScreen() {
         );
         return;
       }
-
+  
       if (error.message === 'Authentication failed') {
         errorMessage = 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.';
       } else if (error.response?.status === 400) {
@@ -234,7 +264,7 @@ export default function CreateLeagueScreen() {
       } else if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
       }
-
+  
       Alert.alert('Lỗi tạo giải', errorMessage);
     } finally {
       setLoading(false);
@@ -242,57 +272,73 @@ export default function CreateLeagueScreen() {
   };
 
   const renderStep1 = () => (
-    <View>
-      <Text style={[styles.stepTitle, { color: colors.text }]}>Bước 1: Thông tin cơ bản</Text>
+    <View style={styles.stepCard}>
+      <Text style={styles.stepTitle}>Thông tin cơ bản</Text>
 
-      <Text style={[styles.label, { color: colors.text }]}>Tên giải đấu *</Text>
-      <TextInput
-        style={[styles.input, { borderColor: colors.border, color: colors.text }]}
-        placeholder="VD: Giải Bóng Đá Phủi 2024"
-        placeholderTextColor={colors.textSecondary || colors.icon}
-        value={name}
-        onChangeText={setName}
-      />
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Tên giải đấu *</Text>
+        <View style={styles.inputContainer}>
+          <Ionicons name="trophy-outline" size={20} color="rgba(255, 255, 255, 0.9)" style={styles.inputIcon} />
+          <TextInput
+            style={styles.input}
+            placeholder="VD: Giải Bóng Đá Phủi 2024"
+            placeholderTextColor="rgba(255, 255, 255, 0.5)"
+            value={name}
+            onChangeText={setName}
+          />
+        </View>
+      </View>
 
-      <Text style={[styles.label, { color: colors.text }]}>Mô tả</Text>
-      <TextInput
-        style={[styles.input, styles.textArea, { borderColor: colors.border, color: colors.text }]}
-        placeholder="Mô tả về giải đấu"
-        placeholderTextColor={colors.textSecondary || colors.icon}
-        value={description}
-        onChangeText={setDescription}
-        multiline
-        numberOfLines={4}
-      />
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Mô tả</Text>
+        <View style={[styles.inputContainer, styles.textAreaContainer]}>
+          <TextInput
+            style={[styles.input, styles.textArea]}
+            placeholder="Mô tả về giải đấu"
+            placeholderTextColor="rgba(255, 255, 255, 0.5)"
+            value={description}
+            onChangeText={setDescription}
+            multiline
+            numberOfLines={4}
+          />
+        </View>
+      </View>
 
-      <Text style={[styles.label, { color: colors.text }]}>Logo giải đấu</Text>
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Logo giải đấu</Text>
+        <TouchableOpacity
+          style={styles.logoPicker}
+          onPress={handlePickLogo}>
+          {logo ? (
+            <>
+              <Ionicons name="checkmark-circle" size={48} color="#4CAF50" />
+              <Text style={[styles.logoText, { color: '#4CAF50', fontWeight: '600' }]}>✓ Đã chọn logo</Text>
+            </>
+          ) : (
+            <>
+              <Ionicons name="image-outline" size={48} color="rgba(255, 255, 255, 0.7)" />
+              <Text style={styles.logoText}>Chọn logo</Text>
+            </>
+          )}
+        </TouchableOpacity>
+      </View>
+
       <TouchableOpacity
-        style={[styles.logoPicker, { borderColor: colors.border }]}
-        onPress={handlePickLogo}>
-        {logo ? (
-          <Text style={[styles.logoText, { color: colors.win }]}>✓ Đã chọn logo</Text>
-        ) : (
-          <>
-            <Ionicons name="image-outline" size={40} color={colors.textSecondary || colors.icon} />
-            <Text style={[styles.logoText, { color: colors.textSecondary || colors.icon }]}>Chọn logo</Text>
-          </>
-        )}
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[styles.button, { backgroundColor: colors.primary }]}
+        style={[styles.primaryButton, { backgroundColor: colors.primary }]}
         onPress={() => setStep(2)}>
-        <Text style={styles.buttonText}>Tiếp theo</Text>
+        <Text style={styles.primaryButtonText}>Tiếp theo</Text>
+        <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
       </TouchableOpacity>
     </View>
   );
 
   const renderStep2 = () => (
-    <View>
-      <Text style={[styles.stepTitle, { color: colors.text }]}>Bước 2: Thể thức thi đấu</Text>
+    <View style={styles.stepCard}>
+      <Text style={styles.stepTitle}>Thể thức thi đấu</Text>
 
-      <Text style={[styles.label, { color: colors.text }]}>Chọn thể thức *</Text>
-      <View style={styles.typeContainer}>
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Chọn thể thức *</Text>
+        <View style={styles.typeContainer}>
         <TouchableOpacity
           style={[
             styles.typeButton,
@@ -302,8 +348,7 @@ export default function CreateLeagueScreen() {
           onPress={() => setType('round-robin')}>
           <Text style={[
             styles.typeText,
-            { color: colors.text },
-            type === 'round-robin' && { color: '#fff', fontWeight: '600' }
+            type === 'round-robin' && { fontWeight: '600' }
           ]}>
             Vòng tròn 1 lượt
           </Text>
@@ -318,48 +363,63 @@ export default function CreateLeagueScreen() {
           onPress={() => setType('group-stage')}>
           <Text style={[
             styles.typeText,
-            { color: colors.text },
-            type === 'group-stage' && { color: '#fff', fontWeight: '600' }
+            type === 'group-stage' && { fontWeight: '600' }
           ]}>
             Chia bảng
           </Text>
         </TouchableOpacity>
+        </View>
       </View>
 
-      <Text style={[styles.label, { color: colors.text }]}>Số đội tham gia *</Text>
-      <TextInput
-        style={[styles.input, { borderColor: colors.border, color: colors.text }]}
-        placeholder="6"
-        placeholderTextColor={colors.textSecondary || colors.icon}
-        value={numberOfTeams}
-        onChangeText={handleTeamsChange}
-        keyboardType="number-pad"
-      />
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Số đội tham gia *</Text>
+        <View style={styles.inputContainer}>
+          <Ionicons name="people-outline" size={20} color="rgba(255, 255, 255, 0.9)" style={styles.inputIcon} />
+          <TextInput
+            style={styles.input}
+            placeholder="6"
+            placeholderTextColor="rgba(255, 255, 255, 0.5)"
+            value={numberOfTeams}
+            onChangeText={handleTeamsChange}
+            keyboardType="number-pad"
+          />
+        </View>
+      </View>
 
       {type === 'group-stage' && (
         <>
-          <Text style={[styles.label, { color: colors.text }]}>Số bảng đấu *</Text>
-          <TextInput
-            style={[styles.input, { borderColor: colors.border, color: colors.text }]}
-            placeholder="2"
-            placeholderTextColor={colors.textSecondary || colors.icon}
-            value={numberOfGroups}
-            onChangeText={handleGroupsChange}
-            keyboardType="number-pad"
-          />
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Số bảng đấu *</Text>
+            <View style={styles.inputContainer}>
+              <Ionicons name="grid-outline" size={20} color="rgba(255, 255, 255, 0.9)" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="2"
+                placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                value={numberOfGroups}
+                onChangeText={handleGroupsChange}
+                keyboardType="number-pad"
+              />
+            </View>
+          </View>
 
-          <Text style={[styles.label, { color: colors.text }]}>Số đội/bảng *</Text>
-          <TextInput
-            style={[styles.input, { borderColor: colors.border, color: colors.text }]}
-            placeholder="4"
-            placeholderTextColor={colors.textSecondary || colors.icon}
-            value={teamsPerGroup}
-            onChangeText={setTeamsPerGroup}
-            keyboardType="number-pad"
-          />
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Số đội/bảng *</Text>
+            <View style={styles.inputContainer}>
+              <Ionicons name="list-outline" size={20} color="rgba(255, 255, 255, 0.9)" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="4"
+                placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                value={teamsPerGroup}
+                onChangeText={setTeamsPerGroup}
+                keyboardType="number-pad"
+              />
+            </View>
+          </View>
 
           <View style={styles.validationContainer}>
-            <Text style={[styles.hint, { color: colors.textSecondary || colors.icon }]}>
+            <Text style={styles.hint}>
               * Tổng số đội = Số bảng × Số đội/bảng ({numberOfGroups} × {teamsPerGroup} = {parseInt(numberOfGroups) * parseInt(teamsPerGroup)})
             </Text>
             {parseInt(numberOfGroups) * parseInt(teamsPerGroup) === parseInt(numberOfTeams) ? (
@@ -393,26 +453,29 @@ export default function CreateLeagueScreen() {
 
       <View style={styles.buttonRow}>
         <TouchableOpacity
-          style={[styles.button, styles.buttonSecondary, { borderColor: colors.primary }]}
+          style={styles.secondaryButton}
           onPress={() => setStep(1)}>
-          <Text style={[styles.buttonTextSecondary, { color: colors.primary }]}>Quay lại</Text>
+          <Ionicons name="arrow-back" size={20} color="#FFFFFF" />
+          <Text style={styles.secondaryButtonText}>Quay lại</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.button, { flex: 1, backgroundColor: colors.primary }]}
+          style={[styles.primaryButton, { flex: 1, backgroundColor: colors.primary }]}
           onPress={() => setStep(3)}>
-          <Text style={styles.buttonText}>Tiếp theo</Text>
+          <Text style={styles.primaryButtonText}>Tiếp theo</Text>
+          <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
     </View>
   );
 
   const renderStep3 = () => (
-    <View>
-      <Text style={[styles.stepTitle, { color: colors.text }]}>Bước 3: Cài đặt</Text>
+    <View style={styles.stepCard}>
+      <Text style={styles.stepTitle}>Cài đặt</Text>
 
-      <Text style={[styles.label, { color: colors.text }]}>Chế độ hiển thị *</Text>
-      <View style={styles.typeContainer}>
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Chế độ hiển thị *</Text>
+        <View style={styles.typeContainer}>
         <TouchableOpacity
           style={[
             styles.typeButton,
@@ -422,8 +485,7 @@ export default function CreateLeagueScreen() {
           onPress={() => setVisibility('public')}>
           <Text style={[
             styles.typeText,
-            { color: colors.text },
-            visibility === 'public' && { color: '#fff', fontWeight: '600' }
+            visibility === 'public' && { fontWeight: '600' }
           ]}>
             Công khai
           </Text>
@@ -438,21 +500,22 @@ export default function CreateLeagueScreen() {
           onPress={() => setVisibility('private')}>
           <Text style={[
             styles.typeText,
-            { color: colors.text },
-            visibility === 'private' && { color: '#fff', fontWeight: '600' }
+            visibility === 'private' && { fontWeight: '600' }
           ]}>
             Riêng tư
           </Text>
         </TouchableOpacity>
+        </View>
       </View>
 
-      <Text style={[styles.label, { color: colors.text }]}>Ngày bắt đầu (Tùy chọn)</Text>
-      <TouchableOpacity
-        style={[styles.dateButton, { borderColor: colors.border, backgroundColor: colors.card }]}
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Ngày bắt đầu (Tùy chọn)</Text>
+        <TouchableOpacity
+        style={styles.dateButton}
         onPress={() => setShowStartDatePicker(true)}
       >
         <Ionicons name="calendar-outline" size={20} color={colors.primary} />
-        <Text style={[styles.dateButtonText, { color: startDate ? colors.text : colors.textSecondary }]}>
+        <Text style={[styles.dateButtonText, !startDate && { opacity: 0.6 }]}>
           {startDate ? new Date(startDate).toLocaleDateString('vi-VN', {
             year: 'numeric',
             month: 'long',
@@ -473,14 +536,16 @@ export default function CreateLeagueScreen() {
           }}
         />
       )}
+      </View>
 
-      <Text style={[styles.label, { color: colors.text }]}>Ngày kết thúc (Tùy chọn)</Text>
-      <TouchableOpacity
-        style={[styles.dateButton, { borderColor: colors.border, backgroundColor: colors.card }]}
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Ngày kết thúc (Tùy chọn)</Text>
+        <TouchableOpacity
+        style={styles.dateButton}
         onPress={() => setShowEndDatePicker(true)}
       >
         <Ionicons name="calendar-outline" size={20} color={colors.primary} />
-        <Text style={[styles.dateButtonText, { color: endDate ? colors.text : colors.textSecondary }]}>
+        <Text style={[styles.dateButtonText, !endDate && { opacity: 0.6 }]}>
           {endDate ? new Date(endDate).toLocaleDateString('vi-VN', {
             year: 'numeric',
             month: 'long',
@@ -501,40 +566,40 @@ export default function CreateLeagueScreen() {
           }}
         />
       )}
+      </View>
 
       <View style={styles.buttonRow}>
         <TouchableOpacity
-          style={[styles.button, styles.buttonSecondary, { borderColor: colors.primary }]}
+          style={styles.secondaryButton}
           onPress={() => setStep(2)}>
-          <Text style={[styles.buttonTextSecondary, { color: colors.primary }]}>Quay lại</Text>
+          <Ionicons name="arrow-back" size={20} color="#FFFFFF" />
+          <Text style={styles.secondaryButtonText}>Quay lại</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[
-            styles.button,
+            styles.primaryButton,
             { flex: 1, backgroundColor: colors.primary },
             (loading || (type === 'group-stage' && parseInt(numberOfGroups) * parseInt(teamsPerGroup) !== parseInt(numberOfTeams))) && { opacity: 0.6 }
           ]}
           onPress={handleCreate}
           disabled={loading || (type === 'group-stage' && parseInt(numberOfGroups) * parseInt(teamsPerGroup) !== parseInt(numberOfTeams))}>
-          <Text style={styles.buttonText}>
+          <Text style={styles.primaryButtonText}>
             {loading ? 'Đang tạo...' : 'Tạo giải đấu'}
           </Text>
+          {!loading && <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />}
         </TouchableOpacity>
       </View>
     </View>
   );
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <LinearGradient
-        colors={(colors.gradient?.primary as unknown as readonly [string, string, ...string[]]) || ([colors.primary, colors.primary] as unknown as readonly [string, string, ...string[]])}
-        style={styles.header}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}>
+    <TabsBackground>
+      <View style={styles.container}>
+      <View style={styles.header}>
         <Text style={styles.headerTitle}>Tạo Giải Đấu Mới</Text>
         <Text style={styles.headerSubtitle}>Bước {step}/3</Text>
-      </LinearGradient>
+      </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.progress}>
@@ -551,7 +616,8 @@ export default function CreateLeagueScreen() {
           {step === 3 && renderStep3()}
         </View>
       </ScrollView>
-    </View>
+      </View>
+    </TabsBackground>
   );
 }
 
@@ -573,8 +639,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   headerSubtitle: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: 15,
+    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.95)',
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   content: {
     flex: 1,
@@ -598,23 +668,55 @@ const styles = StyleSheet.create({
   form: {
     padding: 20,
   },
+  stepCard: {
+    backgroundColor: 'rgba(56, 6, 6, 0.8)',
+    borderRadius: 20,
+    padding: 20,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.6)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 12,
+    marginBottom: 30,
+  },
   stepTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
+    marginBottom: 24,
+    color: '#FFFFFF',
+  },
+  inputGroup: {
     marginBottom: 20,
   },
   label: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
-    marginBottom: 8,
+    marginBottom: 10,
+    color: '#FFFFFF',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    overflow: 'hidden',
+  },
+  inputIcon: {
+    marginLeft: 15,
   },
   input: {
+    flex: 1,
     height: 50,
-    borderWidth: 1,
-    borderRadius: 12,
     paddingHorizontal: 15,
-    marginBottom: 20,
     fontSize: 16,
+    color: '#FFFFFF',
+  },
+  textAreaContainer: {
+    alignItems: 'flex-start',
   },
   textArea: {
     height: 100,
@@ -622,91 +724,111 @@ const styles = StyleSheet.create({
     paddingTop: 15,
   },
   logoPicker: {
-    height: 120,
+    height: 140,
     borderWidth: 2,
-    borderRadius: 12,
+    borderRadius: 16,
     borderStyle: 'dashed',
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
   },
   logoText: {
-    marginTop: 10,
-    fontSize: 14,
+    marginTop: 12,
+    fontSize: 15,
+    fontWeight: '500',
+    color:'#FFFFFF'
   },
   typeContainer: {
     flexDirection: 'row',
-    gap: 10,
-    marginBottom: 20,
+    gap: 12,
   },
   typeButton: {
     flex: 1,
     height: 50,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
   },
   typeText: {
-    fontSize: 16,
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#FFFFFF',
   },
   hint: {
     fontSize: 12,
-    marginTop: -10,
-    marginBottom: 10,
+    marginTop: 6,
+    color: 'rgba(255, 255, 255, 0.75)',
   },
   validationContainer: {
-    marginBottom: 20,
+    marginTop: 12,
+    padding: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 10,
   },
   validationSuccess: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    marginTop: 5,
+    gap: 8,
   },
   validationError: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginTop: 5,
+    gap: 8,
   },
   validationText: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '500',
   },
   autoFixButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-    marginTop: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginTop: 10,
+    alignSelf: 'flex-start',
   },
   autoFixText: {
     color: '#fff',
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '600',
   },
   buttonRow: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 12,
+    marginTop: 24,
   },
-  button: {
-    height: 50,
-    borderRadius: 12,
+  primaryButton: {
+    flexDirection: 'row',
+    height: 54,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 10,
+    gap: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
-  buttonSecondary: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    flex: 0.4,
-  },
-  buttonText: {
-    color: '#fff',
+  primaryButtonText: {
+    color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
   },
-  buttonTextSecondary: {
+  secondaryButton: {
+    flexDirection: 'row',
+    height: 54,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    flex: 1,
+  },
+  secondaryButtonText: {
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -717,11 +839,14 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 12,
     borderWidth: 1,
-    gap: 10,
-    marginBottom: 20,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    gap: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
   },
   dateButtonText: {
     fontSize: 15,
     flex: 1,
+    fontWeight: '500',
+    color: '#FFFFFF',
   },
 });

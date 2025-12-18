@@ -11,8 +11,7 @@ interface VideoPlayerProps {
 }
 
 export default function VideoPlayer({ uri, title }: VideoPlayerProps) {
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
   const video = useRef<Video>(null);
   const [status, setStatus] = useState<AVPlaybackStatus>();
   const [isLoading, setIsLoading] = useState(true);

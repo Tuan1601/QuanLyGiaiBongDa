@@ -6,8 +6,7 @@ import { Colors } from '../../constants/theme';
 import { useColorScheme } from '../../hooks/use-color-scheme';
 
 export default function HelpScreen() {
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
   const [expandedFAQ, setExpandedFAQ] = useState<string | null>(null);
 
   const faqItems = [

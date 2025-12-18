@@ -10,8 +10,7 @@ interface MatchCardProps {
 }
 
 export default function MatchCard({ match, onPress }: MatchCardProps) {
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
 
   const getStatusColor = (status: string) => {
     switch (status) {

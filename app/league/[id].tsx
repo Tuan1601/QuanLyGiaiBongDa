@@ -11,15 +11,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { getLeagueToken } from '@/utils/leagueLink';
+import LeagueBackground from '@/components/league/LeagueBackground';
 
 export default function LeagueDetailScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const { user } = useAuth();
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
   const [activeTab, setActiveTab] = useState('overview');
   const [savedToken, setSavedToken] = useState<string | null>(null);
   const [tokenLoaded, setTokenLoaded] = useState(false);
@@ -117,24 +117,35 @@ export default function LeagueDetailScreen() {
 
   return (
     <>
+      <StatusBar 
+        backgroundColor="rgba(214, 18, 64, 1)"
+        barStyle="light-content"
+      />
       <Stack.Screen
         options={{
           headerShown: true,
           headerTitle: league?.name || 'Chi tiết giải đấu',
-          headerStyle: { backgroundColor: colors.background },
-          headerTintColor: colors.text,
+          headerStyle: { 
+            backgroundColor: 'rgba(214, 18, 64, 1)',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
           headerRight: () =>
             isOwner ? (
               <TouchableOpacity
                 onPress={() => router.push(`/league/${id}/settings` as any)}
                 style={styles.headerButton}>
-                <Ionicons name="settings-outline" size={22} color={colors.primary} />
+                <Ionicons name="settings-outline" size={22} color="#FFFFFF" />
               </TouchableOpacity>
             ) : null,
         }}
       />
       
-      <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+      <LeagueBackground>
+        <ScrollView style={styles.container}>
         {!user && (
           <View style={[styles.guestPrompt, { backgroundColor: colors.primary + '15', borderColor: colors.primary }]}>
             <View style={styles.guestPromptContent}>
@@ -157,13 +168,13 @@ export default function LeagueDetailScreen() {
           </View>
         )}
 
-        <View style={[styles.header, { backgroundColor: colors.card }]}>
+        <View style={styles.header}>
           {league?.logo && (
             <Image source={{ uri: league.logo }} style={styles.logo} />
           )}
-          <Text style={[styles.name, { color: colors.text }]}>{league?.name}</Text>
+          <Text style={[styles.name, { color: '#FFFFFF' }]}>{league?.name}</Text>
           {league?.description && (
-            <Text style={[styles.description, { color: colors.textSecondary || colors.icon }]}>
+            <Text style={[styles.description, { color: 'rgba(255, 255, 255, 0.85)' }]}>
               {league.description}
             </Text>
           )}
@@ -190,49 +201,52 @@ export default function LeagueDetailScreen() {
           </View>
         </View>
 
-        <View style={[styles.stats, { backgroundColor: colors.card }]}>
+        <View style={styles.stats}>
           <View style={styles.statItem}>
-            <Text style={[styles.statValue, { color: colors.primary }]}>
+            <Ionicons name="people" size={20} color={colors.primary} style={{ marginBottom: 8 }} />
+            <Text style={[styles.statValue, { color: '#FFFFFF' }]}>
               {teamsData?.total || 0}
             </Text>
-            <Text style={[styles.statLabel, { color: colors.textSecondary || colors.icon }]}>Đội</Text>
+            <Text style={[styles.statLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>Đội</Text>
           </View>
           
-          <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
+          <View style={[styles.statDivider, { backgroundColor: 'rgba(255, 255, 255, 0.15)' }]} />
           
           <View style={styles.statItem}>
-            <Text style={[styles.statValue, { color: colors.primary }]}>
+            <Ionicons name="trophy" size={20} color={colors.primary} style={{ marginBottom: 8 }} />
+            <Text style={[styles.statValue, { color: '#FFFFFF' }]}>
               {league?.numberOfTeams}
             </Text>
-            <Text style={[styles.statLabel, { color: colors.textSecondary || colors.icon }]}>Tổng số đội</Text>
+            <Text style={[styles.statLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>Tổng số đội</Text>
           </View>
           
           {league?.startDate && (
             <>
-              <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
+              <View style={[styles.statDivider, { backgroundColor: 'rgba(255, 255, 255, 0.15)' }]} />
               <View style={styles.statItem}>
-                <Text style={[styles.statValue, { color: colors.primary }]}>
-                  {new Date(league.startDate).toLocaleDateString('vi-VN')}
+                <Ionicons name="calendar" size={20} color={colors.primary} style={{ marginBottom: 8 }} />
+                <Text style={[styles.statValue, { color: '#FFFFFF', fontSize: 16 }]}>
+                  {new Date(league.startDate).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                 </Text>
-                <Text style={[styles.statLabel, { color: colors.textSecondary || colors.icon }]}>Ngày bắt đầu</Text>
+                <Text style={[styles.statLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>Ngày bắt đầu</Text>
               </View>
             </>
           )}
         </View>
 
-        <View style={[styles.tabs, { borderBottomColor: colors.border }]}>
+        <View style={[styles.tabs, { borderBottomColor: 'rgba(255, 255, 255, 0.2)' }]}>
           {['overview', 'teams', 'matches', 'standings', 'statistics'].map((tab) => (
             <TouchableOpacity
               key={tab}
               style={[
                 styles.tab,
-                activeTab === tab && { borderBottomColor: colors.primary, borderBottomWidth: 2 }
+                activeTab === tab && { borderBottomColor: '#FFD700', borderBottomWidth: 3 }
               ]}
               onPress={() => setActiveTab(tab)}>
               <Text style={[
                 styles.tabText,
-                { color: colors.textSecondary || colors.icon },
-                activeTab === tab && { color: colors.primary, fontWeight: '600' }
+                { color: 'rgba(255, 255, 255, 0.7)' },
+                activeTab === tab && { color: '#FFFFFF', fontWeight: '700' }
               ]}>
                 {tab === 'overview' ? 'Tổng quan' :
                  tab === 'teams' ? 'Đội bóng' :
@@ -246,11 +260,11 @@ export default function LeagueDetailScreen() {
         <View style={styles.tabContent}>
           {activeTab === 'overview' && (
             <View>
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              <Text style={[styles.sectionTitle, { color: '#FFFFFF' }]}>
                 Thông tin giải đấu
               </Text>
               
-              <View style={[styles.infoCard, { backgroundColor: colors.card }]}>
+              <View style={styles.infoCard}>
                 <InfoRow 
                   label="Thể thức" 
                   value={league?.type === 'round-robin' ? 'Vòng tròn 1 lượt' : 'Chia bảng'}
@@ -285,14 +299,14 @@ export default function LeagueDetailScreen() {
               {isOwner && (
                 <View style={styles.actionButtons}>
                   <TouchableOpacity
-                    style={[styles.actionButton, { backgroundColor: colors.card }]}
+                    style={styles.actionButton}
                     onPress={() => router.push(`/league/${id}/teams` as any)}>
                     <Ionicons name="people" size={20} color={colors.primary} />
                     <Text style={[styles.actionButtonText, { color: colors.primary }]}>Quản lý đội</Text>
                   </TouchableOpacity>
                   
                   <TouchableOpacity
-                    style={[styles.actionButton, { backgroundColor: colors.card }]}
+                    style={styles.actionButton}
                     onPress={() => router.push(`/league/${id}/matches` as any)}>
                     <Ionicons name="calendar" size={20} color={colors.primary} />
                     <Text style={[styles.actionButtonText, { color: colors.primary }]}>Quản lý trận</Text>
@@ -302,7 +316,7 @@ export default function LeagueDetailScreen() {
               
               {isOwner && matchesData?.matches && matchesData.matches.length > 0 && (
                 <TouchableOpacity
-                  style={[styles.actionButton, styles.dangerButton, { backgroundColor: '#FF9500' + '10', borderWidth: 1, borderColor: '#FF9500' }]}
+                  style={[styles.actionButton, styles.dangerButton, { backgroundColor: '#FF9500' + '10', borderWidth: 1, borderColor: '#FF9500', marginTop:10, }]}
                   onPress={() => router.push(`/league/${id}/actions` as any)}>
                   <Ionicons name="warning"  size={20} color="#FF9500" />
                   <Text style={[styles.actionButtonText, { color: '#FF9500' }]}>Hành động</Text>
@@ -314,7 +328,7 @@ export default function LeagueDetailScreen() {
           {activeTab === 'teams' && (
             <View>
               <View style={styles.sectionHeader}>
-                <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                <Text style={[styles.sectionTitle, { color: '#FFFFFF' }]}>
                   Đội bóng ({teamsData?.total || 0}/{league?.numberOfTeams})
                 </Text>
                 <TouchableOpacity onPress={() => router.push(`/league/${id}/teams` as any)}>
@@ -327,7 +341,7 @@ export default function LeagueDetailScreen() {
                   {teamsData.teams.slice(0, 3).map((team: any, index: number) => (
                     <TouchableOpacity 
                       key={team._id || index} 
-                      style={[styles.teamPreview, { backgroundColor: colors.card }]}
+                      style={styles.teamPreview}
                       onPress={() => router.push(`/team/${team._id}` as any)}
                     >
                       <View style={styles.teamInfo}>
@@ -339,9 +353,9 @@ export default function LeagueDetailScreen() {
                           </View>
                         )}
                         <View style={styles.teamDetails}>
-                          <Text style={[styles.teamName, { color: colors.text }]}>{team.name}</Text>
+                          <Text style={[styles.teamName, { color: '#FFFFFF' }]}>{team.name}</Text>
                           {team.group && (
-                            <Text style={[styles.teamGroup, { color: colors.textSecondary }]}>Bảng {team.group}</Text>
+                            <Text style={[styles.teamGroup, { color: 'rgba(255, 255, 255, 0.7)' }]}>Bảng {team.group}</Text>
                           )}
                         </View>
                       </View>
@@ -355,7 +369,7 @@ export default function LeagueDetailScreen() {
                   
                   {teamsData.teams.length > 3 && (
                     <TouchableOpacity
-                      style={[styles.showMoreButton, { backgroundColor: colors.card }]}
+                      style={styles.showMoreButton}
                       onPress={() => router.push(`/league/${id}/teams` as any)}>
                       <Text style={[styles.showMoreText, { color: colors.primary }]}>
                         Xem thêm {teamsData.teams.length - 3} đội
@@ -365,10 +379,10 @@ export default function LeagueDetailScreen() {
                   )}
                 </View>
               ) : (
-                <View style={[styles.emptyState, { backgroundColor: colors.card }]}>
-                  <Ionicons name="people-outline" size={40} color={colors.textSecondary} />
-                  <Text style={[styles.emptyTitle, { color: colors.text }]}>Chưa có đội bóng</Text>
-                  <Text style={[styles.emptyDescription, { color: colors.textSecondary }]}>
+                <View style={styles.emptyState}>
+                  <Ionicons name="people-outline" size={40} color="rgba(255, 255, 255, 0.5)" />
+                  <Text style={[styles.emptyTitle, { color: '#FFFFFF' }]}>Chưa có đội bóng</Text>
+                  <Text style={[styles.emptyDescription, { color: 'rgba(255, 255, 255, 0.7)' }]}>
                     Thêm đội bóng để bắt đầu giải đấu
                   </Text>
                   {isOwner && (
@@ -386,7 +400,7 @@ export default function LeagueDetailScreen() {
           {activeTab === 'matches' && (
             <View>
               <View style={styles.sectionHeader}>
-                <Text style={[styles.sectionTitle, { color: colors.text }]}>Trận đấu gần đây</Text>
+                <Text style={[styles.sectionTitle, { color: '#FFFFFF' }]}>Trận đấu gần đây</Text>
                 <TouchableOpacity onPress={() => router.push(`/league/${id}/matches` as any)}>
                   <Text style={[styles.viewAllLink, { color: colors.primary }]}>Xem lịch đấu</Text>
                 </TouchableOpacity>
@@ -427,10 +441,10 @@ export default function LeagueDetailScreen() {
                   })()}
                 </View>
               ) : (
-                <View style={[styles.emptyState, { backgroundColor: colors.card }]}>
-                  <Ionicons name="calendar-outline" size={40} color={colors.textSecondary} />
-                  <Text style={[styles.emptyTitle, { color: colors.text }]}>Chưa có lịch thi đấu</Text>
-                  <Text style={[styles.emptyDescription, { color: colors.textSecondary }]}>
+                <View style={styles.emptyState}>
+                  <Ionicons name="calendar-outline" size={40} color="rgba(255, 255, 255, 0.5)" />
+                  <Text style={[styles.emptyTitle, { color: '#FFFFFF' }]}>Chưa có lịch thi đấu</Text>
+                  <Text style={[styles.emptyDescription, { color: 'rgba(255, 255, 255, 0.7)' }]}>
                     Tạo lịch thi đấu để bắt đầu giải đấu
                   </Text>
                   {isOwner && (
@@ -444,7 +458,7 @@ export default function LeagueDetailScreen() {
               )}
 
               <TouchableOpacity
-                style={[styles.showMoreButton, { backgroundColor: colors.card }]}
+                style={styles.showMoreButton}
                 onPress={() => router.push(`/league/${id}/matches` as any)}>
                 <Text style={[styles.showMoreText, { color: colors.primary }]}>Xem tất cả trận đấu</Text>
                 <Ionicons name="chevron-forward" size={16} color={colors.primary} />
@@ -455,7 +469,7 @@ export default function LeagueDetailScreen() {
           {activeTab === 'standings' && (
             <View>
               <View style={styles.sectionHeader}>
-                <Text style={[styles.sectionTitle, { color: colors.text }]}>Bảng xếp hạng</Text>
+                <Text style={[styles.sectionTitle, { color: '#FFFFFF' }]}>Bảng xếp hạng</Text>
                 <TouchableOpacity onPress={() => router.push(`/league/${id}/standings` as any)}>
                   <Text style={[styles.viewAllLink, { color: colors.primary }]}>Xem chi tiết</Text>
                 </TouchableOpacity>
@@ -469,23 +483,23 @@ export default function LeagueDetailScreen() {
                     .slice(0, 3)
                     .map(([groupName, teams]: [string, any]) => (
                       <View key={groupName} style={{ marginBottom: 20 }}>
-                        <Text style={[styles.groupLabel, { color: colors.text }]}>Bảng {groupName}</Text>
+                        <Text style={[styles.groupLabel, { color: '#FFFFFF' }]}>Bảng {groupName}</Text>
                         <StandingsTable standings={teams.slice(0, 3)} />
                       </View>
                     ))}
                 </View>
               ) : (
-                <View style={[styles.emptyState, { backgroundColor: colors.card }]}>
-                  <Ionicons name="trophy-outline" size={40} color={colors.textSecondary} />
-                  <Text style={[styles.emptyTitle, { color: colors.text }]}>Chưa có bảng xếp hạng</Text>
-                  <Text style={[styles.emptyDescription, { color: colors.textSecondary }]}>
+                <View style={styles.emptyState}>
+                  <Ionicons name="trophy-outline" size={40} color="rgba(255, 255, 255, 0.5)" />
+                  <Text style={[styles.emptyTitle, { color: '#FFFFFF' }]}>Chưa có bảng xếp hạng</Text>
+                  <Text style={[styles.emptyDescription, { color: 'rgba(255, 255, 255, 0.7)' }]}>
                     Cần có kết quả trận đấu để tạo bảng xếp hạng
                   </Text>
                 </View>
               )}
 
               <TouchableOpacity
-                style={[styles.showMoreButton, { backgroundColor: colors.card }]}
+                style={styles.showMoreButton}
                 onPress={() => router.push(`/league/${id}/standings` as any)}>
                 <Text style={[styles.showMoreText, { color: colors.primary }]}>Xem bảng xếp hạng đầy đủ</Text>
                 <Ionicons name="chevron-forward" size={16} color={colors.primary} />
@@ -496,7 +510,7 @@ export default function LeagueDetailScreen() {
           {activeTab === 'statistics' && (
             <View>
               <View style={styles.sectionHeader}>
-                <Text style={[styles.sectionTitle, { color: colors.text }]}>Thống kê nổi bật</Text>
+                <Text style={[styles.sectionTitle, { color: '#FFFFFF' }]}>Thống kê nổi bật</Text>
                 <TouchableOpacity onPress={() => router.push(`/league/${id}/statistics` as any)}>
                   <Text style={[styles.viewAllLink, { color: colors.primary }]}>Xem chi tiết</Text>
                 </TouchableOpacity>
@@ -505,36 +519,36 @@ export default function LeagueDetailScreen() {
               {statisticsData?.stats ? (
                 <View>
                   <View style={styles.statsGrid}>
-                    <View style={[styles.statCard, { backgroundColor: colors.card }]}>
+                    <View style={styles.statCard}>
                       <Text style={[styles.statCardValue, { color: colors.primary }]}>
                         {statisticsData.stats?.matchesPlayed || 0}
                       </Text>
-                      <Text style={[styles.statCardLabel, { color: colors.textSecondary }]}>Trận đã đấu</Text>
+                      <Text style={[styles.statCardLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>Trận đã đấu</Text>
                     </View>
-                    <View style={[styles.statCard, { backgroundColor: colors.card }]}>
+                    <View style={styles.statCard}>
                       <Text style={[styles.statCardValue, { color: colors.primary }]}>
                         {statisticsData.stats?.totalGoals || 0}
                       </Text>
-                      <Text style={[styles.statCardLabel, { color: colors.textSecondary }]}>Bàn thắng</Text>
+                      <Text style={[styles.statCardLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>Bàn thắng</Text>
                     </View>
-                    <View style={[styles.statCard, { backgroundColor: colors.card }]}>
+                    <View style={styles.statCard}>
                       <Text style={[styles.statCardValue, { color: colors.primary }]}>
                         {statisticsData.stats?.averageGoalsPerMatch?.toFixed(1) || '0.0'}
                       </Text>
-                      <Text style={[styles.statCardLabel, { color: colors.textSecondary }]}>TB bàn/trận</Text>
+                      <Text style={[styles.statCardLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>TB bàn/trận</Text>
                     </View>
-                    <View style={[styles.statCard, { backgroundColor: colors.card }]}>
+                    <View style={styles.statCard}>
                       <Text style={[styles.statCardValue, { color: colors.primary }]}>
                         {statisticsData.stats?.totalTeams || 0}
                       </Text>
-                      <Text style={[styles.statCardLabel, { color: colors.textSecondary }]}>Đội tham gia</Text>
+                      <Text style={[styles.statCardLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>Đội tham gia</Text>
                     </View>
                   </View>
 
-                  <View style={[styles.topPerformers, { backgroundColor: colors.card }]}>
+                  <View style={styles.topPerformers}>
                     {statisticsData.topScorers && statisticsData.topScorers.length > 0 && (
                       <>
-                        <Text style={[styles.topPerformersTitle, { color: colors.text }]}>Tấn công tốt nhất</Text>
+                        <Text style={[styles.topPerformersTitle, { color: '#FFFFFF' }]}>Tấn công tốt nhất</Text>
                         <TouchableOpacity 
                           style={styles.performerItem}
                           onPress={() => router.push(`/team/${statisticsData.topScorers[0].team._id}` as any)}
@@ -549,7 +563,7 @@ export default function LeagueDetailScreen() {
                                 </Text>
                               </View>
                             )}
-                            <Text style={[styles.performerName, { color: colors.text }]}>
+                            <Text style={[styles.performerName, { color: '#FFFFFF' }]}>
                               {statisticsData.topScorers[0].team.name}
                             </Text>
                           </View>
@@ -562,7 +576,7 @@ export default function LeagueDetailScreen() {
 
                     {statisticsData.bestDefense && statisticsData.bestDefense.length > 0 && (
                       <>
-                        <Text style={[styles.topPerformersTitle, { color: colors.text }]}>Phòng thủ tốt nhất</Text>
+                        <Text style={[styles.topPerformersTitle, { color: '#FFFFFF' }]}>Phòng thủ tốt nhất</Text>
                         <TouchableOpacity 
                           style={styles.performerItem}
                           onPress={() => router.push(`/team/${statisticsData.bestDefense[0].team._id}` as any)}
@@ -577,7 +591,7 @@ export default function LeagueDetailScreen() {
                                 </Text>
                               </View>
                             )}
-                            <Text style={[styles.performerName, { color: colors.text }]}>
+                            <Text style={[styles.performerName, { color: '#FFFFFF' }]}>
                               {statisticsData.bestDefense[0].team.name}
                             </Text>
                           </View>
@@ -590,17 +604,17 @@ export default function LeagueDetailScreen() {
                   </View>
                 </View>
               ) : (
-                <View style={[styles.emptyState, { backgroundColor: colors.card }]}>
-                  <Ionicons name="stats-chart-outline" size={40} color={colors.textSecondary} />
-                  <Text style={[styles.emptyTitle, { color: colors.text }]}>Chưa có thống kê</Text>
-                  <Text style={[styles.emptyDescription, { color: colors.textSecondary }]}>
+                <View style={styles.emptyState}>
+                  <Ionicons name="stats-chart-outline" size={40} color="rgba(255, 255, 255, 0.5)" />
+                  <Text style={[styles.emptyTitle, { color: '#FFFFFF' }]}>Chưa có thống kê</Text>
+                  <Text style={[styles.emptyDescription, { color: 'rgba(255, 255, 255, 0.7)' }]}>
                     Cần có kết quả trận đấu để tạo thống kê
                   </Text>
                 </View>
               )}
 
               <TouchableOpacity
-                style={[styles.showMoreButton, { backgroundColor: colors.card }]}
+                style={styles.showMoreButton}
                 onPress={() => router.push(`/league/${id}/statistics` as any)}>
                 <Text style={[styles.showMoreText, { color: colors.primary }]}>Xem thống kê đầy đủ</Text>
                 <Ionicons name="chevron-forward" size={16} color={colors.primary} />
@@ -608,15 +622,16 @@ export default function LeagueDetailScreen() {
             </View>
           )}
         </View>
-      </ScrollView>
+        </ScrollView>
+      </LeagueBackground>
     </>
   );
 }
 
 const InfoRow = ({ label, value, colors }: { label: string; value: string; colors: any }) => (
-  <View style={[styles.infoRow, { borderBottomColor: colors.border }]}>
-    <Text style={[styles.infoLabel, { color: colors.textSecondary || colors.icon }]}>{label}</Text>
-    <Text style={[styles.infoValue, { color: colors.text }]}>{value}</Text>
+  <View style={[styles.infoRow, { borderBottomColor: 'rgba(255, 255, 255, 0.1)' }]}>
+    <Text style={[styles.infoLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>{label}</Text>
+    <Text style={[styles.infoValue, { color: '#FFFFFF' }]}>{value}</Text>
   </View>
 );
 
@@ -638,24 +653,45 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    padding: 20,
+    padding: 24,
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 24,
+    borderRadius: 20,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    shadowColor: '#4e1a1a44',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 8,
   },
   logo: {
-    width: 100,
-    height: 100,
-    borderRadius: 12,
-    marginBottom: 15,
+    width: 110,
+    height: 110,
+    borderRadius: 20,
+    marginBottom: 20,
+    borderWidth: 3,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
   },
   name: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 28,
+    fontWeight: '800',
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 8,
+    letterSpacing: 0.5,
   },
   description: {
-    fontSize: 14,
+    fontSize: 15,
     textAlign: 'center',
-    marginBottom: 15,
+    marginBottom: 18,
+    lineHeight: 22,
+    opacity: 0.9,
   },
   badges: {
     flexDirection: 'row',
@@ -676,56 +712,77 @@ const styles = StyleSheet.create({
   },
   stats: {
     flexDirection: 'row',
-    paddingVertical: 20,
-    marginHorizontal: 20,
-    marginTop: -20,
-    borderRadius: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    paddingVertical: 24,
+    paddingHorizontal: 8,
+    marginHorizontal: 16,
+    marginTop: -16,
+    borderRadius: 16,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    shadowColor: '#4e1a1a44',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6,
   },
   statItem: {
     flex: 1,
     alignItems: 'center',
   },
   statValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 5,
+    fontSize: 24,
+    fontWeight: '800',
+    marginBottom: 6,
+    letterSpacing: 0.5,
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: 13,
+    opacity: 0.8,
+    fontWeight: '500',
   },
   statDivider: {
     width: 1,
   },
   tabs: {
     flexDirection: 'row',
-    borderBottomWidth: 1,
-    marginTop: 20,
+    borderBottomWidth: 2,
+    marginTop: 24,
+    marginHorizontal: 16,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   tab: {
     flex: 1,
-    paddingVertical: 15,
+    paddingVertical: 16,
     alignItems: 'center',
+    position: 'relative',
   },
   tabText: {
     fontSize: 14,
+    fontWeight: '500',
+    letterSpacing: 0.3,
   },
   tabContent: {
     padding: 20,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 15,
+    fontSize: 20,
+    fontWeight: '700',
+    marginBottom: 16,
+    letterSpacing: 0.3,
   },
   infoCard: {
-    borderRadius: 12,
-    padding: 15,
+    borderRadius: 16,
+    padding: 18,
     marginBottom: 20,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    shadowColor: '#4e1a1a44',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   infoRow: {
     flexDirection: 'row',
@@ -749,9 +806,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 15,
-    borderRadius: 12,
+    padding: 16,
+    borderRadius: 14,
     gap: 8,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    shadowColor: '#4e1a1a44',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
   },
   actionButtonText: {
     fontSize: 14,
@@ -786,9 +851,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 15,
-    borderRadius: 12,
-    marginBottom: 10,
+    padding: 16,
+    borderRadius: 14,
+    marginBottom: 12,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    shadowColor: '#4e1a1a44',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
   },
   teamInfo: {
     flexDirection: 'row',
@@ -959,9 +1032,17 @@ const styles = StyleSheet.create({
   },
   statCard: {
     width: '48%',
-    padding: 15,
-    borderRadius: 12,
+    padding: 18,
+    borderRadius: 14,
     alignItems: 'center',
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    shadowColor: '#4e1a1a44',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
   },
   statCardValue: {
     fontSize: 24,
@@ -973,9 +1054,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   topPerformers: {
-    borderRadius: 12,
-    padding: 15,
-    marginBottom: 10,
+    borderRadius: 14,
+    padding: 18,
+    marginBottom: 12,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    shadowColor: '#4e1a1a44',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
   },
   topPerformersTitle: {
     fontSize: 14,
@@ -1006,9 +1095,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 15,
-    borderRadius: 12,
+    padding: 16,
+    borderRadius: 14,
     gap: 8,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    shadowColor: '#4e1a1a44',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
+    marginTop: 10,
   },
   showMoreText: {
     fontSize: 14,
@@ -1016,8 +1114,11 @@ const styles = StyleSheet.create({
   },
   emptyState: {
     alignItems: 'center',
-    padding: 30,
-    borderRadius: 12,
+    padding: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   emptyTitle: {
     fontSize: 16,

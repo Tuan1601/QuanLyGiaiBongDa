@@ -4,10 +4,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Link, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, StatusBar } from 'react-native';
+import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, StatusBar, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as yup from 'yup';
 import { useAuth } from '../../contexts/AuthContext';
+import AuthBackground from '../../components/auth/AuthBackground';
 
 const loginSchema = yup.object({
   email: yup
@@ -97,147 +98,143 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
-      
-      <LinearGradient
-        colors={['#B91C3C', '#DC2626']}
-        style={styles.header}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}>
+    <AuthBackground>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <StatusBar barStyle="light-content" />
         
-        <View style={styles.logoContainer}>
-          <Image 
-            source={require('../../assets/images/icon.png')} 
-            style={styles.logoImage}
-            resizeMode="cover"
-          />
-        </View>
-        
-        <Text style={styles.appTitle}>Bóng Đá Phủi</Text>
-        <Text style={styles.appSubtitle}>Tournament Management System</Text>
-      </LinearGradient>
-
-      <View style={styles.formContainer}>
-        <View style={styles.formCard}>
-          <Text style={styles.formTitle}>Đăng nhập</Text>
-          <Text style={styles.formSubtitle}>Chào mừng bạn trở lại</Text>
+        <View style={styles.header}>
+          <View style={styles.logoContainer}>
+            <Image 
+              source={require('../../assets/images/icon.png')} 
+              style={styles.logoImage}
+              resizeMode="cover"
+            />
+          </View>
           
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Email</Text>
-            <View style={[styles.inputContainer, errors.email && styles.inputError]}>
-              <Ionicons name="mail-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
-              <Controller
-                control={control}
-                name="email"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={styles.textInput}
-                    placeholder="example@email.com"
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    placeholderTextColor="#9CA3AF"
-                  />
-                )}
-              />
-            </View>
-            {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
-          </View>
+          <Text style={styles.appTitle}>Bóng Đá Phủi</Text>
+          <Text style={styles.appSubtitle}>Bắt đầu quản lý giải đấu của bạn</Text>
+        </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Mật khẩu</Text>
-            <View style={[styles.inputContainer, errors.password && styles.inputError]}>
-              <Ionicons name="lock-closed-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
-              <Controller
-                control={control}
-                name="password"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={styles.textInput}
-                    placeholder="••••••••"
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    secureTextEntry={!showPassword}
-                    placeholderTextColor="#9CA3AF"
-                  />
-                )}
-              />
-              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                <Ionicons 
-                  name={showPassword ? "eye-outline" : "eye-off-outline"} 
-                  size={20} 
-                  color="#9CA3AF" 
-                />
-              </TouchableOpacity>
-            </View>
-            {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
-          </View>
-
-          <View style={styles.actionRow}>
-            <TouchableOpacity 
-              style={styles.rememberContainer}
-              onPress={() => setRememberMe(!rememberMe)}>
-              <Ionicons 
-                name={rememberMe ? "checkbox" : "square-outline"} 
-                size={20} 
-                color={rememberMe ? "#B91C3C" : "#9CA3AF"} 
-              />
-              <Text style={styles.rememberText}>Nhớ mật khẩu</Text>
-            </TouchableOpacity>
+        <View style={styles.formContainer}>
+          <View style={styles.formCard}>
+            <Text style={styles.formTitle}>Đăng nhập</Text>
+            <Text style={styles.formSubtitle}>Chào mừng bạn trở lại</Text>
             
-            <TouchableOpacity onPress={() => router.push('/forgot-password')}>
-              <Text style={styles.forgotText}>Quên mật khẩu?</Text>
-            </TouchableOpacity>
-          </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Email</Text>
+              <View style={[styles.inputContainer, errors.email && styles.inputError]}>
+                <Ionicons name="mail-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
+                <Controller
+                  control={control}
+                  name="email"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      style={styles.textInput}
+                      placeholder="AnhTuan16@email.com"
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      placeholderTextColor="#9CA3AF"
+                    />
+                  )}
+                />
+              </View>
+              {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
+            </View>
 
-          <TouchableOpacity
-            style={[styles.loginButton, isLoading && styles.buttonDisabled]}
-            onPress={handleSubmit(onSubmit)}
-            disabled={isLoading}>
-            <LinearGradient
-              colors={['#B91C3C', '#DC2626']}
-              style={styles.buttonGradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}>
-              <Text style={styles.loginButtonText}>
-                {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
-              </Text>
-              {!isLoading && <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />}
-            </LinearGradient>
-          </TouchableOpacity>
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Mật khẩu</Text>
+              <View style={[styles.inputContainer, errors.password && styles.inputError]}>
+                <Ionicons name="lock-closed-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
+                <Controller
+                  control={control}
+                  name="password"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      style={styles.textInput}
+                      placeholder="••••••••"
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      secureTextEntry={!showPassword}
+                      placeholderTextColor="#9CA3AF"
+                    />
+                  )}
+                />
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                  <Ionicons 
+                    name={showPassword ? "eye-outline" : "eye-off-outline"} 
+                    size={20} 
+                    color="#9CA3AF" 
+                  />
+                </TouchableOpacity>
+              </View>
+              {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
+            </View>
 
-          <View style={styles.dividerContainer}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>hoặc</Text>
-            <View style={styles.dividerLine} />
-          </View>
-
-          <View style={styles.registerContainer}>
-            <Text style={styles.registerText}>Chưa có tài khoản? </Text>
-            <Link href="/register" asChild>
-              <TouchableOpacity>
-                <Text style={styles.registerLink}>Đăng ký ngay</Text>
+            <View style={styles.actionRow}>
+              <TouchableOpacity 
+                style={styles.rememberContainer}
+                onPress={() => setRememberMe(!rememberMe)}>
+                <Ionicons 
+                  name={rememberMe ? "checkbox" : "square-outline"} 
+                  size={20} 
+                  color={rememberMe ? "#B91C3C" : "#9CA3AF"} 
+                />
+                <Text style={styles.rememberText}>Nhớ mật khẩu</Text>
               </TouchableOpacity>
-            </Link>
+              
+              <TouchableOpacity onPress={() => router.push('/forgot-password')}>
+                <Text style={styles.forgotText}>Quên mật khẩu?</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={[styles.loginButton, isLoading && styles.buttonDisabled]}
+              onPress={handleSubmit(onSubmit)}
+              disabled={isLoading}>
+              <LinearGradient
+                colors={['#B91C3C', '#DC2626']}
+                style={styles.buttonGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}>
+                <Text style={styles.loginButtonText}>
+                  {isLoading ? 'Đăng nhập...' : 'Đăng nhập'}
+                </Text>
+                {!isLoading && <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />}
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <View style={styles.dividerContainer}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>hoặc</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            <View style={styles.registerContainer}>
+              <Text style={styles.registerText}>Chưa có tài khoản? </Text>
+              <Link href="/register" asChild>
+                <TouchableOpacity>
+                  <Text style={styles.registerLink}>Đăng ký ngay</Text>
+                </TouchableOpacity>
+              </Link>
+            </View>
           </View>
         </View>
-      </View>
-    </View>
+      </ScrollView>
+    </AuthBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
   },
   header: {
     paddingTop: 60,
-    paddingBottom: 50,
+    paddingBottom: 40,
     paddingHorizontal: 24,
     alignItems: 'center',
   },

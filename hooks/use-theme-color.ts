@@ -1,22 +1,15 @@
 /**
- * Learn more about light and dark modes:
- * https://docs.expo.dev/guides/color-schemes/
+ * Single theme mode - no light/dark toggle
  */
 
 import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export function useThemeColor(
   props: { light?: string; dark?: string },
-  colorName: keyof typeof Colors.light & keyof typeof Colors.dark
+  colorName: keyof typeof Colors
 ) {
-  const theme = useColorScheme() ?? 'light';
-  const colorFromProps = props[theme];
-
-  if (colorFromProps) {
-    return colorFromProps;
-  } else {
-    const color = Colors[theme][colorName];
-    return typeof color === 'string' ? color : Colors[theme].text;
-  }
+  // In single theme mode, we ignore light/dark props
+  // Just return the color from Colors directly
+  const color = Colors[colorName];
+  return typeof color === 'string' ? color : Colors.text;
 }

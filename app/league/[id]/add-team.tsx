@@ -3,19 +3,19 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Platform } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Platform, StatusBar } from 'react-native';
 import { Colors } from '../../../constants/theme';
 import { useColorScheme } from '../../../hooks/use-color-scheme';
 import { useToast } from '../../../hooks/useToast';
 import { leagueService } from '../../../services/league';
 import { teamService } from '../../../services/team';
+import LeagueBackground from '../../../components/league/LeagueBackground';
 
 export default function AddTeamScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
   
   const [name, setName] = useState('');
   const [shortName, setShortName] = useState('');
@@ -31,7 +31,7 @@ export default function AddTeamScreen() {
     mutationFn: (formData: FormData) => teamService.createTeam(formData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['teams', id] });
-      queryClient.invalidateQueries({ queryKey: [' league', id] }); // Update team count in league detail
+      queryClient.invalidateQueries({ queryKey: [' league', id] }); 
       toast.showSuccess('Thành công', 'Đã thêm đội mới');
       setTimeout(() => router.back(), 500);
     },
@@ -40,7 +40,6 @@ export default function AddTeamScreen() {
       
       let errorMessage = 'Không thể thêm đội';
       
-      // Check for authentication errors first
       if (error.name === 'AuthenticationError' || error.message?.includes('Phiên đăng nhập')) {
         errorMessage = error.message;
         Alert.alert('Phiên đăng nhập hết hạn', errorMessage, [
@@ -116,91 +115,99 @@ export default function AddTeamScreen() {
 
   return (
     <>
+      <StatusBar 
+        backgroundColor="rgba(214, 18, 64, 1)"
+        barStyle="light-content"
+      />
       <Stack.Screen
         options={{
           headerShown: true,
           headerTitle: 'Thêm Đội Mới',
-          headerStyle: { backgroundColor: colors.background },
-          headerTintColor: colors.text,
+          headerStyle: { 
+            backgroundColor: 'rgba(214, 18, 64, 1)',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
         }}
       />
       
-      <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.form}>
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>Tên đội</Text>
-            <Text style={[styles.required, { color: colors.lose }]}>*</Text>
-          </View>
-          <TextInput
-            style={[styles.input, { borderColor: colors.border, color: colors.text, backgroundColor: colors.card }]}
-            placeholder="Ví dụ: Manchester United"
-            placeholderTextColor={colors.textSecondary}
-            value={name}
-            onChangeText={setName}
-          />
+      <LeagueBackground>
+        <ScrollView style={styles.container}>
+          <View style={styles.form}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Tên đội</Text>
+              <Text style={styles.required}>*</Text>
+            </View>
+            <TextInput
+              style={styles.input}
+              placeholder="Ví dụ: Manchester United"
+              placeholderTextColor="rgba(255, 255, 255, 0.5)"
+              value={name}
+              onChangeText={setName}
+            />
 
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>Tên viết tắt</Text>
-            <Text style={[styles.required, { color: colors.lose }]}>*</Text>
-            <Text style={[styles.hint, { color: colors.textSecondary }]}>(2-5 ký tự)</Text>
-          </View>
-          <TextInput
-            style={[styles.input, { borderColor: colors.border, color: colors.text, backgroundColor: colors.card }]}
-            placeholder="Ví dụ: MUN"
-            placeholderTextColor={colors.textSecondary}
-            value={shortName}
-            onChangeText={setShortName}
-            autoCapitalize="characters"
-            maxLength={5}
-          />
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Tên viết tắt</Text>
+              <Text style={styles.required}>*</Text>
+              <Text style={styles.hint}>(2-5 ký tự)</Text>
+            </View>
+            <TextInput
+              style={styles.input}
+              placeholder="Ví dụ: MUN"
+              placeholderTextColor="rgba(255, 255, 255, 0.5)"
+              value={shortName}
+              onChangeText={setShortName}
+              autoCapitalize="characters"
+              maxLength={5}
+            />
 
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: colors.text }]}>Logo đội</Text>
-            <Text style={[styles.hint, { color: colors.textSecondary }]}>(Tùy chọn)</Text>
-          </View>
-          <TouchableOpacity 
-            style={[
-              styles.logoPicker,
-              { borderColor: colors.border, backgroundColor: colors.card }
-            ]} 
-            onPress={handlePickLogo}
-            activeOpacity={0.7}
-          >
-            {logo ? (
-              <View style={styles.logoSelected}>
-                <View style={[styles.logoCheckmark, { backgroundColor: colors.win }]}>
-                  <Ionicons name="checkmark" size={20} color="#fff" />
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Logo đội</Text>
+              <Text style={styles.hint}>(Tùy chọn)</Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.logoPicker} 
+              onPress={handlePickLogo}
+              activeOpacity={0.7}
+            >
+              {logo ? (
+                <View style={styles.logoSelected}>
+                  <View style={styles.logoCheckmark}>
+                    <Ionicons name="checkmark" size={20} color="#fff" />
+                  </View>
+                  <Text style={styles.logoSelectedText}>Logo đã được chọn</Text>
+                  <Text style={styles.logoHint}>Nhấn để thay đổi</Text>
                 </View>
-                <Text style={[styles.logoSelectedText, { color: colors.text }]}>Logo đã được chọn</Text>
-                <Text style={[styles.logoHint, { color: colors.textSecondary }]}>Nhấn để thay đổi</Text>
-              </View>
-            ) : (
-              <View style={styles.logoEmpty}>
-                <View style={[styles.logoIconContainer, { backgroundColor: colors.border }]}>
-                  <Ionicons name="image-outline" size={32} color={colors.textSecondary} />
+              ) : (
+                <View style={styles.logoEmpty}>
+                  <View style={styles.logoIconContainer}>
+                    <Ionicons name="image-outline" size={32} color="rgba(255, 255, 255, 0.5)" />
+                  </View>
+                  <Text style={styles.logoEmptyText}>Chọn logo cho đội</Text>
+                  <Text style={styles.logoHint}>JPG, PNG - Tỷ lệ 1:1</Text>
                 </View>
-                <Text style={[styles.logoEmptyText, { color: colors.text }]}>Chọn logo cho đội</Text>
-                <Text style={[styles.logoHint, { color: colors.textSecondary }]}>JPG, PNG - Tỷ lệ 1:1</Text>
-              </View>
-            )}
-          </TouchableOpacity>
+              )}
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[
-              styles.button,
-              { backgroundColor: colors.primary },
-              createMutation.isPending && styles.buttonDisabled
-            ]}
-            onPress={handleSubmit}
-            disabled={createMutation.isPending}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.buttonText}>
-              {createMutation.isPending ? 'Đang thêm đội...' : 'Thêm đội vào giải'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                createMutation.isPending && styles.buttonDisabled
+              ]}
+              onPress={handleSubmit}
+              disabled={createMutation.isPending}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.buttonText}>
+                {createMutation.isPending ? 'Đang thêm đội...' : 'Thêm đội vào giải'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </LeagueBackground>
     </>
   );
 }
@@ -223,14 +230,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     letterSpacing: 0.1,
+    color: 'rgba(255, 255, 255, 0.95)',
   },
   required: {
     fontSize: 16,
     fontWeight: '700',
+    color: '#FF3B30',
   },
   hint: {
     fontSize: 13,
     fontWeight: '400',
+    color: 'rgba(255, 255, 255, 0.6)',
   },
   input: {
     height: 56,
@@ -239,15 +249,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 20,
     fontSize: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    color: 'rgba(255, 255, 255, 0.95)',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.04,
-        shadowRadius: 2,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
       },
       android: {
-        elevation: 1,
+        elevation: 2,
       },
     }),
   },
@@ -256,6 +269,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 16,
     borderStyle: 'dashed',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 32,
@@ -272,11 +287,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 4,
+    backgroundColor: '#34C759',
   },
   logoSelectedText: {
     fontSize: 16,
     fontWeight: '600',
     letterSpacing: 0.1,
+    color: 'rgba(255, 255, 255, 0.95)',
   },
   logoEmpty: {
     alignItems: 'center',
@@ -289,30 +306,34 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   logoEmptyText: {
     fontSize: 16,
     fontWeight: '600',
     letterSpacing: 0.1,
+    color: 'rgba(255, 255, 255, 0.95)',
   },
   logoHint: {
     fontSize: 13,
     textAlign: 'center',
+    color: 'rgba(255, 255, 255, 0.6)',
   },
   button: {
     height: 56,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#FF9500',
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.15,
-        shadowRadius: 6,
+        shadowColor: '#FF9500',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
       },
       android: {
-        elevation: 3,
+        elevation: 4,
       },
     }),
   },

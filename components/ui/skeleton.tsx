@@ -4,8 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 
 export function SkeletonLeagueCard() {
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
   const shimmerAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -80,8 +79,7 @@ export function SkeletonLeagueCard() {
 }
 
 export function SkeletonMatchCard() {
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
   const shimmerAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -166,8 +164,7 @@ export function SkeletonMatchCard() {
 }
 
 export function SkeletonTeamCard() {
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
   const shimmerAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {

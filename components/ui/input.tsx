@@ -31,8 +31,7 @@ export const Input = forwardRef<TextInput, InputProps>(
     style,
     ...props 
   }, ref) => {
-    const colorScheme = useColorScheme() ?? 'light';
-    const colors = Colors[colorScheme];
+    const colors = Colors;
 
     return (
       <ThemedView style={[styles.container, containerStyle]}>

@@ -17,8 +17,7 @@ export default function FavoriteButton({
   loading = false,
   size = 32 
 }: FavoriteButtonProps) {
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
 
   return (
     <TouchableOpacity

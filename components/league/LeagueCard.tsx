@@ -15,8 +15,7 @@ interface LeagueCardProps {
 
 function LeagueCard({ league }: LeagueCardProps) {
   const router = useRouter();
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
 
   const handlePress = useCallback(() => {
     router.push(`/league/${league._id}` as any);

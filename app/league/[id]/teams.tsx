@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View, StatusBar } from 'react-native';
 import TeamCard from '../../../components/team/TeamCard';
 import { Colors } from '../../../constants/theme';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -10,13 +10,13 @@ import { useColorScheme } from '../../../hooks/use-color-scheme';
 import { useLeagueToken } from '../../../hooks/useLeagueToken';
 import { leagueService } from '../../../services/league';
 import { teamService } from '../../../services/team';
+import LeagueBackground from '../../../components/league/LeagueBackground';
 
 export default function TeamsListScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const { user } = useAuth();
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const { savedToken, tokenLoaded } = useLeagueToken(id);
 
@@ -75,12 +75,22 @@ export default function TeamsListScreen() {
 
   return (
     <>
+      <StatusBar 
+        backgroundColor="rgba(214, 18, 64, 1)"
+        barStyle="light-content"
+      />
       <Stack.Screen
         options={{
           headerShown: true,
           headerTitle: `Đội bóng (${teamsCount}/${requiredTeams})`,
-          headerStyle: { backgroundColor: colors.background },
-          headerTintColor: colors.text,
+          headerStyle: { 
+            backgroundColor: 'rgba(214, 18, 64, 1)',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
           headerRight: () => isOwner ? (
             <View style={styles.headerActions}>
               {canAssignGroups && (
@@ -88,99 +98,48 @@ export default function TeamsListScreen() {
                   onPress={handleAssignGroups}
                   style={[styles.headerButton, { marginRight: 10 }]}
                 >
-                  <Ionicons name="grid-outline" size={22} color={colors.primary} />
+                  <Ionicons name="grid-outline" size={22} color="#FFFFFF" />
                 </TouchableOpacity>
               )}
               <TouchableOpacity
                 onPress={() => router.push(`/league/${id}/add-team`)}
                 style={styles.headerButton}
               >
-                <Ionicons name="add" size={24} color={colors.primary} />
+                <Ionicons name="add" size={24} color="#FFFFFF" />
               </TouchableOpacity>
             </View>
           ) : null,
         }}
       />
       
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        {isOwner && (
-          <View style={[styles.ownerActions, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
-            <View style={styles.actionRow}>
-              {isGroupStage && (
+      <LeagueBackground>
+        <View style={styles.container}>
+        {isGroupStage && hasAssignedGroups && groups.length > 0 && (
+          <View style={styles.filtersContainer}>
+            <FlatList
+              horizontal
+              data={[{ id: 'all', label: 'Tất cả' }, ...groups.map(g => ({ id: g, label: `Bảng ${g}` }))]}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
                 <TouchableOpacity
                   style={[
-                    styles.actionButton,
-                    styles.actionButtonSecondary,
-                    { borderColor: colors.primary },
-                    !canAssignGroups && styles.actionButtonDisabled
+                    styles.filterChip,
+                    (item.id === 'all' ? !selectedGroup : selectedGroup === item.id) && styles.filterChipActive
                   ]}
-                  onPress={() => router.push(`/league/${id}/assign-groups` as any)}
-                  disabled={!canAssignGroups}
+                  onPress={() => setSelectedGroup(item.id === 'all' ? null : item.id)}
+                  activeOpacity={0.7}
                 >
-                  <Ionicons 
-                    name="grid-outline" 
-                    size={20} 
-                    color={canAssignGroups ? colors.primary : colors.textSecondary} 
-                  />
                   <Text style={[
-                    styles.actionButtonTextSecondary,
-                    { color: canAssignGroups ? colors.primary : colors.textSecondary }
+                    styles.filterText,
+                    (item.id === 'all' ? !selectedGroup : selectedGroup === item.id) && styles.filterTextActive
                   ]}>
-                    Phân bảng
+                    {item.label}
                   </Text>
                 </TouchableOpacity>
               )}
-            </View>
-            
-            {isGroupStage && !hasAssignedGroups && teamsCount < requiredTeams && (
-              <View style={[styles.warning, { backgroundColor: colors.draw + '20' }]}>
-                <Ionicons name="warning-outline" size={16} color={colors.draw} />
-                <Text style={[styles.warningText, { color: colors.draw }]}>
-                  Cần thêm {requiredTeams - teamsCount} đội nữa để phân bảng
-                </Text>
-              </View>
-            )}
-          </View>
-        )}
-
-        {groups.length > 0 && (
-          <View style={[styles.filters, { borderBottomColor: colors.border }]}>
-            <TouchableOpacity
-              style={[
-                styles.filterChip,
-                { borderColor: colors.border },
-                !selectedGroup && [styles.filterChipActive, { backgroundColor: colors.primary, borderColor: colors.primary }]
-              ]}
-              onPress={() => setSelectedGroup(null)}
-            >
-              <Text style={[
-                styles.filterText,
-                { color: colors.text },
-                !selectedGroup && styles.filterTextActive
-              ]}>
-                Tất cả
-              </Text>
-            </TouchableOpacity>
-            
-            {groups.map((group) => (
-              <TouchableOpacity
-                key={group}
-                style={[
-                  styles.filterChip,
-                  { borderColor: colors.border },
-                  selectedGroup === group && [styles.filterChipActive, { backgroundColor: colors.primary, borderColor: colors.primary }]
-                ]}
-                onPress={() => setSelectedGroup(group)}
-              >
-                <Text style={[
-                  styles.filterText,
-                  { color: colors.text },
-                  selectedGroup === group && styles.filterTextActive
-                ]}>
-                  Bảng {group}
-                </Text>
-              </TouchableOpacity>
-            ))}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.filtersContent}
+            />
           </View>
         )}
 
@@ -201,24 +160,36 @@ export default function TeamsListScreen() {
           contentContainerStyle={styles.list}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <View style={[styles.emptyIconContainer, { backgroundColor: colors.border }]}>
-                <Ionicons name="people-outline" size={32} color={colors.textSecondary} />
+              <View style={styles.emptyCard}>
+                <View style={styles.emptyIconContainer}>
+                  <Ionicons name="people-outline" size={48} color="rgba(255, 255, 255, 0.6)" />
+                </View>
+                <Text style={styles.emptyTitle}>
+                  {isLoading ? 'Đang tải...' : 
+                   error ? 'Không thể tải danh sách đội' : 
+                   'Chưa có đội bóng nào'}
+                </Text>
+                {!isLoading && !error && (
+                  <Text style={styles.emptySubtitle}>
+                    Thêm đội để bắt đầu giải đấu của bạn
+                  </Text>
+                )}
+                {isOwner && !isLoading && (
+                  <TouchableOpacity
+                    style={styles.addButton}
+                    onPress={() => router.push(`/league/${id}/add-team`)}
+                    activeOpacity={0.8}
+                  >
+                    <Ionicons name="add-circle" size={20} color="#FFFFFF" />
+                    <Text style={styles.addButtonText}>Thêm đội bóng</Text>
+                  </TouchableOpacity>
+                )}
               </View>
-              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-                {isLoading ? 'Đang tải...' : 
-                 error ? 'Không thể tải danh sách đội. Vui lòng thử lại.' : 
-                 'Chưa có đội bóng nào'}
-              </Text>
-              <TouchableOpacity
-                style={[styles.addButton, { backgroundColor: colors.primary }]}
-                onPress={() => router.push(`/league/${id}/add-team`)}
-              >
-                <Text style={styles.addButtonText}>Thêm đội</Text>
-              </TouchableOpacity>
             </View>
           }
         />
-      </View>
+        </View>
+      </LeagueBackground>
     </>
   );
 }
@@ -234,34 +205,61 @@ const styles = StyleSheet.create({
   },
   headerButton: {
   },
+  ownerActionsContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 8,
+  },
   ownerActions: {
-    padding: 15,
-    borderBottomWidth: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 5,
   },
   actionRow: {
     flexDirection: 'row',
     gap: 10,
   },
   actionButton: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 18,
+    paddingHorizontal: 20,
+    backgroundColor: 'rgba(255, 149, 0, 0.15)',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  actionButtonIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 149, 0, 0.25)',
     justifyContent: 'center',
-    padding: 12,
-    borderRadius: 8,
-    gap: 8,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 149, 0, 0.3)',
   },
   actionButtonSecondary: {
     backgroundColor: 'transparent',
     borderWidth: 1,
+    borderColor: '#FF9500',
   },
   actionButtonDisabled: {
-    opacity: 0.5,
+    opacity: 0.4,
   },
   actionButtonText: {
-    color: '#fff',
-    fontSize: 14,
+    color: '#FFFFFF',
+    fontSize: 16,
     fontWeight: '600',
+    flex: 1,
+    marginLeft: 12,
   },
   actionButtonTextSecondary: {
     fontSize: 14,
@@ -270,64 +268,130 @@ const styles = StyleSheet.create({
   warning: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
-    borderRadius: 8,
-    marginTop: 10,
-    gap: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    gap: 10,
+    backgroundColor: 'rgba(255, 165, 0, 0.12)',
   },
   warningText: {
-    fontSize: 12,
+    fontSize: 13,
     flex: 1,
+    color: '#FFA500',
+    fontWeight: '500',
+    lineHeight: 18,
   },
-  filters: {
-    flexDirection: 'row',
-    padding: 15,
-    gap: 10,
+  filtersContainer: {
+    paddingVertical: 12,
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
     borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  filtersContent: {
+    paddingHorizontal: 16,
+    gap: 10,
   },
   filterChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     borderRadius: 20,
-    borderWidth: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    marginRight: 10,
   },
   filterChipActive: {
+    backgroundColor: '#FF9500',
+    borderColor: '#FF9500',
+    shadowColor: '#FF9500',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
   filterText: {
     fontSize: 14,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.7)',
   },
   filterTextActive: {
-    color: '#fff',
-    fontWeight: '600',
+    color: '#FFFFFF',
+    fontWeight: '700',
   },
   list: {
     padding: 15,
   },
   emptyContainer: {
+    flex: 1,
     alignItems: 'center',
-    marginTop: 100,
+    justifyContent: 'center',
+    paddingVertical: 60,
+    paddingHorizontal: 20,
+  },
+  emptyCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    padding: 32,
+    alignItems: 'center',
+    width: '100%',
+    maxWidth: 400,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 4,
   },
   emptyIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 96,
+    height: 96,
+    borderRadius: 48,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
+    backgroundColor: 'rgba(255, 149, 0, 0.15)',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 149, 0, 0.3)',
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: 'rgba(255, 255, 255, 0.95)',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    fontWeight: '400',
+    color: 'rgba(255, 255, 255, 0.6)',
+    marginBottom: 24,
+    textAlign: 'center',
+    lineHeight: 20,
   },
   emptyText: {
     fontSize: 16,
-    marginTop: 15,
-    marginBottom: 20,
+    marginTop: 8,
+    marginBottom: 24,
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontWeight: '500',
   },
   addButton: {
-    paddingHorizontal: 30,
-    paddingVertical: 12,
-    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 32,
+    paddingVertical: 14,
+    borderRadius: 12,
+    backgroundColor: '#FF9500',
+    shadowColor: '#FF9500',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   addButtonText: {
-    color: '#fff',
+    color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
   },
 });

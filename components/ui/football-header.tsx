@@ -20,8 +20,7 @@ interface FootballHeaderProps {
 }
 
 export function FootballHeader({ title, subtitle, icon = '⚽' }: FootballHeaderProps) {
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
   
   const ballRotation = useSharedValue(0);
   const ballScale = useSharedValue(1);

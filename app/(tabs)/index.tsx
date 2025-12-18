@@ -12,6 +12,7 @@ import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { FlatList, Image, RefreshControl, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
+import TabsBackground from '@/components/tabs/TabsBackground';
 
 export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
@@ -19,8 +20,7 @@ export default function HomeScreen() {
   const [filterType, setFilterType] = useState<'all' | 'round-robin' | 'group-stage'>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | 'upcoming' | 'ongoing' | 'completed'>('all');
   const debouncedSearch = useDebounce(searchQuery, 300);
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
   const router = useRouter();
   const { user } = useAuth();
 
@@ -186,12 +186,10 @@ export default function HomeScreen() {
   // };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <LinearGradient
-        colors={(colors.gradient?.primary as unknown as readonly [string, string, ...string[]]) || ([colors.primary, colors.primary] as unknown as readonly [string, string, ...string[]])}
-        style={styles.header}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}>
+    <TabsBackground>
+      <View style={styles.container}>
+      {/* Header now transparent - TabsBackground provides gradient */}
+      <View style={styles.header}>
         
         <View style={styles.headerTop}>
           <View style={styles.headerLeft}>
@@ -236,7 +234,7 @@ export default function HomeScreen() {
             </View>
           )}
         </View>
-      </LinearGradient>
+      </View>
 
       <FlatList
         data={filteredLeagues}
@@ -285,7 +283,8 @@ export default function HomeScreen() {
         initialNumToRender={5}
         updateCellsBatchingPeriod={50}
       />
-    </View>
+      </View>
+    </TabsBackground>
   );
 }
 
@@ -294,11 +293,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: 50,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    paddingTop: 60,
+    paddingBottom: 30,
+    paddingHorizontal: 24,
+    backgroundColor: 'transparent', // Transparent to show gradient
   },
   headerTop: {
     flexDirection: 'row',
@@ -309,14 +307,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 28,
+    fontWeight: '800',
     color: '#FFFFFF',
-    marginBottom: 4,
+    marginBottom: 6,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   headerSubtitle: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: 15,
+    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.95)',
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   avatarButton: {
     marginLeft: 12,

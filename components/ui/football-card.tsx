@@ -15,8 +15,7 @@ interface FootballCardProps {
 }
 
 export function FootballCard({ children, style }: FootballCardProps) {
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
   
   const scale = useSharedValue(1);
   const shadowOpacity = useSharedValue(0.1);

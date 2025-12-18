@@ -1,17 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, StatusBar } from 'react-native';
 import StandingsTable from '../../../components/standings/StandingsTable';
 import { Colors } from '../../../constants/theme';
 import { useColorScheme } from '../../../hooks/use-color-scheme';
 import { standingsService } from '../../../services/standings';
+import LeagueBackground from '../../../components/league/LeagueBackground';
 
 export default function StandingsScreen() {
   const { id } = useLocalSearchParams();
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
 
   const { data: leagueInfo } = useQuery({
     queryKey: ['league-standings-info', id],
@@ -44,16 +44,27 @@ export default function StandingsScreen() {
 
   return (
     <>
+      <StatusBar 
+        backgroundColor="rgba(214, 18, 64, 1)"
+        barStyle="light-content"
+      />
       <Stack.Screen
         options={{
           headerShown: true,
           headerTitle: 'Bảng Xếp Hạng',
-          headerStyle: { backgroundColor: colors.background },
-          headerTintColor: colors.text,
+          headerStyle: { 
+            backgroundColor: 'rgba(214, 18, 64, 1)',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
         }}
       />
       
-      <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+      <LeagueBackground>
+         <ScrollView style={styles.container}>
         {isGroupStage && groups.length > 0 && (
           <View style={[styles.tabs, { borderBottomColor: colors.border, backgroundColor: colors.background }]}>
             <TouchableOpacity
@@ -120,7 +131,8 @@ export default function StandingsScreen() {
             </Text>
           </View>
         )}
-      </ScrollView>
+        </ScrollView>
+      </LeagueBackground>
     </>
   );
 }

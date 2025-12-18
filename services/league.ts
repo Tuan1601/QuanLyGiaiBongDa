@@ -35,12 +35,6 @@ export const leagueService = {
     return response.data;
   },
 
-  // PATCH /league/:id/logo
-  updateLogo: async (id: string, formData: FormData) => {
-    const response = await api.patch(`/league/${id}/logo`, formData);
-    return response.data;
-  },
-
   // DELETE /league/:id
   deleteLeague: async (id: string) => {
     const response = await api.delete(`/league/${id}`);

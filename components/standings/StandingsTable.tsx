@@ -32,8 +32,7 @@ interface StandingsTableProps {
 
 export default function StandingsTable({ standings }: StandingsTableProps) {
   const router = useRouter();
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
 
   const getPositionBarColor = (position: number) => {
     if (position === 1) return '#4A90E2'; 

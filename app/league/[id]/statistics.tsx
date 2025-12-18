@@ -1,16 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, StatusBar } from 'react-native';
 import TopTeamCard from '../../../components/stats/TopTeamCard';
 import { Colors } from '../../../constants/theme';
 import { useColorScheme } from '../../../hooks/use-color-scheme';
 import { standingsService } from '../../../services/standings';
+import LeagueBackground from '../../../components/league/LeagueBackground';
 
 export default function StatisticsScreen() {
   const { id } = useLocalSearchParams();
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
 
   const { data: stats, isLoading } = useQuery({
     queryKey: ['leagueStats', id],
@@ -52,119 +52,143 @@ export default function StatisticsScreen() {
 
   if (isLoading) {
     return (
-      <>
-        <Stack.Screen
-          options={{
-            headerShown: true,
-            headerTitle: 'Thống kê',
-            headerStyle: { backgroundColor: colors.background },
-            headerTintColor: colors.text,
-          }}
-        />
-        <View style={[styles.loading, { backgroundColor: colors.background }]}>
-          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Đang tải...</Text>
+    <>
+      <StatusBar 
+        backgroundColor="rgba(214, 18, 64, 1)"
+        barStyle="light-content"
+      />
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          headerTitle: 'Thống kê',
+          headerStyle: { 
+            backgroundColor: 'rgba(214, 18, 64, 1)',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
+        }}
+      />
+      <LeagueBackground>
+        <View style={styles.loading}>
+          <Text style={styles.loadingText}>Đang tải...</Text>
         </View>
-      </>
+      </LeagueBackground>
+    </>
     );
   }
 
   return (
     <>
+      <StatusBar 
+        backgroundColor="rgba(214, 18, 64, 1)"
+        barStyle="light-content"
+      />
       <Stack.Screen
         options={{
           headerShown: true,
           headerTitle: 'Thống Kê',
-          headerStyle: { backgroundColor: colors.background },
-          headerTintColor: colors.text,
+          headerStyle: { 
+            backgroundColor: 'rgba(214, 18, 64, 1)',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
         }}
       />
       
-      <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={[styles.section, { borderBottomColor: colors.card }]}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Tổng quan</Text>
-          <View style={styles.statsGrid}>
-            <View style={[styles.statCard, { backgroundColor: colors.card }]}>
-              <Text style={[styles.statValue, { color: colors.primary }]}>
-                {sortedStats?.stats?.totalTeams || 0}
-              </Text>
-              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Đội</Text>
+      <LeagueBackground>
+        <ScrollView style={styles.container}>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Tổng quan</Text>
+            <View style={styles.statsGrid}>
+              <View style={styles.statCard}>
+                <Text style={styles.statValue}>
+                  {sortedStats?.stats?.totalTeams || 0}
+                </Text>
+                <Text style={styles.statLabel}>Đội</Text>
+              </View>
+              <View style={styles.statCard}>
+                <Text style={styles.statValue}>
+                  {sortedStats?.stats?.matchesPlayed || 0}
+                </Text>
+                <Text style={styles.statLabel}>Trận đã đấu</Text>
+              </View>
+              <View style={styles.statCard}>
+                <Text style={styles.statValue}>
+                  {sortedStats?.stats?.totalGoals || 0}
+                </Text>
+                <Text style={styles.statLabel}>Bàn thắng</Text>
+              </View>
+              <View style={styles.statCard}>
+                <Text style={styles.statValue}>
+                  {sortedStats?.stats?.averageGoalsPerMatch?.toFixed(1) || '0.0'}
+                </Text>
+                <Text style={styles.statLabel}>TB bàn/trận</Text>
+              </View>
             </View>
-            <View style={[styles.statCard, { backgroundColor: colors.card }]}>
-              <Text style={[styles.statValue, { color: colors.primary }]}>
-                {sortedStats?.stats?.matchesPlayed || 0}
-              </Text>
-              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Trận đã đấu</Text>
+          </View>
+
+          {sortedStats?.topScorers && sortedStats.topScorers.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Tấn công tốt nhất</Text>
+              {sortedStats.topScorers.map((item: any, index: number) => (
+                <TopTeamCard
+                  key={item.team._id}
+                  position={index + 1}
+                  team={item.team}
+                  value={item.stats?.goalsFor || 0}
+                  label="bàn thắng"
+                  color={colors.win}
+                />
+              ))}
             </View>
-            <View style={[styles.statCard, { backgroundColor: colors.card }]}>
-              <Text style={[styles.statValue, { color: colors.primary }]}>
-                {sortedStats?.stats?.totalGoals || 0}
-              </Text>
-              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Bàn thắng</Text>
+          )}
+
+          {sortedStats?.bestDefense && sortedStats.bestDefense.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Phòng thủ tốt nhất</Text>
+              {sortedStats.bestDefense.map((item: any, index: number) => (
+                <TopTeamCard
+                  key={item.team._id}
+                  position={index + 1}
+                  team={item.team}
+                  value={item.stats?.goalsAgainst || 0}
+                  label="bàn thua"
+                  color={colors.secondary}
+                />
+              ))}
             </View>
-            <View style={[styles.statCard, { backgroundColor: colors.card }]}>
-              <Text style={[styles.statValue, { color: colors.primary }]}>
-                {sortedStats?.stats?.averageGoalsPerMatch?.toFixed(1) || '0.0'}
-              </Text>
-              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>TB bàn/trận</Text>
+          )}
+
+          {sortedStats?.bestForm && sortedStats.bestForm.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Phong độ tốt nhất</Text>
+              {sortedStats.bestForm.map((item: any, index: number) => (
+                <TopTeamCard
+                  key={item.team._id}
+                  position={index + 1}
+                  team={item.team}
+                  form={item.form}
+                  color={colors.win}
+                />
+              ))}
             </View>
-          </View>
-        </View>
+          )}
 
-        {sortedStats?.topScorers && sortedStats.topScorers.length > 0 && (
-          <View style={[styles.section, { borderBottomColor: colors.card }]}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Tấn công tốt nhất</Text>
-            {sortedStats.topScorers.map((item: any, index: number) => (
-              <TopTeamCard
-                key={item.team._id}
-                position={index + 1}
-                team={item.team}
-                value={item.stats?.goalsFor || 0}
-                label="bàn thắng"
-                color={colors.win}
-              />
-            ))}
-          </View>
-        )}
-
-        {sortedStats?.bestDefense && sortedStats.bestDefense.length > 0 && (
-          <View style={[styles.section, { borderBottomColor: colors.card }]}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Phòng thủ tốt nhất</Text>
-            {sortedStats.bestDefense.map((item: any, index: number) => (
-              <TopTeamCard
-                key={item.team._id}
-                position={index + 1}
-                team={item.team}
-                value={item.stats?.goalsAgainst || 0}
-                label="bàn thua"
-                color={colors.secondary}
-              />
-            ))}
-          </View>
-        )}
-
-        {sortedStats?.bestForm && sortedStats.bestForm.length > 0 && (
-          <View style={[styles.section, { borderBottomColor: colors.card }]}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Phong độ tốt nhất</Text>
-            {sortedStats.bestForm.map((item: any, index: number) => (
-              <TopTeamCard
-                key={item.team._id}
-                position={index + 1}
-                team={item.team}
-                form={item.form}
-                color={colors.win}
-              />
-            ))}
-          </View>
-        )}
-
-        {!sortedStats?.topScorers?.length && !sortedStats?.bestDefense?.length && !sortedStats?.bestForm?.length && (
-          <View style={styles.empty}>
-            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-              Chưa có dữ liệu thống kê
-            </Text>
-          </View>
-        )}
-      </ScrollView>
+          {!sortedStats?.topScorers?.length && !sortedStats?.bestDefense?.length && !sortedStats?.bestForm?.length && (
+            <View style={styles.empty}>
+              <Text style={styles.emptyText}>
+                Chưa có dữ liệu thống kê
+              </Text>
+            </View>
+          )}
+        </ScrollView>
+      </LeagueBackground>
     </>
   );
 }
@@ -180,15 +204,18 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.9)',
   },
   section: {
     padding: 20,
-    borderBottomWidth: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 15,
+    color: 'rgba(255, 255, 255, 0.95)',
   },
   statsGrid: {
     flexDirection: 'row',
@@ -200,14 +227,19 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 20,
     alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   statValue: {
     fontSize: 32,
     fontWeight: 'bold',
     marginBottom: 5,
+    color: '#FF9500',
   },
   statLabel: {
     fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.7)',
   },
   empty: {
     padding: 50,
@@ -215,5 +247,6 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.7)',
   },
 });

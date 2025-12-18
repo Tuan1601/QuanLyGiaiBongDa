@@ -14,8 +14,7 @@ export default function MatchDetailScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const { user } = useAuth();
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
 
   const { data: match, isLoading: matchLoading, isError, error } = useQuery({
     queryKey: ['match', id],

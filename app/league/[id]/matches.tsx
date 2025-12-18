@@ -2,17 +2,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState, useMemo } from 'react';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, Text, TouchableOpacity, View, StatusBar } from 'react-native';
 import MatchCard from '../../../components/match/MatchCard';
 import { Colors } from '../../../constants/theme';
 import { useColorScheme } from '../../../hooks/use-color-scheme';
 import { matchService } from '../../../services/match';
+import LeagueBackground from '../../../components/league/LeagueBackground';
 
 export default function MatchesListScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
   const [selectedRound, setSelectedRound] = useState<number | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
 
@@ -50,25 +50,36 @@ export default function MatchesListScreen() {
 
   return (
     <>
+      <StatusBar 
+        backgroundColor="rgba(214, 18, 64, 1)"
+        barStyle="light-content"
+      />
       <Stack.Screen
         options={{
           headerShown: true,
           headerTitle: 'Lịch thi đấu',
-          headerStyle: { backgroundColor: colors.background },
-          headerTintColor: colors.text,
+          headerStyle: { 
+            backgroundColor: 'rgba(214, 18, 64, 1)',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
           headerRight: () => (
             <TouchableOpacity
               onPress={() => router.push(`/league/${id}/standings` as any)}
               style={{ marginRight: 16, flexDirection: 'row', alignItems: 'center', gap: 4 }}
             >
-              <Ionicons name="podium-outline" size={20} style={{marginLeft:15}} color={colors.primary} />
+              <Ionicons name="podium-outline" size={20} style={{marginLeft:15}} color="#FFFFFF" />
               <Text style={{ color: colors.primary, fontSize: 14, fontWeight: '600'}}>BXH</Text>
             </TouchableOpacity>
           ),
         }}
       />
       
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <LeagueBackground>
+        <View style={styles.container}>
         {rounds.length > 0 && (
           <View style={[styles.filters, { borderBottomColor: colors.border }]}>
             <Text style={[styles.filterTitle, { color: colors.text }]}>Vòng đấu:</Text>
@@ -165,7 +176,8 @@ export default function MatchesListScreen() {
             </View>
           }
         />
-      </View>
+        </View>
+      </LeagueBackground>
     </>
   );
 }

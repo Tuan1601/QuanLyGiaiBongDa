@@ -14,8 +14,7 @@ export default function TeamDetailScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
 
   const { data: team, isLoading } = useQuery({
     queryKey: ['team', id],

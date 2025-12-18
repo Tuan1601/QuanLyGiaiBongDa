@@ -27,8 +27,7 @@ export default function TopTeamCard({
   color 
 }: TopTeamCardProps) {
   const router = useRouter();
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+  const colors = Colors;
 
   const getFormColor = (result: 'W' | 'D' | 'L') => {
     switch (result) {
