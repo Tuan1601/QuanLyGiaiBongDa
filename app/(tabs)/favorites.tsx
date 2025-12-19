@@ -39,10 +39,10 @@ export default function FavoritesScreen() {
     return (
       <View style={styles.emptyContainer}>
         <Text style={styles.emptyIcon}>⭐</Text>
-        <Text style={[styles.emptyTitle, { color: colors.text }]}>
+        <Text style={[styles.emptyTitle, { color: "#FFFFFF" }]}>
           Chưa có giải quan tâm
         </Text>
-        <Text style={[styles.emptyText, { color: colors.textSecondary || colors.icon }]}>
+        <Text style={[styles.emptyText, { color: '#d6b6b6ff' }]}>
           Nhấn vào ngôi sao trên thẻ giải đấu để thêm vào danh sách quan tâm
         </Text>
         <TouchableOpacity

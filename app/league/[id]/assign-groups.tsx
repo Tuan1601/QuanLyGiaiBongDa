@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '700',
     marginBottom: 6,
-    color: '#FF9500',
+    color: "#ff0000ff",
   },
   infoLabel: {
     fontSize: 13,
@@ -339,7 +339,7 @@ const styles = StyleSheet.create({
     height: 6,
     borderRadius: 3,
     marginTop: 6,
-    backgroundColor: '#FF9500',
+    backgroundColor: "#ff0000ff",
   },
   instructionText: {
     flex: 1,
@@ -358,10 +358,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonPrimary: {
-    backgroundColor: '#FF9500',
+    backgroundColor: "#ff0000ff",
     ...Platform.select({
       ios: {
-        shadowColor: '#FF9500',
+        shadowColor: "#ff0000ff",
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,

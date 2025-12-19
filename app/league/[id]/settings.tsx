@@ -137,7 +137,7 @@ export default function LeagueSettingsScreen() {
         <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
           <View style={styles.card}>
             <View style={styles.cardHeader}>
-              <Ionicons name="eye" size={20} color="#FF9500" />
+              <Ionicons name="eye" size={20} color="#ff0000ff" />
               <Text style={styles.cardTitle}>Chế Độ Hiển Thị</Text>
             </View>
             
@@ -151,7 +151,7 @@ export default function LeagueSettingsScreen() {
               <Switch
                 value={isPrivate}
                 onValueChange={handleVisibilityToggle}
-                trackColor={{ false: 'rgba(255, 255, 255, 0.2)', true: '#FF9500' }}
+                trackColor={{ false: 'rgba(255, 255, 255, 0.2)', true: "#ff0000ff"}}
                 thumbColor="#FFFFFF"
                 ios_backgroundColor="rgba(255, 255, 255, 0.2)"
               />
@@ -161,7 +161,7 @@ export default function LeagueSettingsScreen() {
               <View style={styles.tokenCard}>
                 <Text style={styles.tokenLabel}>Mã truy cập hiện tại</Text>
                 <View style={styles.tokenValueContainer}>
-                  <Ionicons name="key" size={18} color="#FF9500" />
+                  <Ionicons name="key" size={18} color="#ff0000ff" />
                   <Text style={styles.tokenValue}>{league.accessToken}</Text>
                 </View>
                 
@@ -180,8 +180,8 @@ export default function LeagueSettingsScreen() {
                     onPress={handleGenerateToken}
                     activeOpacity={0.7}
                   >
-                    <Ionicons name="refresh" size={16} color="#FF9500" />
-                    <Text style={[styles.tokenButtonText, { color: '#FF9500' }]}>Tạo mới</Text>
+                    <Ionicons name="refresh" size={16} color="#ff0000ff"/>
+                    <Text style={[styles.tokenButtonText, { color: "#ff0000ff" }]}>Tạo mới</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -190,7 +190,7 @@ export default function LeagueSettingsScreen() {
 
           <View style={styles.card}>
             <View style={styles.cardHeader}>
-              <Ionicons name="settings" size={20} color="#FF9500" />
+              <Ionicons name="settings" size={20} color="#ff0000ff" />
               <Text style={styles.cardTitle}>Quản Lý Nội Dung</Text>
             </View>
             
@@ -200,7 +200,7 @@ export default function LeagueSettingsScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.menuIconContainer}>
-                <Ionicons name="create" size={20} color="#FF9500" />
+                <Ionicons name="create" size={20} color="#ff0000ff" />
               </View>
               <Text style={styles.menuText}>Chỉnh sửa thông tin</Text>
               <Ionicons name="chevron-forward" size={20} color="rgba(255, 255, 255, 0.5)" />
@@ -212,7 +212,7 @@ export default function LeagueSettingsScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.menuIconContainer}>
-                <Ionicons name="people" size={20} color="#FF9500" />
+                <Ionicons name="people" size={20} color="#ff0000ff" />
               </View>
               <Text style={styles.menuText}>Quản lý đội bóng</Text>
               <Ionicons name="chevron-forward" size={20} color="rgba(255, 255, 255, 0.5)" />
@@ -224,7 +224,7 @@ export default function LeagueSettingsScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.menuIconContainer}>
-                <Ionicons name="calendar" size={20} color="#FF9500" />
+                <Ionicons name="calendar" size={20} color="#ff0000ff" />
               </View>
               <Text style={styles.menuText}>Quản lý trận đấu</Text>
               <Ionicons name="chevron-forward" size={20} color="rgba(255, 255, 255, 0.5)" />
@@ -265,15 +265,15 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   card: {
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    backgroundColor: 'rgba(71, 23, 23, 0.77)',
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: 'rgba(255, 255, 255, 0.42)',
     padding: 20,
     marginBottom: 16,
     ...Platform.select({
       ios: {
-        shadowColor: '#4e1a1a44',
+        shadowColor: '#4e1a1aff',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.2,
         shadowRadius: 12,
@@ -321,9 +321,9 @@ const styles = StyleSheet.create({
     marginTop: 20,
     padding: 16,
     borderRadius: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 149, 0, 0.3)',
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 149, 0, 0.4)',
   },
   tokenLabel: {
     fontSize: 13,
@@ -343,9 +343,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   tokenValue: {
-    fontSize: 16,
+    fontSize: 12,
+    marginRight: 20,
     fontWeight: '700',
-    color: '#FF9500',
+    color: "#ffffffff",
     letterSpacing: 1,
     fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
   },
@@ -360,13 +361,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 12,
     borderRadius: 10,
-    backgroundColor: '#FF9500',
+    backgroundColor: "#ff0000ff",
     gap: 6,
   },
   tokenButtonSecondary: {
     backgroundColor: 'transparent',
     borderWidth: 1.5,
-    borderColor: '#FF9500',
+    borderColor: "#ff0000ff",
   },
   tokenButtonText: {
     fontSize: 14,

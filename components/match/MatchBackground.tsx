@@ -3,15 +3,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-interface LeagueBackgroundProps {
+interface MatchBackgroundProps {
   children: React.ReactNode;
 }
 
-export default function LeagueBackground({ children }: LeagueBackgroundProps) {
+export default function MatchBackground({ children }: MatchBackgroundProps) {
   return (
     <View style={styles.container}>
       <Image
-        source={require('@/assets/images/Background_3.jpg')}
+        source={require('@/assets/images/Background_4.jpg')}
         style={styles.backgroundImage}
         contentFit="cover"
         blurRadius={0}
@@ -25,7 +25,7 @@ export default function LeagueBackground({ children }: LeagueBackgroundProps) {
           'rgba(148, 18, 46, 0.60)',  
           'rgba(125, 20, 42, 0.60)',     
           'rgba(110, 18, 38, 0.60)',    
-          'rgba(100, 15, 35, 0.60)',         
+          'rgba(100, 15, 35, 0.60)',     
         ]}
         style={styles.gradient}
         start={{ x: 0.5, y: 0 }}
@@ -43,10 +43,6 @@ export default function LeagueBackground({ children }: LeagueBackgroundProps) {
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       />
-      
-
-      
-
       
       <View style={styles.content}>
         {children}
@@ -82,22 +78,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
-  vignette: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  shimmer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
   content: {
     flex: 1,
   },
 });
-

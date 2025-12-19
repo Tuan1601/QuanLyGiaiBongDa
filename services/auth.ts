@@ -60,6 +60,10 @@ export const authService = {
     const response = await api.post('/user/login', data);
     const { accessToken, refreshToken } = response.data;
     
+    console.log('📥 Login response received');
+    console.log('Access token:', accessToken ? `${accessToken.substring(0, 20)}...` : 'MISSING');
+    console.log('Refresh token:', refreshToken ? `${refreshToken.substring(0, 20)}...` : 'MISSING');
+    
     // Save tokens with expiry timestamps
     await AsyncStorage.multiSet([
       [TOKEN_KEYS.ACCESS_TOKEN, accessToken],
@@ -70,13 +74,29 @@ export const authService = {
     
     console.log('✅ Tokens saved with 7-day refresh token expiry');
     
+    // Verify tokens were saved
+    const savedRefreshToken = await AsyncStorage.getItem(TOKEN_KEYS.REFRESH_TOKEN);
+    console.log('✅ Verified refresh token saved:', savedRefreshToken ? 'YES' : 'NO');
+    
     return response.data;
   },
 
   // POST /user/logout
   logout: async () => {
     const refreshToken = await AsyncStorage.getItem(TOKEN_KEYS.REFRESH_TOKEN);
-    await api.post('/user/logout', { refreshToken });
+    
+    // Only call logout API if we have a refresh token
+    if (refreshToken) {
+      try {
+        await api.post('/user/logout', { refreshToken });
+      } catch (error) {
+        console.log('⚠️ Logout API call failed, but continuing with local cleanup');
+      }
+    } else {
+      console.log('⚠️ No refresh token found, skipping logout API call');
+    }
+    
+    // Always clear local tokens
     await AsyncStorage.multiRemove([
       TOKEN_KEYS.ACCESS_TOKEN,
       TOKEN_KEYS.REFRESH_TOKEN,

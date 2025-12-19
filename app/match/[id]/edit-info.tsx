@@ -2,11 +2,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Platform } from 'react-native';
+import { Alert, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Colors } from '../../../constants/theme';
 import { useColorScheme } from '../../../hooks/use-color-scheme';
 import { matchService } from '../../../services/match';
+import MatchBackground from '../../../components/match/MatchBackground';
 
 export default function EditMatchInfoScreen() {
   const { id } = useLocalSearchParams();
@@ -111,26 +112,37 @@ export default function EditMatchInfoScreen() {
 
   return (
     <>
+      <StatusBar 
+        backgroundColor="rgba(214, 18, 64, 1)"
+        barStyle="light-content"
+      />
       <Stack.Screen
         options={{
           headerShown: true,
           headerTitle: 'Cập nhật thông tin',
-          headerStyle: { backgroundColor: colors.background },
-          headerTintColor: colors.text,
+          headerStyle: { 
+            backgroundColor: 'rgba(214, 18, 64, 1)',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
         }}
       />
       
-      <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+      <MatchBackground>
+        <ScrollView style={styles.container}>
         <View style={styles.form}>
-          <Text style={[styles.label, { color: colors.text }]}>Ngày giờ thi đấu</Text>
+          <Text style={[styles.label, { color: '#FFFFFF' }]}>Ngày giờ thi đấu</Text>
           
           <View style={styles.dateTimeRow}>
             <TouchableOpacity
-              style={[styles.dateTimeButton, { borderColor: colors.border, backgroundColor: colors.card }]}
+              style={styles.dateTimeButton}
               onPress={() => setShowDatePicker(true)}
             >
               <Ionicons name="calendar-outline" size={20} color={colors.primary} />
-              <Text style={[styles.dateTimeButtonText, { color: scheduledDate ? colors.text : colors.textSecondary }]}>
+              <Text style={[styles.dateTimeButtonText, { color: scheduledDate ? '#FFFFFF' : 'rgba(255, 255, 255, 0.5)' }]}>
                 {scheduledDate ? new Date(scheduledDate).toLocaleDateString('vi-VN', {
                   day: '2-digit',
                   month: '2-digit',
@@ -140,11 +152,11 @@ export default function EditMatchInfoScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.dateTimeButton, { borderColor: colors.border, backgroundColor: colors.card }]}
+              style={styles.dateTimeButton}
               onPress={() => setShowTimePicker(true)}
             >
               <Ionicons name="time-outline" size={20} color={colors.primary} />
-              <Text style={[styles.dateTimeButtonText, { color: scheduledDate ? colors.text : colors.textSecondary }]}>
+              <Text style={[styles.dateTimeButtonText, { color: scheduledDate ? '#FFFFFF' : 'rgba(255, 255, 255, 0.5)' }]}>
                 {scheduledDate ? new Date(scheduledDate).toLocaleTimeString('vi-VN', {
                   hour: '2-digit',
                   minute: '2-digit'
@@ -171,29 +183,29 @@ export default function EditMatchInfoScreen() {
             />
           )}
 
-          <Text style={[styles.label, { color: colors.text }]}>Sân đấu</Text>
+          <Text style={[styles.label, { color: '#FFFFFF' }]}>Sân đấu</Text>
           <TextInput
-            style={[styles.input, { borderColor: colors.border, color: colors.text }]}
+            style={styles.input}
             placeholder="VD: Sân Mỹ Đình"
-            placeholderTextColor={colors.textSecondary}
+            placeholderTextColor="rgba(255, 255, 255, 0.5)"
             value={venue}
             onChangeText={setVenue}
           />
 
-          <Text style={[styles.label, { color: colors.text }]}>Trọng tài</Text>
+          <Text style={[styles.label, { color: '#FFFFFF' }]}>Trọng tài</Text>
           <TextInput
-            style={[styles.input, { borderColor: colors.border, color: colors.text }]}
+            style={styles.input}
             placeholder="VD: Nguyễn Văn A"
-            placeholderTextColor={colors.textSecondary}
+            placeholderTextColor="rgba(255, 255, 255, 0.5)"
             value={referee}
             onChangeText={setReferee}
           />
 
-          <Text style={[styles.label, { color: colors.text }]}>Ghi chú</Text>
+          <Text style={[styles.label, { color: '#FFFFFF' }]}>Ghi chú</Text>
           <TextInput
-            style={[styles.input, styles.textArea, { borderColor: colors.border, color: colors.text }]}
+            style={[styles.input, styles.textArea]}
             placeholder="Ghi chú về trận đấu..."
-            placeholderTextColor={colors.textSecondary}
+            placeholderTextColor="rgba(255, 255, 255, 0.5)"
             value={notes}
             onChangeText={setNotes}
             multiline
@@ -214,7 +226,8 @@ export default function EditMatchInfoScreen() {
             </Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+        </ScrollView>
+      </MatchBackground>
     </>
   );
 }
@@ -233,11 +246,14 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 50,
-    borderWidth: 1,
-    borderRadius: 8,
+    borderWidth: 2,
+    borderRadius: 12,
     paddingHorizontal: 15,
     marginBottom: 20,
     fontSize: 16,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    color: '#FFFFFF',
   },
   textArea: {
     height: 100,
@@ -250,8 +266,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   button: {
-    height: 50,
-    borderRadius: 8,
+    height: 52,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 10,
@@ -275,9 +291,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 12,
-    borderRadius: 8,
-    borderWidth: 1,
+    borderRadius: 12,
+    borderWidth: 2,
     gap: 8,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   dateTimeButtonText: {
     fontSize: 14,

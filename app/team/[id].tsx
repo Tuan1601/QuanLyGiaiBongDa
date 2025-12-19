@@ -3,11 +3,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
-import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../../constants/theme';
 import { useColorScheme } from '../../hooks/use-color-scheme';
 import { useAuth } from '../../contexts/AuthContext';
 import { teamService } from '../../services/team';
+import TeamBackground from '../../components/team/TeamBackground';
 
 export default function TeamDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -74,44 +75,55 @@ export default function TeamDetailScreen() {
 
   return (
     <>
+      <StatusBar 
+        backgroundColor="rgba(214, 18, 64, 1)"
+        barStyle="light-content"
+      />
       <Stack.Screen
         options={{
           headerShown: true,
           headerTitle: team?.name || 'Chi tiết đội',
-          headerStyle: { backgroundColor: colors.background },
-          headerTintColor: colors.text,
+          headerStyle: { 
+            backgroundColor: 'rgba(214, 18, 64, 1)',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
           headerRight: () => isOwner ? (
             <TouchableOpacity
               onPress={() => router.push(`/team/${id}/edit` as any)}
               style={{ padding:5,marginLeft:3}}
             >
-              <Ionicons name="create-outline" size={24} color={colors.primary} />
+              <Ionicons name="create-outline" size={24} color="#FFFFFF" />
             </TouchableOpacity>
           ) : null,
         }}
       />
       
-      <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={[styles.headerCard, { backgroundColor: colors.card }]}>
+      <TeamBackground>
+        <ScrollView style={styles.container}>
+        <View style={styles.headerCard}>
           {team?.logo ? (
             <Image source={{ uri: team.logo }} style={styles.logo} />
           ) : (
-            <View style={[styles.logoPlaceholder, { backgroundColor: colors.primary + '15' }]}>
-              <Text style={[styles.logoText, { color: colors.primary }]}>
+            <View style={[styles.logoPlaceholder, { backgroundColor: colors.primary }]}>
+              <Text style={[styles.logoText, { color: '#FFFFFF' }]}>
                 {team?.shortName}
               </Text>
             </View>
           )}
           
-          <Text style={[styles.teamName, { color: colors.text }]}>{team?.name}</Text>
-          <Text style={[styles.teamShortName, { color: colors.textSecondary }]}>
+          <Text style={[styles.teamName, { color: '#FFFFFF' }]}>{team?.name}</Text>
+          <Text style={[styles.teamShortName, { color: 'rgba(255, 255, 255, 0.7)' }]}>
             {team?.shortName}
           </Text>
           
           {team?.group && (
-            <View style={[styles.groupBadge, { backgroundColor: colors.primary + '15' }]}>
-              <Ionicons name="grid-outline" size={12} color={colors.primary} />
-              <Text style={[styles.groupText, { color: colors.primary }]}>
+            <View style={[styles.groupBadge, { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}>
+              <Ionicons name="grid-outline" size={12} color="#FFFFFF" />
+              <Text style={[styles.groupText, { color: '#FFFFFF' }]}>
                 Bảng {team.group}
               </Text>
             </View>
@@ -119,32 +131,32 @@ export default function TeamDetailScreen() {
         </View>
 
         <View style={styles.statsRow}>
-          <View style={[styles.statItem, { backgroundColor: colors.card }]}>
-            <Ionicons name="football-outline" size={20} color={colors.textSecondary} />
-            <Text style={[styles.statValue, { color: colors.text }]}>
+          <View style={styles.statItem}>
+            <Ionicons name="football-outline" size={20} color="rgba(255, 255, 255, 0.7)" />
+            <Text style={[styles.statValue, { color: '#FFFFFF' }]}>
               {team?.stats?.played || 0}
             </Text>
-            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
+            <Text style={[styles.statLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>
               Trận đấu
             </Text>
           </View>
 
-          <View style={[styles.statItem, { backgroundColor: colors.card }]}>
+          <View style={styles.statItem}>
             <Ionicons name="trophy-outline" size={20} color={colors.win} />
-            <Text style={[styles.statValue, { color: colors.text }]}>
+            <Text style={[styles.statValue, { color: '#FFFFFF' }]}>
               {team?.stats?.won || 0}
             </Text>
-            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
+            <Text style={[styles.statLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>
               Thắng
             </Text>
           </View>
 
-          <View style={[styles.statItem, { backgroundColor: colors.card }]}>
+          <View style={styles.statItem}>
             <Ionicons name="star-outline" size={20} color={colors.primary} />
-            <Text style={[styles.statValue, { color: colors.text }]}>
+            <Text style={[styles.statValue, { color: '#FFFFFF' }]}>
               {team?.stats?.points || 0}
             </Text>
-            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
+            <Text style={[styles.statLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>
               Điểm
             </Text>
           </View>
@@ -153,11 +165,11 @@ export default function TeamDetailScreen() {
         {team?.form && team.form.length > 0 && (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              <Text style={[styles.sectionTitle, { color: '#FFFFFF' }]}>
                 Phong độ gần đây
               </Text>
             </View>
-            <View style={[styles.card, { backgroundColor: colors.card }]}>
+            <View style={styles.card}>
               <View style={styles.formRow}>
                 {team.form.slice(-5).map((result: 'W' | 'D' | 'L', index: number) => (
                   <View key={index} style={styles.formItem}>
@@ -181,17 +193,17 @@ export default function TeamDetailScreen() {
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            <Text style={[styles.sectionTitle, { color: '#FFFFFF' }]}>
               Thống kê chi tiết
             </Text>
           </View>
           
-          <View style={[styles.card, { backgroundColor: colors.card }]}>
+          <View style={styles.card}>
             <StatsRow icon="checkmark-circle-outline" label="Thắng" value={team?.stats?.won || 0} color={colors.win} colors={colors} />
             <StatsRow icon="remove-circle-outline" label="Hòa" value={team?.stats?.drawn || 0} color={colors.draw} colors={colors} />
             <StatsRow icon="close-circle-outline" label="Thua" value={team?.stats?.lost || 0} color={colors.lose} colors={colors} />
             <StatsRow icon="arrow-up-circle-outline" label="Bàn thắng" value={team?.stats?.goalsFor || 0} color={colors.primary} colors={colors} />
-            <StatsRow icon="arrow-down-circle-outline" label="Bàn thua" value={team?.stats?.goalsAgainst || 0} color={colors.textSecondary} colors={colors} />
+            <StatsRow icon="arrow-down-circle-outline" label="Bàn thua" value={team?.stats?.goalsAgainst || 0} color="rgba(255, 255, 255, 0.7)" colors={colors} />
             <StatsRow 
               icon="swap-horizontal-outline" 
               label="Hiệu số" 
@@ -206,7 +218,7 @@ export default function TeamDetailScreen() {
         {isOwner && (
           <View style={styles.section}>
             <TouchableOpacity
-              style={[styles.deleteButton, { backgroundColor: colors.lose + '15', borderColor: colors.lose }]}
+              style={[styles.deleteButton, { backgroundColor: 'rgba(255, 82, 82, 0.15)', borderColor: colors.lose }]}
               onPress={handleDelete}
               disabled={deleteMutation.isPending}
             >
@@ -215,7 +227,7 @@ export default function TeamDetailScreen() {
                 {deleteMutation.isPending ? 'Đang xóa...' : 'Xóa đội'}
               </Text>
             </TouchableOpacity>
-            <Text style={[styles.deleteWarning, { color: colors.textSecondary }]}>
+            <Text style={[styles.deleteWarning, { color: 'rgba(255, 255, 255, 0.7)' }]}>
               ⚠️ Hành động này không thể hoàn tác
             </Text>
           </View>
@@ -223,6 +235,7 @@ export default function TeamDetailScreen() {
 
         <View style={{ height: 30 }} />
       </ScrollView>
+      </TeamBackground>
     </>
   );
 }
@@ -230,13 +243,13 @@ export default function TeamDetailScreen() {
 const StatsRow = ({ icon, label, value, color, colors, isLast }: any) => (
   <View style={[
     styles.statsRowItem,
-    !isLast && { borderBottomWidth: 1, borderBottomColor: colors.border }
+    !isLast && { borderBottomWidth: 1, borderBottomColor: 'rgba(255, 255, 255, 0.1)' }
   ]}>
     <View style={styles.statsRowLeft}>
       <Ionicons name={icon} size={20} color={color} />
-      <Text style={[styles.statsRowLabel, { color: colors.text }]}>{label}</Text>
+      <Text style={[styles.statsRowLabel, { color: '#FFFFFF' }]}>{label}</Text>
     </View>
-    <Text style={[styles.statsRowValue, { color: colors.text }]}>{value}</Text>
+    <Text style={[styles.statsRowValue, { color: '#FFFFFF' }]}>{value}</Text>
   </View>
 );
 
@@ -265,6 +278,14 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 16,
     borderRadius: 16,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    shadowColor: '#4e1a1a44',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   logo: {
     width: 80,
@@ -319,6 +340,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     gap: 6,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   statValue: {
     fontSize: 20,
@@ -343,6 +367,9 @@ const styles = StyleSheet.create({
   card: {
     padding: 16,
     borderRadius: 12,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
 
   formRow: {

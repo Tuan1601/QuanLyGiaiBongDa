@@ -31,7 +31,7 @@ export default function VideoPlayer({ uri, title }: VideoPlayerProps) {
   return (
     <View style={styles.container}>
       {title && (
-        <Text style={[styles.title, { color: colors.text }]} numberOfLines={2}>
+        <Text style={[styles.title, { color: '#cfc3c3ff' }]} numberOfLines={2}>
           {title}
         </Text>
       )}

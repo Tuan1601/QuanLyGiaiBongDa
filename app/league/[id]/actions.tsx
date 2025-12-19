@@ -182,7 +182,7 @@ export default function LeagueActionsScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.actionIconContainer}>
-                <Ionicons name="refresh" size={24} color="#FF9500" />
+                <Ionicons name="refresh" size={24} color="#eeff00ff" />
               </View>
               <View style={styles.actionContent}>
                 <Text style={styles.actionTitle}>
@@ -192,7 +192,7 @@ export default function LeagueActionsScreen() {
                   Đặt lại {totalMatches} trận về 0-0, xóa stats và media
                 </Text>
                 {resetAllMutation.isPending && (
-                  <Text style={[styles.actionStatus, { color: '#FF9500' }]}>
+                  <Text style={[styles.actionStatus, { color: "#ff0000ff" }]}>
                     Đang xử lý...
                   </Text>
                 )}
@@ -291,6 +291,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
+    marginTop:-40,
   },
   stat: {
     alignItems: 'center',
@@ -300,7 +301,7 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: '700',
     marginBottom: 4,
-    color: '#FF9500',
+    color: "#ff0000ff",
   },
   statLabel: {
     fontSize: 13,

@@ -242,21 +242,21 @@ const styles = StyleSheet.create({
   highlight: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#FF9500',
+    color: "#ff0000ff",
   },
   warning: {
     padding: 14,
     borderRadius: 10,
     marginTop: 16,
     borderLeftWidth: 4,
-    borderLeftColor: '#FFA500',
+    borderLeftColor: "#ff0000ff",
     backgroundColor: 'rgba(255, 165, 0, 0.12)',
   },
   warningText: {
     fontSize: 14,
     lineHeight: 20,
     fontWeight: '500',
-    color: '#FFA500',
+    color: "#ff0000ff",
   },
   infoCard: {
     borderRadius: 16,
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
     height: 6,
     borderRadius: 3,
     marginTop: 6,
-    backgroundColor: '#FF9500',
+    backgroundColor: "#ff0000ff",
   },
   infoText: {
     flex: 1,
@@ -299,10 +299,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FF9500',
+    backgroundColor: "#ff0000ff",
     ...Platform.select({
       ios: {
-        shadowColor: '#FF9500',
+        shadowColor: "#ff0000ff",
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,

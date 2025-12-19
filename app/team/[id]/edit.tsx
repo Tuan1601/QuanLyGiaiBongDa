@@ -3,10 +3,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../../../constants/theme';
 import { useColorScheme } from '../../../hooks/use-color-scheme';
 import { teamService } from '../../../services/team';
+import TeamBackground from '../../../components/team/TeamBackground';
 
 export default function EditTeamScreen() {
   const { id } = useLocalSearchParams();
@@ -108,20 +109,31 @@ export default function EditTeamScreen() {
 
   return (
     <>
+      <StatusBar 
+        backgroundColor="rgba(214, 18, 64, 1)"
+        barStyle="light-content"
+      />
       <Stack.Screen
         options={{
           headerShown: true,
           headerTitle: 'Chỉnh sửa đội',
-          headerStyle: { backgroundColor: colors.background },
-          headerTintColor: colors.text,
+          headerStyle: { 
+            backgroundColor: 'rgba(214, 18, 64, 1)',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
         }}
       />
       
-      <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+      <TeamBackground>
+        <ScrollView style={styles.container}>
         <View style={styles.form}>
           {/* Current Logo */}
           <View style={styles.logoSection}>
-            <Text style={[styles.label, { color: colors.text }]}>Logo hiện tại</Text>
+            <Text style={[styles.label, { color: '#FFFFFF' }]}>Logo hiện tại</Text>
             <View style={styles.logoContainer}>
               {team?.logo ? (
                 <Image source={{ uri: team.logo }} style={styles.currentLogo} />
@@ -137,25 +149,25 @@ export default function EditTeamScreen() {
                 <Ionicons name="camera" size={16} color="#fff" />
                 <Text style={styles.changeLogoText}>
                   {logo ? 'Đã chọn logo mới' : 'Thay đổi logo'}
-                </Text>
+               </Text>
               </TouchableOpacity>
             </View>
           </View>
 
-          <Text style={[styles.label, { color: colors.text }]}>Tên đội *</Text>
+          <Text style={[styles.label, { color: '#FFFFFF' }]}>Tên đội *</Text>
           <TextInput
-            style={[styles.input, { borderColor: colors.border, color: colors.text }]}
+            style={styles.input}
             placeholder="VD: Manchester United"
-            placeholderTextColor={colors.textSecondary}
+            placeholderTextColor="rgba(255, 255, 255, 0.5)"
             value={name}
             onChangeText={setName}
           />
 
-          <Text style={[styles.label, { color: colors.text }]}>Tên viết tắt * (2-5 ký tự)</Text>
+          <Text style={[styles.label, { color: '#FFFFFF' }]}>Tên viết tắt * (2-5 ký tự)</Text>
           <TextInput
-            style={[styles.input, { borderColor: colors.border, color: colors.text }]}
+            style={styles.input}
             placeholder="VD: MUN"
-            placeholderTextColor={colors.textSecondary}
+            placeholderTextColor="rgba(255, 255, 255, 0.5)"
             value={shortName}
             onChangeText={setShortName}
             autoCapitalize="characters"
@@ -164,21 +176,20 @@ export default function EditTeamScreen() {
 
           {team?.league?.type === 'group-stage' && groups.length > 0 && (
             <>
-              <Text style={[styles.label, { color: colors.text }]}>Bảng đấu</Text>
+              <Text style={[styles.label, { color: '#FFFFFF' }]}>Bảng đấu</Text>
               <View style={styles.groupContainer}>
                 {groups.map((g) => (
                   <TouchableOpacity
                     key={g}
                     style={[
                       styles.groupButton,
-                      { borderColor: colors.border },
                       group === g && [styles.groupButtonActive, { backgroundColor: colors.primary, borderColor: colors.primary }]
                     ]}
                     onPress={() => setGroup(g)}
                   >
                     <Text style={[
                       styles.groupText,
-                      { color: colors.text },
+                      { color: group === g ? '#FFFFFF' : 'rgba(255, 255, 255, 0.7)' },
                       group === g && styles.groupTextActive
                     ]}>
                       Bảng {g}
@@ -204,6 +215,7 @@ export default function EditTeamScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      </TeamBackground>
     </>
   );
 }
@@ -267,11 +279,14 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 50,
-    borderWidth: 1,
-    borderRadius: 8,
+    borderWidth: 2,
+    borderRadius: 12,
     paddingHorizontal: 15,
     marginBottom: 20,
     fontSize: 16,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    color: '#FFFFFF',
   },
   groupContainer: {
     flexDirection: 'row',
@@ -282,8 +297,10 @@ const styles = StyleSheet.create({
   groupButton: {
     paddingHorizontal: 20,
     paddingVertical: 10,
-    borderRadius: 8,
-    borderWidth: 1,
+    borderRadius: 12,
+    borderWidth: 2,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   groupButtonActive: {
   },

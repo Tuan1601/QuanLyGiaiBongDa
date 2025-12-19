@@ -41,10 +41,10 @@ export default function MyLeaguesScreen() {
       ) : (
         <>
           <Text style={styles.emptyIcon}>🏆</Text>
-          <Text style={[styles.emptyTitle, { color: colors.text }]}>
+          <Text style={[styles.emptyTitle, { color:'#FFFFFF' }]}>
             Chưa có giải đấu nào
           </Text>
-          <Text style={[styles.emptyText, { color: colors.textSecondary || colors.icon }]}>
+          <Text style={[styles.emptyText, { color: '#d6b6b6ff' }]}>
             Bạn chưa tạo hoặc tham gia giải đấu nào
           </Text>
           <TouchableOpacity

@@ -193,7 +193,7 @@ export default function EditLeagueScreen() {
         <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
           <View style={styles.card}>
             <View style={styles.cardHeader}>
-              <Ionicons name="image" size={20} color="#FF9500" />
+              <Ionicons name="image" size={20} color='#ff0000ff' />
               <Text style={styles.cardTitle}>Logo Giải Đấu</Text>
             </View>
             
@@ -234,7 +234,7 @@ export default function EditLeagueScreen() {
 
           <View style={styles.card}>
             <View style={styles.cardHeader}>
-              <Ionicons name="create" size={20} color="#FF9500" />
+              <Ionicons name="create" size={20} color='#ff0000ff' />
               <Text style={styles.cardTitle}>Thông Tin Cơ Bản</Text>
             </View>
 
@@ -286,7 +286,7 @@ export default function EditLeagueScreen() {
 
           <View style={styles.card}>
             <View style={styles.cardHeader}>
-              <Ionicons name="calendar" size={20} color="#FF9500" />
+              <Ionicons name="calendar" size={20} color='#ff0000ff'/>
               <Text style={styles.cardTitle}>Thời Gian</Text>
             </View>
 
@@ -367,7 +367,7 @@ export default function EditLeagueScreen() {
 
           <View style={styles.card}>
             <View style={styles.cardHeader}>
-              <Ionicons name="information-circle" size={20} color="#FF9500" />
+              <Ionicons name="information-circle" size={20} color='#ff0000ff' />
               <Text style={styles.cardTitle}>Thông Tin Khác</Text>
             </View>
             
@@ -437,7 +437,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   card: {
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    backgroundColor: 'rgba(53, 16, 16, 0.6)',
     borderRadius: 16,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.15)',
@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     ...Platform.select({
       ios: {
-        shadowColor: '#4e1a1a44',
+        shadowColor: '#4e1a1a',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.2,
         shadowRadius: 12,
@@ -501,10 +501,10 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 12,
     gap: 8,
-    backgroundColor: '#FF9500',
+    backgroundColor: '#ff0000ff',
     ...Platform.select({
       ios: {
-        shadowColor: '#FF9500',
+        shadowColor: '#ff0000ff',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,
         shadowRadius: 4,
@@ -537,9 +537,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
   },
   input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -588,17 +588,17 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.7)',
   },
   infoBadge: {
-    backgroundColor: 'rgba(255, 149, 0, 0.15)',
+    backgroundColor: 'rgba(255, 0, 0, 0.15)',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255, 149, 0, 0.3)',
+    borderColor: 'rgba(255, 0, 0, 0.3)',
   },
   infoBadgeText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#FF9500',
+    color: '#ff0000ff',
     letterSpacing: 0.2,
   },
   notice: {
@@ -617,7 +617,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   submitButton: {
-    backgroundColor: '#FF9500',
+    backgroundColor: '#ff0000ff',
     borderRadius: 14,
     paddingVertical: 16,
     alignItems: 'center',
@@ -625,7 +625,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
     ...Platform.select({
       ios: {
-        shadowColor: '#FF9500',
+        shadowColor: '#ff0000ff',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.4,
         shadowRadius: 12,

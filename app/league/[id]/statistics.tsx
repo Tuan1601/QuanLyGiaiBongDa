@@ -227,15 +227,15 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 20,
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(102, 19, 19, 0.84)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: 'rgba(255, 255, 255, 0.27)',
   },
   statValue: {
     fontSize: 32,
     fontWeight: 'bold',
     marginBottom: 5,
-    color: '#FF9500',
+    color: '#ff0000ff',
   },
   statLabel: {
     fontSize: 14,

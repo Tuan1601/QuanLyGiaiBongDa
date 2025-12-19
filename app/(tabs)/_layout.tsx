@@ -91,8 +91,8 @@ function CurvedTabBar({
 
   const svgPath = useMemo(() => {
     const width = 375;
-    const height = 80;
-    const curveWidth = 90;
+    const height = 70;
+    const curveWidth = 80;
     const curveDepth = 30;
     
     const tabWidth = width / totalTabs;
@@ -269,7 +269,7 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   tabBarContainer: {
-    height: Platform.OS === 'ios' ? 95 : 80,
+    height: Platform.OS === 'ios' ? 90 : 80,
     backgroundColor: 'transparent',
     position: 'relative',
   },
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    shadowColor: '#000',
+    shadowColor: '#000000ff',
     shadowOffset: {
       width: 0,
       height: 4,

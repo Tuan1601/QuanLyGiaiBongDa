@@ -3,10 +3,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../../../constants/theme';
 import { useColorScheme } from '../../../hooks/use-color-scheme';
 import { matchService } from '../../../services/match';
+import MatchBackground from '../../../components/match/MatchBackground';
 
 export default function UploadPhotosScreen() {
     const { id } = useLocalSearchParams();
@@ -93,16 +94,27 @@ export default function UploadPhotosScreen() {
 
     return (
         <>
+            <StatusBar 
+              backgroundColor="rgba(214, 18, 64, 1)"
+              barStyle="light-content"
+            />
             <Stack.Screen
                 options={{
                     headerShown: true,
                     headerTitle: 'Upload Ảnh',
-                    headerStyle: { backgroundColor: colors.background },
-                    headerTintColor: colors.text,
+                    headerStyle: { 
+                      backgroundColor: 'rgba(214, 18, 64, 1)',
+                    },
+                    headerTintColor: '#FFFFFF',
+                    headerTitleStyle: {
+                      color: '#FFFFFF',
+                      fontWeight: '600',
+                    },
                 }}
             />
 
-            <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+      <MatchBackground>
+            <ScrollView style={styles.container}>
                 <View style={[styles.header, { borderBottomColor: colors.border }]}>
                     <Text style={[styles.title, { color: colors.text }]}>
                         Ảnh trận đấu ({currentPhotos}/{maxPhotos})
@@ -178,6 +190,7 @@ export default function UploadPhotosScreen() {
                     </TouchableOpacity>
                 )}
             </ScrollView>
+      </MatchBackground>
         </>
     );
 }

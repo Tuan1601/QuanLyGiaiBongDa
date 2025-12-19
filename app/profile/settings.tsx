@@ -7,6 +7,7 @@ import { Colors } from '../../constants/theme';
 import { useColorScheme } from '../../hooks/use-color-scheme';
 
 export default function SettingsScreen() {
+  const colorScheme = useColorScheme();
   const colors = Colors;
   
   const [settings, setSettings] = useState({

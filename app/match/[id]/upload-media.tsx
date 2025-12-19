@@ -4,10 +4,11 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../../../constants/theme';
 import { useColorScheme } from '../../../hooks/use-color-scheme';
 import { matchService } from '../../../services/match';
+import MatchBackground from '../../../components/match/MatchBackground';
 
 export default function UploadMediaScreen() {
   const { id } = useLocalSearchParams();
@@ -272,34 +273,56 @@ export default function UploadMediaScreen() {
 
   if (isLoading) {
     return (
-      <View style={[styles.loading, { backgroundColor: colors.background }]}>
-        <Text style={{ color: colors.text }}>Đang tải...</Text>
-      </View>
+      <>
+        <StatusBar 
+          backgroundColor="rgba(214, 18, 64, 1)"
+          barStyle="light-content"
+        />
+        <MatchBackground>
+          <View style={styles.loading}>
+            <Text style={{ color: colors.text }}>Đang tải...</Text>
+          </View>
+        </MatchBackground>
+      </>
     );
   }
 
   return (
     <>
+      <StatusBar 
+        backgroundColor="rgba(214, 18, 64, 1)"
+        barStyle="light-content"
+      />
       <Stack.Screen
         options={{
           headerShown: true,
           headerTitle: 'Upload Media',
-          headerStyle: { backgroundColor: colors.background },
-          headerTintColor: colors.text,
+          headerStyle: { 
+            backgroundColor: 'rgba(214, 18, 64, 1)',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
         }}
       />
       
-      <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+      <MatchBackground>
+        <ScrollView style={styles.container}>
         {/* VIDEO FULL MATCH */}
-        <View style={[styles.section, { borderBottomColor: colors.border }]}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>📹 Video Full Match</Text>
-          <Text style={[styles.hint, { color: colors.textSecondary }]}>
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="videocam" size={22} color={colors.primary} />
+            <Text style={[styles.sectionTitle, { color: '#FFFFFF' }]}>Video Full Match</Text>
+          </View>
+          <Text style={[styles.hint, { color: 'rgba(255, 255, 255, 0.7)' }]}>
             Nhập URL YouTube hoặc Cloudinary
           </Text>
           <TextInput
-            style={[styles.input, { borderColor: colors.border, color: colors.text, backgroundColor: colors.card }]}
+            style={styles.input}
             placeholder="https://youtube.com/watch?v=..."
-            placeholderTextColor={colors.textSecondary}
+            placeholderTextColor="rgba(255, 255, 255, 0.5)"
             value={videoUrl}
             onChangeText={setVideoUrl}
             autoCapitalize="none"
@@ -316,7 +339,7 @@ export default function UploadMediaScreen() {
             </TouchableOpacity>
             {match?.videoUrl && (
               <TouchableOpacity
-                style={[styles.button, styles.buttonOutline, { borderColor: colors.lose }]}
+                style={[styles.button, styles.buttonOutline]}
                 onPress={handleRemoveVideoUrl}
               >
                 <Text style={[styles.buttonTextDanger, { color: colors.lose }]}>Xóa</Text>
@@ -326,11 +349,14 @@ export default function UploadMediaScreen() {
         </View>
 
         {/* HIGHLIGHT VIDEOS */}
-        <View style={[styles.section, { borderBottomColor: colors.border }]}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            🎬 Highlight Videos ({currentHighlights}/{maxHighlights})
-          </Text>
-          <Text style={[styles.hint, { color: colors.textSecondary }]}>
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="film" size={22} color={colors.primary} />
+            <Text style={[styles.sectionTitle, { color: '#FFFFFF' }]}>
+              Highlight Videos ({currentHighlights}/{maxHighlights})
+            </Text>
+          </View>
+          <Text style={[styles.hint, { color: 'rgba(255, 255, 255, 0.7)' }]}>
             Số video tối đa = Tổng bàn thắng. Mỗi video max 20MB.
           </Text>
 
@@ -430,11 +456,14 @@ export default function UploadMediaScreen() {
         </View>
 
         {/* PHOTOS */}
-        <View style={[styles.section, { borderBottomColor: colors.border }]}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            📸 Ảnh trận đấu ({currentPhotos}/10)
-          </Text>
-          <Text style={[styles.hint, { color: colors.textSecondary }]}>
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="images" size={22} color={colors.primary} />
+            <Text style={[styles.sectionTitle, { color: '#FFFFFF' }]}>
+              Ảnh trận đấu ({currentPhotos}/10)
+            </Text>
+          </View>
+          <Text style={[styles.hint, { color: 'rgba(255, 255, 255, 0.7)' }]}>
             Tối đa 10 ảnh, mỗi ảnh max 10MB
           </Text>
 
@@ -499,7 +528,8 @@ export default function UploadMediaScreen() {
             </>
           )}
         </View>
-      </ScrollView>
+        </ScrollView>
+      </MatchBackground>
     </>
   );
 }
@@ -515,30 +545,42 @@ const styles = StyleSheet.create({
   },
   section: {
     padding: 20,
-    borderBottomWidth: 8,
+    marginBottom: 20,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 8,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 5,
+    fontWeight: '700',
+    letterSpacing: 0.3,
   },
   subsectionTitle: {
     fontSize: 14,
     fontWeight: '600',
     marginBottom: 10,
     marginTop: 15,
+    color: '#FFFFFF',
   },
   hint: {
     fontSize: 12,
     marginBottom: 15,
+    lineHeight: 18,
   },
   input: {
     height: 50,
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: 12,
     paddingHorizontal: 15,
     marginBottom: 15,
     fontSize: 14,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    color: '#FFFFFF',
+    paddingLeft:10,
   },
   buttonRow: {
     flexDirection: 'row',
@@ -546,14 +588,15 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
-    height: 45,
-    borderRadius: 8,
+    height: 48,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },
   buttonOutline: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderWidth: 2,
+    borderColor: 'rgba(214, 18, 64, 1)',
   },
   buttonText: {
     color: '#fff',
@@ -571,9 +614,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 12,
-    borderRadius: 8,
+    padding: 14,
+    borderRadius: 12,
     marginBottom: 8,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   listItemInfo: {
     flex: 1,
@@ -584,15 +630,18 @@ const styles = StyleSheet.create({
   listItemTitle: {
     flex: 1,
     fontSize: 14,
+    color: '#FFFFFF',
   },
   pickButton: {
     height: 100,
     borderWidth: 2,
-    borderRadius: 8,
+    borderRadius: 16,
     borderStyle: 'dashed',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 15,
+    backgroundColor: 'rgba(70, 22, 22, 0.4)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   pickButtonText: {
     marginTop: 8,
@@ -608,10 +657,12 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 110,
     borderWidth: 2,
-    borderRadius: 12,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 10,
+    backgroundColor: 'rgba(70, 22, 22, 0.4)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   halfPickButtonText: {
     marginTop: 8,

@@ -114,18 +114,26 @@ api.interceptors.response.use(
       }
     }
 
-    // Handle 403 Forbidden
+    // Handle 403 Forbidden - only clear tokens if it's an authentication issue
     if (error.response?.status === 403) {
       console.log('❌ Got 403 Forbidden for URL:', originalRequest.url);
       console.log('403 Response data:', error.response?.data);
-      await AsyncStorage.multiRemove([
-        'accessToken', 
-        'refreshToken',
-        'accessTokenExpiry',
-        'refreshTokenExpiry',
-      ]);
-      console.log('🚪 Tokens cleared due to 403');
-      return Promise.reject(new Error('Access forbidden'));
+      
+      // Only clear tokens if the error message indicates invalid token
+      const errorMessage = error.response?.data?.message || '';
+      if (errorMessage.includes('Token') || errorMessage.includes('token')) {
+        console.log('🚪 Clearing tokens due to invalid token in 403');
+        await AsyncStorage.multiRemove([
+          'accessToken', 
+          'refreshToken',
+          'accessTokenExpiry',
+          'refreshTokenExpiry',
+        ]);
+      } else {
+        console.log('⚠️ 403 is permission error, not auth error - keeping tokens');
+      }
+      
+      return Promise.reject(new Error(errorMessage || 'Access forbidden'));
     }
 
     // Log other API errors for debugging

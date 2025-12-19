@@ -72,7 +72,7 @@ export default function MatchesListScreen() {
               style={{ marginRight: 16, flexDirection: 'row', alignItems: 'center', gap: 4 }}
             >
               <Ionicons name="podium-outline" size={20} style={{marginLeft:15}} color="#FFFFFF" />
-              <Text style={{ color: colors.primary, fontSize: 14, fontWeight: '600'}}>BXH</Text>
+              <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '600'}}>BXH</Text>
             </TouchableOpacity>
           ),
         }}
@@ -81,8 +81,8 @@ export default function MatchesListScreen() {
       <LeagueBackground>
         <View style={styles.container}>
         {rounds.length > 0 && (
-          <View style={[styles.filters, { borderBottomColor: colors.border }]}>
-            <Text style={[styles.filterTitle, { color: colors.text }]}>Vòng đấu:</Text>
+          <View style={styles.filters}>
+            <Text style={[styles.filterTitle, { color: '#FFFFFF' }]}>Vòng đấu:</Text>
             <FlatList
               horizontal
               data={[
@@ -94,14 +94,13 @@ export default function MatchesListScreen() {
                 <TouchableOpacity
                   style={[
                     styles.filterChip,
-                    { borderColor: colors.border },
-                    selectedRound === item.value && [styles.filterChipActive, { backgroundColor: colors.primary, borderColor: colors.primary }]
+                    selectedRound === item.value && styles.filterChipActive
                   ]}
                   onPress={() => setSelectedRound(item.value as number | null)}
                 >
                   <Text style={[
                     styles.filterText,
-                    { color: colors.text },
+                    { color: selectedRound === item.value ? '#FFFFFF' : 'rgba(255, 255, 255, 0.7)' },
                     selectedRound === item.value && styles.filterTextActive
                   ]}>
                     {item.label}
@@ -114,20 +113,19 @@ export default function MatchesListScreen() {
           </View>
         )}
 
-        <View style={[styles.filters, { borderBottomColor: colors.border }]}>
-          <Text style={[styles.filterTitle, { color: colors.text }]}>Trạng thái:</Text>
+        <View style={styles.filters}>
+          <Text style={[styles.filterTitle, { color: '#FFFFFF' }]}>Trạng thái:</Text>
           <View style={styles.filterRow}>
             <TouchableOpacity
               style={[
                 styles.filterChip,
-                { borderColor: colors.border },
-                !selectedStatus && [styles.filterChipActive, { backgroundColor: colors.primary, borderColor: colors.primary }]
+                !selectedStatus && styles.filterChipActive
               ]}
               onPress={() => setSelectedStatus(null)}
             >
               <Text style={[
                 styles.filterText,
-                { color: colors.text },
+                { color: !selectedStatus ? '#FFFFFF' : 'rgba(255, 255, 255, 0.7)' },
                 !selectedStatus && styles.filterTextActive
               ]}>
                 Tất cả
@@ -139,14 +137,13 @@ export default function MatchesListScreen() {
                 key={status.value}
                 style={[
                   styles.filterChip,
-                  { borderColor: colors.border },
-                  selectedStatus === status.value && [styles.filterChipActive, { backgroundColor: colors.primary, borderColor: colors.primary }]
+                  selectedStatus === status.value && styles.filterChipActive
                 ]}
                 onPress={() => setSelectedStatus(status.value)}
               >
                 <Text style={[
                   styles.filterText,
-                  { color: colors.text },
+                  { color: selectedStatus === status.value ? '#FFFFFF' : 'rgba(255, 255, 255, 0.7)' },
                   selectedStatus === status.value && styles.filterTextActive
                 ]}>
                   {status.label}
@@ -168,7 +165,7 @@ export default function MatchesListScreen() {
           contentContainerStyle={styles.list}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+              <Text style={[styles.emptyText, { color: 'rgba(255, 255, 255, 0.7)' }]}>
                 {isLoading ? 'Đang tải...' : 
                  error ? 'Không thể tải danh sách trận đấu. Vui lòng thử lại.' : 
                  'Chưa có trận đấu nào'}
@@ -189,11 +186,13 @@ const styles = StyleSheet.create({
   filters: {
     padding: 15,
     borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   filterTitle: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
     marginBottom: 10,
+    letterSpacing: 0.5,
   },
   filterList: {
     gap: 8,
@@ -205,11 +204,15 @@ const styles = StyleSheet.create({
   },
   filterChip: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderRadius: 20,
-    borderWidth: 1,
+    borderWidth: 2,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   filterChipActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
   },
   filterText: {
     fontSize: 13,

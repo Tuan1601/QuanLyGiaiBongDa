@@ -1,17 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../../constants/theme';
 import { useColorScheme } from '../../../hooks/use-color-scheme';
 import { matchService } from '../../../services/match';
+import MatchBackground from '../../../components/match/MatchBackground';
 
 const STATUSES = [
-  { value: 'scheduled', label: 'Sắp đấu', icon: '📅', description: 'Trận đấu sắp diễn ra' },
-  { value: 'live', label: 'ĐANG ĐẤU', icon: '🔴', description: 'Trận đấu đang diễn ra' },
-  { value: 'finished', label: 'Kết thúc', icon: '✅', description: 'Trận đấu đã kết thúc' },
-  { value: 'postponed', label: 'Hoãn', icon: '⏸️', description: 'Trận đấu bị hoãn' },
-  { value: 'cancelled', label: 'Hủy', icon: '❌', description: 'Trận đấu bị hủy bỏ' },
+  { value: 'scheduled', label: 'Sắp đấu', description: 'Trận đấu sắp diễn ra' },
+  { value: 'live', label: 'ĐANG ĐẤU', description: 'Trận đấu đang diễn ra' },
+  { value: 'finished', label: 'Kết thúc', description: 'Trận đấu đã kết thúc' },
+  { value: 'postponed', label: 'Hoãn', description: 'Trận đấu bị hoãn' },
+  { value: 'cancelled', label: 'Hủy', description: 'Trận đấu bị hủy bỏ' },
 ];
 
 export default function MatchStatusScreen() {
@@ -60,22 +62,33 @@ export default function MatchStatusScreen() {
 
   return (
     <>
+      <StatusBar 
+        backgroundColor="rgba(214, 18, 64, 1)"
+        barStyle="light-content"
+      />
       <Stack.Screen
         options={{
           headerShown: true,
           headerTitle: 'Đổi trạng thái',
-          headerStyle: { backgroundColor: colors.background },
-          headerTintColor: colors.text,
+          headerStyle: { 
+            backgroundColor: 'rgba(214, 18, 64, 1)',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
         }}
       />
       
-      <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={[styles.matchInfo, { backgroundColor: colors.card }]}>
-          <Text style={[styles.infoTitle, { color: colors.textSecondary }]}>Trận đấu</Text>
-          <Text style={[styles.matchText, { color: colors.text }]}>
+      <MatchBackground>
+        <ScrollView style={styles.container}>
+        <View style={styles.matchInfo}>
+          <Text style={[styles.infoTitle, { color: 'rgba(255, 255, 255, 0.7)' }]}>Trận đấu</Text>
+          <Text style={[styles.matchText, { color: '#FFFFFF' }]}>
             {match?.homeTeam.name} vs {match?.awayTeam.name}
           </Text>
-          <Text style={[styles.roundText, { color: colors.textSecondary }]}>Vòng {match?.round}</Text>
+          <Text style={[styles.roundText, { color: 'rgba(255, 255, 255, 0.7)' }]}>Vòng {match?.round}</Text>
         </View>
 
         <View style={styles.statusList}>
@@ -84,23 +97,19 @@ export default function MatchStatusScreen() {
               key={status.value}
               style={[
                 styles.statusCard,
-                { backgroundColor: colors.card, borderColor: colors.border },
-                selectedStatus === status.value && [styles.statusCardActive, { borderColor: colors.primary, backgroundColor: colors.primary + '10' }]
+                selectedStatus === status.value && styles.statusCardActive
               ]}
               onPress={() => setSelectedStatus(status.value)}
             >
-              <View style={styles.statusIcon}>
-                <Text style={styles.statusIconText}>{status.icon}</Text>
-              </View>
               <View style={styles.statusContent}>
-                <Text style={[styles.statusLabel, { color: colors.text }]}>{status.label}</Text>
-                <Text style={[styles.statusDescription, { color: colors.textSecondary }]}>
+                <Text style={[styles.statusLabel, { color: selectedStatus === status.value ? '#FFFFFF' : '#FFFFFF' }]}>{status.label}</Text>
+                <Text style={[styles.statusDescription, { color: selectedStatus === status.value ? 'rgba(255, 255, 255, 0.85)' : 'rgba(255, 255, 255, 0.6)' }]}>
                   {status.description}
                 </Text>
               </View>
               {selectedStatus === status.value && (
-                <View style={[styles.checkmark, { backgroundColor: colors.primary }]}>
-                  <Text style={styles.checkmarkText}>✓</Text>
+                <View style={styles.checkmark}>
+                  <Ionicons name="checkmark-circle" size={24} color="#FFFFFF" />
                 </View>
               )}
             </TouchableOpacity>
@@ -120,7 +129,8 @@ export default function MatchStatusScreen() {
             {updateStatusMutation.isPending ? 'Đang cập nhật...' : 'Cập nhật trạng thái'}
           </Text>
         </TouchableOpacity>
-      </ScrollView>
+        </ScrollView>
+      </MatchBackground>
     </>
   );
 }
@@ -131,18 +141,27 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   matchInfo: {
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 20,
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 24,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    shadowColor: '#4e1a1a44',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   infoTitle: {
     fontSize: 14,
     marginBottom: 10,
+    fontWeight: '500',
   },
   matchText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '700',
     textAlign: 'center',
     marginBottom: 5,
   },
@@ -155,12 +174,27 @@ const styles = StyleSheet.create({
   statusCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
-    borderRadius: 12,
+    padding: 18,
+    borderRadius: 16,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
     borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
     marginBottom: 12,
+    shadowColor: '#4e1a1a44',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
   },
   statusCardActive: {
+    backgroundColor: 'rgba(214, 18, 64, 0.9)',
+    borderColor: '#FFFFFF',
+    borderWidth: 2,
+    shadowColor: '#FFFFFF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   statusIcon: {
     width: 50,
@@ -179,18 +213,16 @@ const styles = StyleSheet.create({
   },
   statusLabel: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '700',
     marginBottom: 4,
+    letterSpacing: 0.3,
   },
   statusDescription: {
     fontSize: 13,
+    lineHeight: 18,
   },
   checkmark: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginLeft: 12,
   },
   checkmarkText: {
     color: '#fff',

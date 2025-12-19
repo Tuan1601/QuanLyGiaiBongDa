@@ -3,10 +3,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as DocumentPicker from 'expo-document-picker';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../../../constants/theme';
 import { useColorScheme } from '../../../hooks/use-color-scheme';
 import { matchService } from '../../../services/match';
+import MatchBackground from '../../../components/match/MatchBackground';
 
 export default function UploadVideosScreen() {
   const { id } = useLocalSearchParams();
@@ -159,16 +160,27 @@ export default function UploadVideosScreen() {
 
   return (
     <>
+      <StatusBar 
+        backgroundColor="rgba(214, 18, 64, 1)"
+        barStyle="light-content"
+      />
       <Stack.Screen
         options={{
           headerShown: true,
           headerTitle: 'Upload Videos',
-          headerStyle: { backgroundColor: colors.background },
-          headerTintColor: colors.text,
+          headerStyle: { 
+            backgroundColor: 'rgba(214, 18, 64, 1)',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
         }}
       />
       
-      <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+      <MatchBackground>
+      <ScrollView style={styles.container}>
         <View style={[styles.section, { borderBottomColor: colors.card }]}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Video Full Match</Text>
           <Text style={[styles.hint, { color: colors.textSecondary }]}>
@@ -278,6 +290,7 @@ export default function UploadVideosScreen() {
           )}
         </View>
       </ScrollView>
+      </MatchBackground>
     </>
   );
 }

@@ -244,17 +244,17 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 56,
-    borderWidth: 1.5,
+    borderWidth: 2,
     borderRadius: 12,
     paddingHorizontal: 16,
     marginBottom: 20,
     fontSize: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(70, 22, 22, 0.75)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     color: 'rgba(255, 255, 255, 0.95)',
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
+        shadowColor: '#581818ff',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderStyle: 'dashed',
     borderColor: 'rgba(255, 255, 255, 0.3)',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 32,
@@ -324,10 +324,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FF9500',
+    backgroundColor: "#ff0000ff",
     ...Platform.select({
       ios: {
-        shadowColor: '#FF9500',
+        shadowColor: "#ff0000ff",
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,

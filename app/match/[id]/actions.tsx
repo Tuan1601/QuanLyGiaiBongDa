@@ -2,10 +2,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../../../constants/theme';
 import { useColorScheme } from '../../../hooks/use-color-scheme';
 import { matchService } from '../../../services/match';
+import MatchBackground from '../../../components/match/MatchBackground';
 
 export default function MatchActionsScreen() {
   const { id } = useLocalSearchParams();
@@ -100,25 +101,36 @@ export default function MatchActionsScreen() {
 
   return (
     <>
+      <StatusBar 
+        backgroundColor="rgba(214, 18, 64, 1)"
+        barStyle="light-content"
+      />
       <Stack.Screen
         options={{
           headerShown: true,
           headerTitle: 'Hành động',
-          headerStyle: { backgroundColor: colors.background },
-          headerTintColor: colors.text,
+          headerStyle: { 
+            backgroundColor: 'rgba(214, 18, 64, 1)',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
         }}
       />
       
-      <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={[styles.matchInfo, { backgroundColor: colors.card }]}>
-          <Text style={[styles.infoTitle, { color: colors.textSecondary }]}>Trận đấu</Text>
-          <Text style={[styles.matchText, { color: colors.text }]}>
+      <MatchBackground>
+        <ScrollView style={styles.container}>
+        <View style={styles.matchInfo}>
+          <Text style={[styles.infoTitle, { color: 'rgba(255, 255, 255, 0.7)' }]}>Trận đấu</Text>
+          <Text style={[styles.matchText, { color: '#FFFFFF' }]}>
             {match?.homeTeam.name} vs {match?.awayTeam.name}
           </Text>
-          <Text style={[styles.roundText, { color: colors.textSecondary }]}>Vòng {match?.round}</Text>
+          <Text style={[styles.roundText, { color: 'rgba(255, 255, 255, 0.7)' }]}>Vòng {match?.round}</Text>
           {match?.status && (
-            <View style={[styles.statusBadge, { backgroundColor: colors.primary + '20' }]}>
-              <Text style={[styles.statusText, { color: colors.primary }]}>
+            <View style={[styles.statusBadge, { backgroundColor: colors.primary }]}>
+              <Text style={[styles.statusText, { color: '#FFFFFF' }]}>
                 {match.status === 'finished' ? 'Kết thúc' :
                  match.status === 'live' ? 'LIVE' :
                  match.status === 'scheduled' ? 'Sắp đấu' :
@@ -129,52 +141,53 @@ export default function MatchActionsScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>⚠️ Hành động nguy hiểm</Text>
+          <Text style={[styles.sectionTitle, { color: '#FFFFFF' }]}>⚠️ Hành động nguy hiểm</Text>
           
           <TouchableOpacity
-            style={[styles.actionCard, { backgroundColor: colors.card, borderColor: '#FF9500' }]}
+            style={styles.actionCard}
             onPress={handleReset}
             disabled={resetMutation.isPending}
           >
-            <View style={[styles.actionIcon, { backgroundColor: '#FF9500' + '20' }]}>
-              <Ionicons name="refresh" size={28} color="#FF9500" />
+            <View style={[styles.actionIcon, { backgroundColor: '#FF9500' }]}>
+              <Ionicons name="refresh" size={28} color="#FFFFFF" />
             </View>
             <View style={styles.actionContent}>
-              <Text style={[styles.actionTitle, { color: colors.text }]}>Reset kết quả</Text>
-              <Text style={[styles.actionDescription, { color: colors.textSecondary }]}>
+              <Text style={[styles.actionTitle, { color: '#FFFFFF' }]}>Reset kết quả</Text>
+              <Text style={[styles.actionDescription, { color: 'rgba(255, 255, 255, 0.7)' }]}>
                 Xóa kết quả, stats về 0, xóa media
               </Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+            <Ionicons name="chevron-forward" size={20} color="rgba(255, 255, 255, 0.5)" />
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.actionCard, { backgroundColor: colors.card, borderColor: colors.lose }]}
+            style={styles.deleteCard}
             onPress={handleDelete}
             disabled={deleteMutation.isPending || match?.status === 'finished'}
           >
-            <View style={[styles.actionIcon, { backgroundColor: colors.lose + '20' }]}>
-              <Ionicons name="trash" size={28} color={colors.lose} />
+            <View style={[styles.actionIcon, { backgroundColor: colors.lose }]}>
+              <Ionicons name="trash" size={28} color="#FFFFFF" />
             </View>
             <View style={styles.actionContent}>
-              <Text style={[styles.actionTitle, { color: colors.text }]}>Xóa trận đấu</Text>
-              <Text style={[styles.actionDescription, { color: colors.textSecondary }]}>
+              <Text style={[styles.actionTitle, { color: '#FFFFFF' }]}>Xóa trận đấu</Text>
+              <Text style={[styles.actionDescription, { color: 'rgba(255, 255, 255, 0.7)' }]}>
                 {match?.status === 'finished' 
                   ? 'Không thể xóa trận đã có kết quả'
                   : 'Xóa vĩnh viễn, không thể hoàn tác'}
               </Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+            <Ionicons name="chevron-forward" size={20} color="rgba(255, 255, 255, 0.5)" />
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.warning, { backgroundColor: '#FF9500' + '10', borderColor: '#FF9500' }]}>
+        <View style={styles.warning}>
           <Ionicons name="warning" size={24} color="#FF9500" />
-          <Text style={[styles.warningText, { color: colors.text }]}>
+          <Text style={[styles.warningText, { color: 'rgba(255, 255, 255, 0.85)' }]}>
             Các hành động này không thể hoàn tác. Hãy cẩn thận khi thực hiện.
           </Text>
         </View>
-      </ScrollView>
+        </ScrollView>
+      </MatchBackground>
     </>
   );
 }
@@ -185,18 +198,27 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   matchInfo: {
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 20,
     alignItems: 'center',
     marginBottom: 30,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    shadowColor: '#4e1a1a44',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   infoTitle: {
     fontSize: 14,
     marginBottom: 10,
+    fontWeight: '500',
   },
   matchText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '700',
     textAlign: 'center',
     marginBottom: 5,
   },
@@ -207,27 +229,49 @@ const styles = StyleSheet.create({
   statusBadge: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 12,
+    borderRadius: 15,
   },
   statusText: {
     fontSize: 13,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
   section: {
     marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 15,
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 16,
   },
   actionCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
-    borderRadius: 12,
-    borderWidth: 2,
+    padding: 16,
+    borderRadius: 16,
     marginBottom: 12,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    shadowColor: '#4e1a1a44',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  deleteCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 12,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    shadowColor: '#4e1a1a44',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 3,
   },
   actionIcon: {
     width: 50,
@@ -242,18 +286,21 @@ const styles = StyleSheet.create({
   },
   actionTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '700',
     marginBottom: 4,
   },
   actionDescription: {
     fontSize: 13,
+    lineHeight: 18,
   },
   warning: {
     flexDirection: 'row',
-    padding: 15,
-    borderRadius: 12,
+    padding: 16,
+    borderRadius: 16,
+    gap: 12,
+    backgroundColor: 'rgba(255, 149, 0, 0.1)',
     borderWidth: 1,
-    gap: 10,
+    borderColor: 'rgba(255, 149, 0, 0.3)',
   },
   warningText: {
     flex: 1,

@@ -2,10 +2,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../../../constants/theme';
 import { useColorScheme } from '../../../hooks/use-color-scheme';
 import { matchService } from '../../../services/match';
+import MatchBackground from '../../../components/match/MatchBackground';
 
 export default function UpdateResultScreen() {
   const { id } = useLocalSearchParams();
@@ -84,81 +85,140 @@ export default function UpdateResultScreen() {
 
   return (
     <>
+      <StatusBar 
+        backgroundColor="rgba(214, 18, 64, 1)"
+        barStyle="light-content"
+      />
       <Stack.Screen
         options={{
           headerShown: true,
           headerTitle: 'Cập nhật kết quả',
-          headerStyle: { backgroundColor: colors.background },
-          headerTintColor: colors.text,
+          headerStyle: { 
+            backgroundColor: 'rgba(214, 18, 64, 1)',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
         }}
       />
       
-      <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={[styles.matchInfo, { backgroundColor: colors.card }]}>
-          <Text style={[styles.infoTitle, { color: colors.textSecondary }]}>Trận đấu</Text>
-          <Text style={[styles.matchText, { color: colors.text }]}>
-            {match?.homeTeam.name} vs {match?.awayTeam.name}
-          </Text>
-          <Text style={[styles.roundText, { color: colors.textSecondary }]}>Vòng {match?.round}</Text>
+      <MatchBackground>
+        <ScrollView style={styles.container}>
+        {/* MATCH HEADER */}
+        <View style={styles.matchInfo}>
+          <Text style={[styles.infoTitle, { color: 'rgba(255, 255, 255, 0.7)' }]}>Trận đấu</Text>
+          
+          {/* LOGOS ROW */}
+          <View style={styles.logosRow}>
+            {/* HOME TEAM */}
+            <View style={styles.logoTeamContainer}>
+              {match?.homeTeam.logo ? (
+                <Image source={{ uri: match.homeTeam.logo }} style={styles.headerLogo} />
+              ) : (
+                <View style={[styles.headerLogoPlaceholder, { backgroundColor: colors.primary }]}>
+                  <Text style={styles.headerLogoText}>{match?.homeTeam.shortName}</Text>
+                </View>
+              )}
+              <Text style={[styles.headerTeamName, { color: '#FFFFFF' }]} numberOfLines={1}>
+                {match?.homeTeam.name}
+              </Text>
+            </View>
+
+            {/* VS */}
+            <Text style={[styles.headerVs, { color: 'rgba(255, 255, 255, 0.9)' }]}>vs</Text>
+
+            {/* AWAY TEAM */}
+            <View style={styles.logoTeamContainer}>
+              {match?.awayTeam.logo ? (
+                <Image source={{ uri: match.awayTeam.logo }} style={styles.headerLogo} />
+              ) : (
+                <View style={[styles.headerLogoPlaceholder, { backgroundColor: colors.primary }]}>
+                  <Text style={styles.headerLogoText}>{match?.awayTeam.shortName}</Text>
+                </View>
+              )}
+              <Text style={[styles.headerTeamName, { color: '#FFFFFF' }]} numberOfLines={1}>
+                {match?.awayTeam.name}
+              </Text>
+            </View>
+          </View>
+
+          <Text style={[styles.roundText, { color: 'rgba(255, 255, 255, 0.7)' }]}>Vòng {match?.round}</Text>
         </View>
 
-        <View style={styles.scoreForm}>
-          <View style={styles.teamScore}>
-            <Text style={[styles.teamName, { color: colors.text }]}>{match?.homeTeam.shortName}</Text>
+
+
+        {/* SCORE SECTION */}
+        <View style={styles.scoreSection}>
+          {/* HOME SCORE */}
+          <View style={styles.scoreCard}>
+            <Text style={[styles.scoreLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>
+              {match?.homeTeam.name}
+            </Text>
             <View style={styles.scoreControl}>
               <TouchableOpacity
-                style={[styles.scoreButton, { backgroundColor: colors.card }]}
+                style={styles.scoreButton}
                 onPress={() => setHomeScore(String(Math.max(0, parseInt(homeScore) - 1)))}
               >
-                <Ionicons name="remove" size={24} color={colors.primary} />
+                <Ionicons name="remove-circle" size={40} color="rgba(255, 255, 255, 0.8)" />
               </TouchableOpacity>
-              <TextInput
-                style={[styles.scoreInput, { borderColor: colors.primary, color: colors.primary }]}
-                value={homeScore}
-                onChangeText={setHomeScore}
-                keyboardType="number-pad"
-                maxLength={2}
-              />
+              <View style={styles.scoreInputContainer}>
+                <TextInput
+                  style={styles.scoreInput}
+                  value={homeScore}
+                  onChangeText={setHomeScore}
+                  keyboardType="number-pad"
+                  maxLength={2}
+                />
+              </View>
               <TouchableOpacity
-                style={[styles.scoreButton, { backgroundColor: colors.card }]}
+                style={styles.scoreButton}
                 onPress={() => setHomeScore(String(parseInt(homeScore) + 1))}
               >
-                <Ionicons name="add" size={24} color={colors.primary} />
+                <Ionicons name="add-circle" size={40} color="rgba(255, 255, 255, 0.8)" />
               </TouchableOpacity>
             </View>
           </View>
 
-          <Text style={[styles.vs, { color: colors.textSecondary }]}>-</Text>
-
-          <View style={styles.teamScore}>
-            <Text style={[styles.teamName, { color: colors.text }]}>{match?.awayTeam.shortName}</Text>
+          {/* AWAY SCORE */}
+          <View style={styles.scoreCard}>
+            <Text style={[styles.scoreLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>
+              {match?.awayTeam.name}
+            </Text>
             <View style={styles.scoreControl}>
               <TouchableOpacity
-                style={[styles.scoreButton, { backgroundColor: colors.card }]}
+                style={styles.scoreButton}
                 onPress={() => setAwayScore(String(Math.max(0, parseInt(awayScore) - 1)))}
               >
-                <Ionicons name="remove" size={24} color={colors.primary} />
+                <Ionicons name="remove-circle" size={40} color="rgba(255, 255, 255, 0.8)" />
               </TouchableOpacity>
-              <TextInput
-                style={[styles.scoreInput, { borderColor: colors.primary, color: colors.primary }]}
-                value={awayScore}
-                onChangeText={setAwayScore}
-                keyboardType="number-pad"
-                maxLength={2}
-              />
+              <View style={styles.scoreInputContainer}>
+                <TextInput
+                  style={styles.scoreInput}
+                  value={awayScore}
+                  onChangeText={setAwayScore}
+                  keyboardType="number-pad"
+                  maxLength={2}
+                />
+              </View>
               <TouchableOpacity
-                style={[styles.scoreButton, { backgroundColor: colors.card }]}
+                style={styles.scoreButton}
                 onPress={() => setAwayScore(String(parseInt(awayScore) + 1))}
               >
-                <Ionicons name="add" size={24} color={colors.primary} />
+                <Ionicons name="add-circle" size={40} color="rgba(255, 255, 255, 0.8)" />
               </TouchableOpacity>
             </View>
           </View>
         </View>
 
-        <View style={[styles.autoCalc, { backgroundColor: colors.primary + '10' }]}>
-          <Text style={[styles.autoCalcTitle, { color: colors.primary }]}>✨ Tính toán tự động</Text>
-          <Text style={[styles.autoCalcText, { color: colors.text }]}>
+        {/* AUTO CALC INFO */}
+        <View style={styles.autoCalc}>
+          <View style={styles.autoCalcHeader}>
+            <Ionicons name="calculator" size={20} color={colors.primary} />
+            <Text style={[styles.autoCalcTitle, { color: colors.primary }]}>Tính toán tự động</Text>
+          </View>
+          <Text style={[styles.autoCalcText, { color: 'rgba(255, 255, 255, 0.85)' }]}>
             • Điểm: Thắng +3, Hòa +1, Thua 0{'\n'}
             • Stats: Played, Won, Drawn, Lost{'\n'}
             • Goals: For, Against, Difference{'\n'}
@@ -179,7 +239,8 @@ export default function UpdateResultScreen() {
             {updateMutation.isPending ? 'Đang cập nhật...' : 'Cập nhật kết quả'}
           </Text>
         </TouchableOpacity>
-      </ScrollView>
+        </ScrollView>
+      </MatchBackground>
     </>
   );
 }
@@ -190,82 +251,202 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   matchInfo: {
-    borderRadius: 12,
-    padding: 20,
+    borderRadius: 16,
+    padding: 24,
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 24,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    shadowColor: '#4e1a1a44',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   infoTitle: {
-    fontSize: 14,
-    marginBottom: 10,
+    fontSize: 13,
+    marginBottom: 12,
+    fontWeight: '500',
   },
   matchText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '700',
     textAlign: 'center',
     marginBottom: 5,
   },
   roundText: {
-    fontSize: 14,
+    fontSize: 13,
+    marginTop: 4,
   },
-  scoreForm: {
+  logosRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 24,
+    marginVertical: 20,
+  },
+  logoTeamContainer: {
+    alignItems: 'center',
+  },
+  headerLogo: {
+    width: 60,
+    height: 60,
+    borderRadius: 14,
+    marginBottom: 10,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  headerLogoPlaceholder: {
+    width: 60,
+    height: 60,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  headerLogoText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '800',
+  },
+  headerTeamName: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  headerVs: {
+    fontSize: 18,
+    fontWeight: '800',
+    paddingHorizontal: 16,
+  },
+
+  scoreSection: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 30,
+    gap: 16,
   },
-  teamScore: {
+  scoreCard: {
     flex: 1,
     alignItems: 'center',
+    padding: 20,
+    borderRadius: 16,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  scoreLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    marginBottom: 16,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+  },
+  teamCard: {
+    flex: 1,
+    alignItems: 'center',
+    padding: 20,
+    borderRadius: 16,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    shadowColor: '#4e1a1a44',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  teamLogo: {
+    width: 60,
+    height: 60,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  logoPlaceholder: {
+    width: 60,
+    height: 60,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  logoText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '700',
   },
   teamName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 15,
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 16,
+    minHeight: 36,
   },
   scoreControl: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 16,
   },
   scoreButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  scoreInput: {
-    width: 60,
-    height: 60,
+  scoreInputContainer: {
+    backgroundColor: 'rgba(214, 18, 64, 0.9)',
+    borderRadius: 16,
     borderWidth: 2,
-    borderRadius: 12,
-    fontSize: 32,
-    fontWeight: 'bold',
+    borderColor: '#FFFFFF',
+    shadowColor: '#FFFFFF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  scoreInput: {
+    width: 70,
+    height: 70,
+    fontSize: 40,
+    fontWeight: '800',
     textAlign: 'center',
+    color: '#FFFFFF',
+  },
+  vsDivider: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   vs: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginHorizontal: 20,
+    fontSize: 20,
+    fontWeight: '800',
+    letterSpacing: 1,
   },
   autoCalc: {
-    borderRadius: 12,
-    padding: 20,
+    borderRadius: 16,
+    padding: 18,
     marginBottom: 30,
+    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  autoCalcHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
   },
   autoCalcTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 10,
+    fontWeight: '700',
   },
   autoCalcText: {
-    fontSize: 14,
+    fontSize: 13,
     lineHeight: 22,
   },
   button: {
-    height: 50,
-    borderRadius: 8,
+    height: 52,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -275,6 +456,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
   },
 });
