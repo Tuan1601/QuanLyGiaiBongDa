@@ -13,7 +13,7 @@ interface SearchFilterBarProps {
   onStatusChange: (status: 'all' | 'upcoming' | 'ongoing' | 'completed') => void;
 }
 
-export function SearchFilterBar({
+export const SearchFilterBar = React.memo(function SearchFilterBar({
   searchQuery,
   onSearchChange,
   filterType,
@@ -33,6 +33,8 @@ export function SearchFilterBar({
           placeholderTextColor={colors.textSecondary}
           value={searchQuery}
           onChangeText={onSearchChange}
+          autoCorrect={false}
+          autoCapitalize="none"
         />
         {searchQuery.length > 0 && (
           <TouchableOpacity onPress={() => onSearchChange('')}>
@@ -91,7 +93,7 @@ export function SearchFilterBar({
       </ScrollView>
     </View>
   );
-}
+});
 
 interface FilterChipProps {
   label: string;

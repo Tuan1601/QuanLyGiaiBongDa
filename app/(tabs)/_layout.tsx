@@ -33,7 +33,7 @@ function AnimatedTabIcon({
         }}
         animate={{
           scale: focused ? 1 : 0.8,
-          translateY: focused ? -35 : 0,
+          translateY: focused ? -15 : 0,
         }}
         transition={{
           type: 'spring',
@@ -55,7 +55,7 @@ function AnimatedTabIcon({
         }}
         animate={{
           scale: focused ? 1.1 : 1,
-          translateY: focused ? -35 : 0,
+          translateY: focused ? -15 : 0,
         }}
         transition={{
           type: 'spring',
@@ -92,8 +92,8 @@ function CurvedTabBar({
   const svgPath = useMemo(() => {
     const width = 375;
     const height = 70;
-    const curveWidth = 80;
-    const curveDepth = 30;
+    const curveWidth = 90;
+    const curveDepth = 45;
     
     const tabWidth = width / totalTabs;
     const centerX = (focusedIndex + 0.5) * tabWidth;
@@ -269,9 +269,12 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   tabBarContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     height: Platform.OS === 'ios' ? 90 : 80,
     backgroundColor: 'transparent',
-    position: 'relative',
   },
   tabsRow: {
     flex: 1,
@@ -302,14 +305,8 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    shadowColor: '#000000ff',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 8,
+    borderWidth: 0,
+    overflow: 'hidden',
     zIndex: 2,
   },
   tabLabel: {

@@ -9,7 +9,7 @@ import { leagueService } from '@/services/league';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { FlatList, Image, RefreshControl, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import TabsBackground from '@/components/tabs/TabsBackground';
@@ -52,12 +52,6 @@ export default function HomeScreen() {
     initialPageParam: 1,
   });
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await refetch();
-    setRefreshing(false);
-  };
-
   const allLeagues = useMemo(() => {
     if (!data?.pages) return [];
     const leagues = data.pages.flatMap(page => page.leagues || []);
@@ -72,14 +66,26 @@ export default function HomeScreen() {
     return Array.from(uniqueLeaguesMap.values());
   }, [data]);
 
+  const normalizeVietnamese = useCallback((str: string): string => {
+    if (!str) return '';
+    return str
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') 
+      .replace(/đ/g, 'd')
+      .replace(/Đ/g, 'd');
+  }, []);
+
   const filteredLeagues = useMemo(() => {
     let filtered = allLeagues;
 
     if (debouncedSearch) {
-      filtered = filtered.filter((league: any) =>
-        league.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-        league.description?.toLowerCase().includes(debouncedSearch.toLowerCase())
-      );
+      const normalizedSearch = normalizeVietnamese(debouncedSearch);
+      filtered = filtered.filter((league: any) => {
+        const normalizedName = normalizeVietnamese(league.name);
+        const normalizedDesc = normalizeVietnamese(league.description || '');
+        return normalizedName.includes(normalizedSearch) || normalizedDesc.includes(normalizedSearch);
+      });
     }
 
     if (filterType !== 'all') {
@@ -91,15 +97,33 @@ export default function HomeScreen() {
     }
 
     return filtered;
-  }, [allLeagues, debouncedSearch, filterType, filterStatus]);
+  }, [allLeagues, debouncedSearch, filterType, filterStatus, normalizeVietnamese]);
 
-  const handleLoadMore = () => {
+  const handleSearchChange = useCallback((text: string) => {
+    setSearchQuery(text);
+  }, []);
+
+  const handleTypeChange = useCallback((type: 'all' | 'round-robin' | 'group-stage') => {
+    setFilterType(type);
+  }, []);
+
+  const handleStatusChange = useCallback((status: 'all' | 'upcoming' | 'ongoing' | 'completed') => {
+    setFilterStatus(status);
+  }, []);
+
+  const handleLoadMore = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  };
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const renderFooter = () => {
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  }, [refetch]);
+
+  const renderFooter = useCallback(() => {
     if (!isFetchingNextPage) return null;
     
     return (
@@ -107,7 +131,7 @@ export default function HomeScreen() {
         <SkeletonLeagueCard />
       </View>
     );
-  };
+  }, [isFetchingNextPage]);
 
   const renderEmptyComponent = () => {
     if (isLoading) {
@@ -185,10 +209,33 @@ export default function HomeScreen() {
   //   );
   // };
 
+  const listHeaderComponent = useMemo(() => (
+    <>
+      <SearchFilterBar 
+        searchQuery={searchQuery}
+        onSearchChange={handleSearchChange}
+        filterType={filterType}
+        onTypeChange={handleTypeChange}
+        filterStatus={filterStatus}
+        onStatusChange={handleStatusChange}
+      />
+
+      <TouchableOpacity
+        style={[styles.privateLeagueButton, { backgroundColor: colors.card, borderColor: colors.primary }]}
+        onPress={() => router.push('/league/access-private-league')}
+      >
+        <Ionicons name="lock-closed" size={20} color={colors.primary} />
+        <Text style={[styles.privateLeagueText, { color: colors.primary }]}>
+          Truy cập giải riêng tư
+        </Text>
+        <Ionicons name="arrow-forward" size={16} color={colors.primary} />
+      </TouchableOpacity>
+    </>
+  ), [searchQuery, handleSearchChange, filterType, handleTypeChange, filterStatus, handleStatusChange, colors.card, colors.primary, router]);
+
   return (
     <TabsBackground>
       <View style={styles.container}>
-      {/* Header now transparent - TabsBackground provides gradient */}
       <View style={styles.header}>
         
         <View style={styles.headerTop}>
@@ -248,29 +295,7 @@ export default function HomeScreen() {
             tintColor={colors.primary}
           />
         }
-        ListHeaderComponent={() => (
-          <>
-            <SearchFilterBar 
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-              filterType={filterType}
-              onTypeChange={setFilterType}
-              filterStatus={filterStatus}
-              onStatusChange={setFilterStatus}
-            />
-
-            <TouchableOpacity
-              style={[styles.privateLeagueButton, { backgroundColor: colors.card, borderColor: colors.primary }]}
-              onPress={() => router.push('/league/access-private-league')}
-            >
-              <Ionicons name="lock-closed" size={20} color={colors.primary} />
-              <Text style={[styles.privateLeagueText, { color: colors.primary }]}>
-                Truy cập giải riêng tư
-              </Text>
-              <Ionicons name="arrow-forward" size={16} color={colors.primary} />
-            </TouchableOpacity>
-          </>
-        )}
+        ListHeaderComponent={listHeaderComponent}
         ListEmptyComponent={renderEmptyComponent}
         contentContainerStyle={filteredLeagues.length === 0 ? styles.emptyList : styles.list}
         showsVerticalScrollIndicator={false}
@@ -296,7 +321,7 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 30,
     paddingHorizontal: 24,
-    backgroundColor: 'transparent', // Transparent to show gradient
+    backgroundColor: 'transparent', 
   },
   headerTop: {
     flexDirection: 'row',

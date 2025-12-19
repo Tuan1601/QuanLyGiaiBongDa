@@ -173,6 +173,7 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingVertical: 16,
+    paddingBottom: 100,
   },
   emptyList: {
     flexGrow: 1,

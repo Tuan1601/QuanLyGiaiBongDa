@@ -525,13 +525,16 @@ export default function CreateLeagueScreen() {
       </TouchableOpacity>
       {showStartDatePicker && (
         <DateTimePicker
-          value={startDate ? new Date(startDate) : new Date()}
+          value={startDate ? new Date(startDate + 'T00:00:00') : new Date()}
           mode="date"
           display={Platform.OS === 'ios' ? 'spinner' : 'default'}
           onChange={(event, selectedDate) => {
             setShowStartDatePicker(Platform.OS === 'ios');
             if (selectedDate) {
-              setStartDate(selectedDate.toISOString().split('T')[0]);
+              const year = selectedDate.getFullYear();
+              const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+              const day = String(selectedDate.getDate()).padStart(2, '0');
+              setStartDate(`${year}-${month}-${day}`);
             }
           }}
         />
@@ -555,13 +558,16 @@ export default function CreateLeagueScreen() {
       </TouchableOpacity>
       {showEndDatePicker && (
         <DateTimePicker
-          value={endDate ? new Date(endDate) : new Date()}
+          value={endDate ? new Date(endDate + 'T00:00:00') : new Date()}
           mode="date"
           display={Platform.OS === 'ios' ? 'spinner' : 'default'}
           onChange={(event, selectedDate) => {
             setShowEndDatePicker(Platform.OS === 'ios');
             if (selectedDate) {
-              setEndDate(selectedDate.toISOString().split('T')[0]);
+              const year = selectedDate.getFullYear();
+              const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+              const day = String(selectedDate.getDate()).padStart(2, '0');
+              setEndDate(`${year}-${month}-${day}`);
             }
           }}
         />

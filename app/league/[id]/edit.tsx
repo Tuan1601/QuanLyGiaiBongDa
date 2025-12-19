@@ -312,13 +312,17 @@ export default function EditLeagueScreen() {
                   </TouchableOpacity>
                   {showStartDatePicker && (
                     <DateTimePicker
-                      value={value ? new Date(value) : new Date()}
+                      value={value ? new Date(value + 'T00:00:00') : new Date()}
                       mode="date"
                       display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                       onChange={(event, selectedDate) => {
                         setShowStartDatePicker(Platform.OS === 'ios');
                         if (selectedDate) {
-                          onChange(selectedDate.toISOString().split('T')[0]);
+                          // Format date in local timezone to avoid UTC conversion
+                          const year = selectedDate.getFullYear();
+                          const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                          const day = String(selectedDate.getDate()).padStart(2, '0');
+                          onChange(`${year}-${month}-${day}`);
                         }
                       }}
                     />
@@ -349,13 +353,16 @@ export default function EditLeagueScreen() {
                   </TouchableOpacity>
                   {showEndDatePicker && (
                     <DateTimePicker
-                      value={value ? new Date(value) : new Date()}
+                      value={value ? new Date(value + 'T00:00:00') : new Date()}
                       mode="date"
                       display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                       onChange={(event, selectedDate) => {
                         setShowEndDatePicker(Platform.OS === 'ios');
                         if (selectedDate) {
-                          onChange(selectedDate.toISOString().split('T')[0]);
+                          const year = selectedDate.getFullYear();
+                          const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                          const day = String(selectedDate.getDate()).padStart(2, '0');
+                          onChange(`${year}-${month}-${day}`);
                         }
                       }}
                     />

@@ -106,13 +106,10 @@ export default function UpdateResultScreen() {
       
       <MatchBackground>
         <ScrollView style={styles.container}>
-        {/* MATCH HEADER */}
         <View style={styles.matchInfo}>
           <Text style={[styles.infoTitle, { color: 'rgba(255, 255, 255, 0.7)' }]}>Trận đấu</Text>
           
-          {/* LOGOS ROW */}
           <View style={styles.logosRow}>
-            {/* HOME TEAM */}
             <View style={styles.logoTeamContainer}>
               {match?.homeTeam.logo ? (
                 <Image source={{ uri: match.homeTeam.logo }} style={styles.headerLogo} />
@@ -126,10 +123,8 @@ export default function UpdateResultScreen() {
               </Text>
             </View>
 
-            {/* VS */}
             <Text style={[styles.headerVs, { color: 'rgba(255, 255, 255, 0.9)' }]}>vs</Text>
 
-            {/* AWAY TEAM */}
             <View style={styles.logoTeamContainer}>
               {match?.awayTeam.logo ? (
                 <Image source={{ uri: match.awayTeam.logo }} style={styles.headerLogo} />
@@ -149,9 +144,7 @@ export default function UpdateResultScreen() {
 
 
 
-        {/* SCORE SECTION */}
         <View style={styles.scoreSection}>
-          {/* HOME SCORE */}
           <View style={styles.scoreCard}>
             <Text style={[styles.scoreLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>
               {match?.homeTeam.name}
@@ -181,7 +174,6 @@ export default function UpdateResultScreen() {
             </View>
           </View>
 
-          {/* AWAY SCORE */}
           <View style={styles.scoreCard}>
             <Text style={[styles.scoreLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>
               {match?.awayTeam.name}
@@ -212,7 +204,6 @@ export default function UpdateResultScreen() {
           </View>
         </View>
 
-        {/* AUTO CALC INFO */}
         <View style={styles.autoCalc}>
           <View style={styles.autoCalcHeader}>
             <Ionicons name="calculator" size={20} color={colors.primary} />

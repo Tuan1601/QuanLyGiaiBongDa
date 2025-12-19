@@ -32,7 +32,6 @@ export default function UploadMediaScreen() {
     }
   }, [match]);
 
-  // === VIDEO URL MUTATIONS ===
   const updateVideoMutation = useMutation({
     mutationFn: (url: string | null) => matchService.updateMatchVideo(id as string, url),
     onSuccess: () => {
@@ -45,7 +44,6 @@ export default function UploadMediaScreen() {
     },
   });
 
-  // === HIGHLIGHT VIDEOS MUTATIONS ===
   const uploadHighlightsMutation = useMutation({
     mutationFn: (formData: FormData) => matchService.uploadHighlights(id as string, formData),
     onSuccess: () => {
@@ -68,7 +66,6 @@ export default function UploadMediaScreen() {
     },
   });
 
-  // === PHOTOS MUTATIONS ===
   const uploadPhotosMutation = useMutation({
     mutationFn: (formData: FormData) => matchService.uploadPhotos(id as string, formData),
     onSuccess: () => {
@@ -81,7 +78,6 @@ export default function UploadMediaScreen() {
     },
   });
 
-  // === HANDLERS ===
   const handleUpdateVideoUrl = () => {
     if (!videoUrl.trim()) {
       Alert.alert('Lỗi', 'Vui lòng nhập URL video');
@@ -101,7 +97,6 @@ export default function UploadMediaScreen() {
     );
   };
 
-  // Pick videos from Gallery (with thumbnails, recent videos)
   const handlePickVideosFromGallery = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
@@ -131,7 +126,6 @@ export default function UploadMediaScreen() {
           return;
         }
 
-        // Convert ImagePicker format to match DocumentPicker format
         const convertedAssets = result.assets.map(asset => ({
           uri: asset.uri,
           name: asset.fileName || 'video.mp4',
@@ -148,7 +142,6 @@ export default function UploadMediaScreen() {
     }
   };
 
-  // Pick videos from Files (browse all folders)
   const handlePickVideosFromFiles = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
@@ -310,7 +303,6 @@ export default function UploadMediaScreen() {
       
       <MatchBackground>
         <ScrollView style={styles.container}>
-        {/* VIDEO FULL MATCH */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Ionicons name="videocam" size={22} color={colors.primary} />
@@ -348,7 +340,6 @@ export default function UploadMediaScreen() {
           </View>
         </View>
 
-        {/* HIGHLIGHT VIDEOS */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Ionicons name="film" size={22} color={colors.primary} />
@@ -455,7 +446,6 @@ export default function UploadMediaScreen() {
           )}
         </View>
 
-        {/* PHOTOS */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Ionicons name="images" size={22} color={colors.primary} />

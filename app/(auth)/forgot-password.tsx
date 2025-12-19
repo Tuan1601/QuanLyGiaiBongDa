@@ -191,7 +191,7 @@ export default function ForgotPasswordScreen() {
                 <Text style={styles.submitButtonText}>
                   {isLoading ? 'Đang gửi...' : 'Gửi mã OTP'}
                 </Text>
-                {!isLoading && <Ionicons name="send" size={18} color="#FFFFFF" />}
+                {!isLoading && <Ionicons name="send" size={18} color="#FFFFFF" style={{ marginLeft: 8 }} />}
               </LinearGradient>
             </TouchableOpacity>
 
@@ -233,7 +233,7 @@ export default function ForgotPasswordScreen() {
           <View style={styles.formCard}>
             
             <View style={styles.emailDisplay}>
-              <Ionicons name="mail" size={16} color="#B91C3C" />
+              <Ionicons name="mail" size={16} color="#B91C3C" style={{ marginRight: 8 }} />
               <Text style={styles.emailDisplayText}>{email}</Text>
             </View>
 
@@ -286,7 +286,7 @@ export default function ForgotPasswordScreen() {
                 <Text style={styles.submitButtonText}>
                   {isLoading ? 'Đang xác thực...' : 'Xác thực'}
                 </Text>
-                {!isLoading && <Ionicons name="checkmark-circle" size={18} color="#FFFFFF" />}
+                {!isLoading && <Ionicons name="checkmark-circle" size={18} color="#FFFFFF" style={{ marginLeft: 8 }} />}
               </LinearGradient>
             </TouchableOpacity>
 
@@ -294,14 +294,14 @@ export default function ForgotPasswordScreen() {
               style={[styles.secondaryButton, isLoading && styles.buttonDisabled]}
               onPress={handleResendOTP}
               disabled={isLoading}>
-              <Ionicons name="refresh" size={18} color="#B91C3C" />
+              <Ionicons name="refresh" size={18} color="#B91C3C" style={{ marginRight: 8 }} />
               <Text style={styles.secondaryButtonText}>
                 {isLoading ? 'Đang gửi...' : 'Gửi lại mã OTP'}
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.backButtonContainer} onPress={handleBackToEmail}>
-              <Ionicons name="arrow-back" size={16} color="#6B7280" />
+              <Ionicons name="arrow-back" size={16} color="#6B7280" style={{ marginRight: 6 }} />
               <Text style={styles.backButtonText}>Quay lại</Text>
             </TouchableOpacity>
           </View>
@@ -316,8 +316,7 @@ export default function ForgotPasswordScreen() {
       <ScrollView 
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="on-drag"
-        contentContainerStyle={{ paddingBottom: 40 }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
       >
         <StatusBar barStyle="light-content" />
         
@@ -331,119 +330,147 @@ export default function ForgotPasswordScreen() {
           </View>
           
           <Text style={styles.appTitle}>Đặt lại mật khẩu</Text>
-          <Text style={styles.appSubtitle}>Tạo mật khẩu mới cho tài khoản</Text>
+          <Text style={styles.appSubtitle}>Tạo mật khẩu mới cho tài khoản của bạn</Text>
         </View>
 
-      <View style={styles.formContainer}>
-        <View style={styles.formCard}>
-          
-          <View style={styles.emailDisplay}>
-            <Ionicons name="mail" size={16} color="#B91C3C" />
-            <Text style={styles.emailDisplayText}>{email}</Text>
-          </View>
+        <View style={styles.formContainer}>
+          <View style={styles.formCard} key="step-3">
+            
+            <View style={styles.emailDisplay}>
+              <Ionicons name="mail" size={16} color="#B91C3C" style={{ marginRight: 8 }} />
+              <Text style={styles.emailDisplayText}>{email}</Text>
+            </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Mật khẩu mới</Text>
-            <View style={[styles.inputContainer, passwordForm.formState.errors.newPassword && styles.inputError]}>
-              <Ionicons name="lock-closed-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
-              <Controller
-                control={passwordForm.control}
-                name="newPassword"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={styles.textInput}
-                    placeholder="Nhập mật khẩu mới"
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    secureTextEntry={!showPassword}
-                    placeholderTextColor="#9CA3AF"
-                    autoFocus
-                  />
-                )}
-              />
-              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                <Ionicons 
-                  name={showPassword ? "eye-outline" : "eye-off-outline"} 
-                  size={20} 
-                  color="#9CA3AF" 
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Mật khẩu mới</Text>
+              <View style={[
+                styles.inputContainer, 
+                passwordForm.formState.errors.newPassword && styles.inputError
+              ]}>
+                <Ionicons name="lock-closed-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
+                <Controller
+                  control={passwordForm.control}
+                  name="newPassword"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      style={styles.textInput}
+                      placeholder="Nhập mật khẩu mới"
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      secureTextEntry={!showPassword}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      textContentType="newPassword"
+                      placeholderTextColor="#9CA3AF"
+                      returnKeyType="next"
+                    />
+                  )}
                 />
-              </TouchableOpacity>
-            </View>
-            {passwordForm.formState.errors.newPassword && (
-              <Text style={styles.errorText}>{passwordForm.formState.errors.newPassword.message}</Text>
-            )}
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Xác nhận mật khẩu</Text>
-            <View style={[styles.inputContainer, passwordForm.formState.errors.confirmPassword && styles.inputError]}>
-              <Ionicons name="lock-closed-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
-              <Controller
-                control={passwordForm.control}
-                name="confirmPassword"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={styles.textInput}
-                    placeholder="Nhập lại mật khẩu"
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    secureTextEntry={!showConfirmPassword}
-                    placeholderTextColor="#9CA3AF"
+                <TouchableOpacity 
+                  onPress={() => setShowPassword(!showPassword)} 
+                  style={styles.eyeButton}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons 
+                    name={showPassword ? "eye-outline" : "eye-off-outline"} 
+                    size={20} 
+                    color="#9CA3AF" 
                   />
-                )}
-              />
-              <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
-                <Ionicons 
-                  name={showConfirmPassword ? "eye-outline" : "eye-off-outline"} 
-                  size={20} 
-                  color="#9CA3AF" 
+                </TouchableOpacity>
+              </View>
+              {passwordForm.formState.errors.newPassword && (
+                <View style={styles.errorContainer}>
+                  <Ionicons name="alert-circle" size={14} color="#DC2626" />
+                  <Text style={styles.errorText}>{passwordForm.formState.errors.newPassword.message}</Text>
+                </View>
+              )}
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Xác nhận mật khẩu</Text>
+              <View style={[
+                styles.inputContainer, 
+                passwordForm.formState.errors.confirmPassword && styles.inputError
+              ]}>
+                <Ionicons name="lock-closed-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
+                <Controller
+                  control={passwordForm.control}
+                  name="confirmPassword"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      style={styles.textInput}
+                      placeholder="Nhập lại mật khẩu"
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      secureTextEntry={!showConfirmPassword}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      textContentType="newPassword"
+                      placeholderTextColor="#9CA3AF"
+                      returnKeyType="done"
+                    />
+                  )}
                 />
-              </TouchableOpacity>
+                <TouchableOpacity 
+                  onPress={() => setShowConfirmPassword(!showConfirmPassword)} 
+                  style={styles.eyeButton}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons 
+                    name={showConfirmPassword ? "eye-outline" : "eye-off-outline"} 
+                    size={20} 
+                    color="#9CA3AF" 
+                  />
+                </TouchableOpacity>
+              </View>
+              {passwordForm.formState.errors.confirmPassword && (
+                <View style={styles.errorContainer}>
+                  <Ionicons name="alert-circle" size={14} color="#DC2626" />
+                  <Text style={styles.errorText}>{passwordForm.formState.errors.confirmPassword.message}</Text>
+                </View>
+              )}
             </View>
-            {passwordForm.formState.errors.confirmPassword && (
-              <Text style={styles.errorText}>{passwordForm.formState.errors.confirmPassword.message}</Text>
-            )}
-          </View>
 
-          <View style={styles.infoBox}>
-            <View style={styles.infoRow}>
-              <Ionicons name="shield-checkmark-outline" size={16} color="#3B82F6" />
-              <Text style={styles.infoText}>Mật khẩu phải có ít nhất 6 ký tự</Text>
+            <View style={styles.infoBox}>
+              <View style={styles.infoRow}>
+                <Ionicons name="shield-checkmark-outline" size={16} color="#3B82F6" />
+                <Text style={styles.infoText}>Mật khẩu phải có ít nhất 6 ký tự</Text>
+              </View>
+              <View style={styles.infoRow}>
+                <Ionicons name="checkmark-circle-outline" size={16} color="#3B82F6" />
+                <Text style={styles.infoText}>Nên kết hợp chữ hoa, thường và số</Text>
+              </View>
             </View>
-            <View style={styles.infoRow}>
-              <Ionicons name="checkmark-circle-outline" size={16} color="#3B82F6" />
-              <Text style={styles.infoText}>Nên kết hợp chữ hoa, thường và số</Text>
-            </View>
-          </View>
 
-          <TouchableOpacity
-            style={[styles.submitButton, isLoading && styles.buttonDisabled]}
-            onPress={passwordForm.handleSubmit(handleResetPassword)}
-            disabled={isLoading}>
-            <LinearGradient
-              colors={['#B91C3C', '#DC2626']}
-              style={styles.buttonGradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}>
-              <Text style={styles.submitButtonText}>
-                {isLoading ? 'Đang cập nhật...' : 'Đặt lại mật khẩu'}
-              </Text>
-              {!isLoading && <Ionicons name="checkmark-done" size={18} color="#FFFFFF" />}
-            </LinearGradient>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.submitButton, isLoading && styles.buttonDisabled]}
+              onPress={passwordForm.handleSubmit(handleResetPassword)}
+              disabled={isLoading}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={['#B91C3C', '#DC2626']}
+                style={styles.buttonGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+              >
+                <Text style={styles.submitButtonText}>
+                  {isLoading ? 'Đang xử lý...' : 'Đặt lại mật khẩu'}
+                </Text>
+                {!isLoading && <Ionicons name="checkmark-done" size={20} color="#FFFFFF" style={{ marginLeft: 8 }} />}
+              </LinearGradient>
+            </TouchableOpacity>
 
-          <View style={styles.linkContainer}>
             <Link href="/(auth)/login" asChild>
-              <TouchableOpacity style={styles.backButtonContainer}>
-                <Ionicons name="arrow-back" size={16} color="#B91C3C" />
+              <TouchableOpacity style={styles.backButtonContainer} activeOpacity={0.7}>
+                <Ionicons name="arrow-back" size={16} color="#B91C3C" style={{ marginRight: 6 }} />
                 <Text style={styles.link}>Quay lại đăng nhập</Text>
               </TouchableOpacity>
             </Link>
           </View>
         </View>
-      </View>
       </ScrollView>
     </AuthBackground>
   );
@@ -541,16 +568,22 @@ const styles = StyleSheet.create({
     letterSpacing: 6,
     textAlign: 'center',
   },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 6,
+    marginLeft: 4,
+  },
   errorText: {
     fontSize: 12,
     color: '#DC2626',
-    marginTop: 6,
+    marginLeft: 6,
+    flex: 1,
   },
   emailDisplay: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
     padding: 12,
     borderRadius: 12,
     backgroundColor: '#FEF2F2',
@@ -566,22 +599,23 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 14,
     marginBottom: 20,
-    gap: 10,
   },
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    marginBottom: 10,
   },
   infoText: {
     fontSize: 13,
     color: '#1E40AF',
     flex: 1,
+    marginLeft: 8,
   },
   submitButton: {
     borderRadius: 12,
     overflow: 'hidden',
     marginBottom: 16,
+
   },
   buttonDisabled: {
     opacity: 0.6,
@@ -591,7 +625,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
   },
   submitButtonText: {
     fontSize: 16,
@@ -602,7 +635,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
     borderRadius: 12,
     borderWidth: 1.5,
     borderColor: '#B91C3C',
@@ -633,11 +665,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
     paddingVertical: 8,
   },
   backButtonText: {
     fontSize: 14,
     color: '#6B7280',
+  },
+  eyeButton: {
+    padding: 4,
   },
 });

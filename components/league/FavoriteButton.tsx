@@ -1,8 +1,7 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { TouchableOpacity, StyleSheet, ActivityIndicator, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 
 interface FavoriteButtonProps {
   isFavorite: boolean;
@@ -15,31 +14,29 @@ export default function FavoriteButton({
   isFavorite, 
   onPress, 
   loading = false,
-  size = 32 
+  size = 24 
 }: FavoriteButtonProps) {
   const colors = Colors;
 
   return (
     <TouchableOpacity
-      style={[
-        styles.container,
-        { 
-          backgroundColor: colors.card,
-          shadowColor: '#000',
-        }
-      ]}
+      style={styles.container}
       onPress={onPress}
       disabled={loading}
       activeOpacity={0.7}
+      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
     >
       {loading ? (
         <ActivityIndicator size="small" color={colors.primary} />
       ) : (
-        <Ionicons
-          name={isFavorite ? 'star' : 'star-outline'}
-          size={size * 0.6}
-          color={isFavorite ? '#FFD700' : colors.textSecondary}
-        />
+        <View style={styles.iconContainer}>
+          <Ionicons
+            name={isFavorite ? 'star' : 'star-outline'}
+            size={size}
+            color={isFavorite ? '#FFD700' : '#FFFFFF'}
+            style={styles.icon}
+          />
+        </View>
       )}
     </TouchableOpacity>
   );
@@ -47,14 +44,20 @@ export default function FavoriteButton({
 
 const styles = StyleSheet.create({
   container: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 4,
+  },
+  iconContainer: {
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 4,
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 5,
+  },
+  icon: {
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
 });
