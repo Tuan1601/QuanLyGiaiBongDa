@@ -302,7 +302,7 @@ export default function EditLeagueScreen() {
                     onPress={() => setShowStartDatePicker(true)}
                     activeOpacity={0.7}
                   >
-                    <Ionicons name="calendar-outline" size={20} color="rgba(255, 255, 255, 0.7)" />
+                    <Ionicons name="calendar-outline" size={20} color="#B91C3C" />
                     <Text style={styles.dateButtonText}>
                       {value ? new Date(value).toLocaleDateString('vi-VN', {
                         year: 'numeric',
@@ -319,7 +319,6 @@ export default function EditLeagueScreen() {
                       onChange={(event, selectedDate) => {
                         setShowStartDatePicker(Platform.OS === 'ios');
                         if (selectedDate) {
-                          // Format date in local timezone to avoid UTC conversion
                           const year = selectedDate.getFullYear();
                           const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
                           const day = String(selectedDate.getDate()).padStart(2, '0');
@@ -343,7 +342,7 @@ export default function EditLeagueScreen() {
                     onPress={() => setShowEndDatePicker(true)}
                     activeOpacity={0.7}
                   >
-                    <Ionicons name="calendar-outline" size={20} color="rgba(255, 255, 255, 0.7)" />
+                    <Ionicons name="calendar-outline" size={20} color="#B91C3C" />
                     <Text style={styles.dateButtonText}>
                       {value ? new Date(value).toLocaleDateString('vi-VN', {
                         year: 'numeric',
@@ -406,7 +405,7 @@ export default function EditLeagueScreen() {
             </View>
             
             <View style={[styles.notice, { marginTop: 16 }]}>
-              <Ionicons name="lock-closed" size={14} color="rgba(255, 255, 255, 0.6)" />
+              <Ionicons name="lock-closed" size={14} color="#9CA3AF" />
               <Text style={styles.noticeText}>
                 Thể thức và số đội không thể thay đổi
               </Text>
@@ -568,9 +567,9 @@ const styles = StyleSheet.create({
   dateButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: '#F9FAFB',
     borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: 'rgba(214, 18, 64, 0.2)',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -579,7 +578,7 @@ const styles = StyleSheet.create({
   dateButtonText: {
     fontSize: 15,
     flex: 1,
-    color: 'rgba(255, 255, 255, 0.95)',
+    color: '#1F2937',
     fontWeight: '500',
   },
   infoRow: {
@@ -588,7 +587,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
   },
   infoLabel: {
     fontSize: 15,
@@ -596,12 +595,12 @@ const styles = StyleSheet.create({
     color: '#6B7280',
   },
   infoBadge: {
-    backgroundColor: 'rgba(255, 0, 0, 0.15)',
+    backgroundColor: 'rgba(214, 18, 64, 0.08)',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255, 0, 0, 0.3)',
+    borderColor: 'rgba(214, 18, 64, 0.15)',
   },
   infoBadgeText: {
     fontSize: 14,
@@ -615,13 +614,13 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 10,
     gap: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(107, 114, 128, 0.08)',
   },
   noticeText: {
     flex: 1,
     fontSize: 13,
     lineHeight: 18,
-    color: 'rgba(255, 255, 255, 0.6)',
+    color: '#6B7280',
     fontWeight: '500',
   },
   submitButton: {
