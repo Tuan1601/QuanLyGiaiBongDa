@@ -11,10 +11,12 @@ import React, { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import TabsBackground from '@/components/tabs/TabsBackground';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function CreateLeagueScreen() {
   const router = useRouter();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  const queryClient = useQueryClient();
   const colors = Colors;
   const [step, setStep] = useState(1);
 
@@ -71,6 +73,20 @@ export default function CreateLeagueScreen() {
     if (!result.canceled) {
       setLogo(result.assets[0]);
     }
+  };
+
+  const resetForm = () => {
+    setName('');
+    setDescription('');
+    setLogo(null);
+    setType('round-robin');
+    setVisibility('public');
+    setNumberOfTeams('6');
+    setNumberOfGroups('2');
+    setTeamsPerGroup('3');
+    setStartDate('');
+    setEndDate('');
+    setStep(1);
   };
 
   const handleCreate = async () => {
@@ -225,6 +241,12 @@ export default function CreateLeagueScreen() {
       }
   
       router.push(`/league/${response.league._id}` as any);
+      resetForm();
+      
+      // Invalidate queries to refresh league lists
+      queryClient.invalidateQueries({ queryKey: ['publicLeagues'] });
+      queryClient.invalidateQueries({ queryKey: ['myLeagues', user?._id] });
+      
       Alert.alert(
         'Thành công',
         response.message || 'Tạo giải đấu thành công!'
@@ -278,11 +300,11 @@ export default function CreateLeagueScreen() {
       <View style={styles.inputGroup}>
         <Text style={styles.label}>Tên giải đấu *</Text>
         <View style={styles.inputContainer}>
-          <Ionicons name="trophy-outline" size={20} color="rgba(255, 255, 255, 0.9)" style={styles.inputIcon} />
+          <Ionicons name="trophy-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="VD: Giải Bóng Đá Phủi 2024"
-            placeholderTextColor="rgba(255, 255, 255, 0.5)"
+            placeholderTextColor="#9CA3AF"
             value={name}
             onChangeText={setName}
           />
@@ -295,7 +317,7 @@ export default function CreateLeagueScreen() {
           <TextInput
             style={[styles.input, styles.textArea]}
             placeholder="Mô tả về giải đấu"
-            placeholderTextColor="rgba(255, 255, 255, 0.5)"
+            placeholderTextColor="#9CA3AF"
             value={description}
             onChangeText={setDescription}
             multiline
@@ -316,7 +338,7 @@ export default function CreateLeagueScreen() {
             </>
           ) : (
             <>
-              <Ionicons name="image-outline" size={48} color="rgba(255, 255, 255, 0.7)" />
+              <Ionicons name="image-outline" size={48} color="#9CA3AF" />
               <Text style={styles.logoText}>Chọn logo</Text>
             </>
           )}
@@ -348,7 +370,7 @@ export default function CreateLeagueScreen() {
           onPress={() => setType('round-robin')}>
           <Text style={[
             styles.typeText,
-            type === 'round-robin' && { fontWeight: '600' }
+            type === 'round-robin' && { fontWeight: '600', color: '#FFFFFF' }
           ]}>
             Vòng tròn 1 lượt
           </Text>
@@ -363,7 +385,7 @@ export default function CreateLeagueScreen() {
           onPress={() => setType('group-stage')}>
           <Text style={[
             styles.typeText,
-            type === 'group-stage' && { fontWeight: '600' }
+            type === 'group-stage' && { fontWeight: '600', color: '#FFFFFF' }
           ]}>
             Chia bảng
           </Text>
@@ -374,11 +396,11 @@ export default function CreateLeagueScreen() {
       <View style={styles.inputGroup}>
         <Text style={styles.label}>Số đội tham gia *</Text>
         <View style={styles.inputContainer}>
-          <Ionicons name="people-outline" size={20} color="rgba(255, 255, 255, 0.9)" style={styles.inputIcon} />
+          <Ionicons name="people-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="6"
-            placeholderTextColor="rgba(255, 255, 255, 0.5)"
+            placeholderTextColor="#9CA3AF"
             value={numberOfTeams}
             onChangeText={handleTeamsChange}
             keyboardType="number-pad"
@@ -391,11 +413,11 @@ export default function CreateLeagueScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Số bảng đấu *</Text>
             <View style={styles.inputContainer}>
-              <Ionicons name="grid-outline" size={20} color="rgba(255, 255, 255, 0.9)" style={styles.inputIcon} />
+              <Ionicons name="grid-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 placeholder="2"
-                placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                placeholderTextColor="#9CA3AF"
                 value={numberOfGroups}
                 onChangeText={handleGroupsChange}
                 keyboardType="number-pad"
@@ -406,11 +428,11 @@ export default function CreateLeagueScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Số đội/bảng *</Text>
             <View style={styles.inputContainer}>
-              <Ionicons name="list-outline" size={20} color="rgba(255, 255, 255, 0.9)" style={styles.inputIcon} />
+              <Ionicons name="list-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 placeholder="4"
-                placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                placeholderTextColor="#9CA3AF"
                 value={teamsPerGroup}
                 onChangeText={setTeamsPerGroup}
                 keyboardType="number-pad"
@@ -455,7 +477,7 @@ export default function CreateLeagueScreen() {
         <TouchableOpacity
           style={styles.secondaryButton}
           onPress={() => setStep(1)}>
-          <Ionicons name="arrow-back" size={20} color="#FFFFFF" />
+          <Ionicons name="arrow-back" size={20} color="#374151" />
           <Text style={styles.secondaryButtonText}>Quay lại</Text>
         </TouchableOpacity>
 
@@ -485,7 +507,7 @@ export default function CreateLeagueScreen() {
           onPress={() => setVisibility('public')}>
           <Text style={[
             styles.typeText,
-            visibility === 'public' && { fontWeight: '600' }
+            visibility === 'public' && { fontWeight: '600', color: '#FFFFFF' }
           ]}>
             Công khai
           </Text>
@@ -500,7 +522,7 @@ export default function CreateLeagueScreen() {
           onPress={() => setVisibility('private')}>
           <Text style={[
             styles.typeText,
-            visibility === 'private' && { fontWeight: '600' }
+            visibility === 'private' && { fontWeight: '600', color: '#FFFFFF' }
           ]}>
             Riêng tư
           </Text>
@@ -514,7 +536,7 @@ export default function CreateLeagueScreen() {
         style={styles.dateButton}
         onPress={() => setShowStartDatePicker(true)}
       >
-        <Ionicons name="calendar-outline" size={20} color={colors.primary} />
+        <Ionicons name="calendar-outline" size={20} color="#B91C3C" />
         <Text style={[styles.dateButtonText, !startDate && { opacity: 0.6 }]}>
           {startDate ? new Date(startDate).toLocaleDateString('vi-VN', {
             year: 'numeric',
@@ -547,7 +569,7 @@ export default function CreateLeagueScreen() {
         style={styles.dateButton}
         onPress={() => setShowEndDatePicker(true)}
       >
-        <Ionicons name="calendar-outline" size={20} color={colors.primary} />
+        <Ionicons name="calendar-outline" size={20} color="#B91C3C" />
         <Text style={[styles.dateButtonText, !endDate && { opacity: 0.6 }]}>
           {endDate ? new Date(endDate).toLocaleDateString('vi-VN', {
             year: 'numeric',
@@ -578,7 +600,7 @@ export default function CreateLeagueScreen() {
         <TouchableOpacity
           style={styles.secondaryButton}
           onPress={() => setStep(2)}>
-          <Ionicons name="arrow-back" size={20} color="#FFFFFF" />
+          <Ionicons name="arrow-back" size={20} color="#374151" />
           <Text style={styles.secondaryButtonText}>Quay lại</Text>
         </TouchableOpacity>
 
@@ -675,23 +697,23 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   stepCard: {
-    backgroundColor: 'rgba(56, 6, 6, 0.8)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
-    padding: 20,
+    padding: 24,
     borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.6)',
+    borderColor: 'rgba(214, 18, 64, 0.15)',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    elevation: 12,
-    marginBottom: 30,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
+    marginBottom: 120,
   },
   stepTitle: {
     fontSize: 22,
-    fontWeight: 'bold',
+    fontWeight: '700',
     marginBottom: 24,
-    color: '#FFFFFF',
+    color: '#1F2937',
   },
   inputGroup: {
     marginBottom: 20,
@@ -700,15 +722,15 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     marginBottom: 10,
-    color: '#FFFFFF',
+    color: '#374151',
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 12,
     borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: '#E5E7EB',
+    backgroundColor: '#F9FAFB',
     overflow: 'hidden',
   },
   inputIcon: {
@@ -719,7 +741,7 @@ const styles = StyleSheet.create({
     height: 50,
     paddingHorizontal: 15,
     fontSize: 16,
-    color: '#FFFFFF',
+    color: '#1F2937',
   },
   textAreaContainer: {
     alignItems: 'flex-start',
@@ -734,8 +756,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 16,
     borderStyle: 'dashed',
-    borderColor: 'rgba(255, 255, 255, 0.4)',
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: '#D1D5DB',
+    backgroundColor: '#F9FAFB',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -743,7 +765,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontSize: 15,
     fontWeight: '500',
-    color:'#FFFFFF'
+    color: '#6B7280',
   },
   typeContainer: {
     flexDirection: 'row',
@@ -756,21 +778,21 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: '#F9FAFB',
   },
   typeText: {
     fontSize: 15,
     fontWeight: '500',
-    color: '#FFFFFF',
+    color: '#374151',
   },
   hint: {
     fontSize: 12,
-    marginTop: 6,
-    color: 'rgba(255, 255, 255, 0.75)',
+    marginTop: -17,
+    color: '#6B7280',
   },
   validationContainer: {
     marginTop: 12,
-    padding: 12,
+    padding: 8,
     backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: 10,
   },
@@ -828,13 +850,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: '#F3F4F6',
     borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
+    borderColor: '#D1D5DB',
     flex: 1,
   },
   secondaryButtonText: {
-    color: '#FFFFFF',
+    color: '#374151',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -844,15 +866,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderWidth: 1.5,
+    borderColor: '#E5E7EB',
     gap: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: '#F9FAFB',
   },
   dateButtonText: {
     fontSize: 15,
     flex: 1,
     fontWeight: '500',
-    color: '#FFFFFF',
+    color: '#374151',
   },
 });

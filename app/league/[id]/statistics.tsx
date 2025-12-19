@@ -1,15 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Stack } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View, StatusBar } from 'react-native';
 import TopTeamCard from '../../../components/stats/TopTeamCard';
 import { Colors } from '../../../constants/theme';
 import { useColorScheme } from '../../../hooks/use-color-scheme';
+import { useLeagueId } from '../../../hooks/useRouteParams';
 import { standingsService } from '../../../services/standings';
 import LeagueBackground from '../../../components/league/LeagueBackground';
 
 export default function StatisticsScreen() {
-  const { id } = useLocalSearchParams();
+  const id = useLeagueId();
   const colors = Colors;
 
   const { data: stats, isLoading } = useQuery({
@@ -227,19 +228,24 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 20,
     alignItems: 'center',
-    backgroundColor: 'rgba(102, 19, 19, 0.84)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.27)',
+    borderColor: 'rgba(214, 18, 64, 0.1)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
   },
   statValue: {
     fontSize: 32,
     fontWeight: 'bold',
     marginBottom: 5,
-    color: '#ff0000ff',
+    color: '#B91C3C',
   },
   statLabel: {
     fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: '#6B7280',
   },
   empty: {
     padding: 50,

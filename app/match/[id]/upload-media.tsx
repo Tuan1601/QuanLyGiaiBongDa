@@ -314,7 +314,7 @@ export default function UploadMediaScreen() {
           <TextInput
             style={styles.input}
             placeholder="https://youtube.com/watch?v=..."
-            placeholderTextColor="rgba(255, 255, 255, 0.5)"
+            placeholderTextColor="#9CA3AF"
             value={videoUrl}
             onChangeText={setVideoUrl}
             autoCapitalize="none"
@@ -354,10 +354,10 @@ export default function UploadMediaScreen() {
           {match?.highlightVideos && match.highlightVideos.length > 0 && (
             <View style={styles.list}>
               {match.highlightVideos.map((highlight: any) => (
-                <View key={highlight._id} style={[styles.listItem, { backgroundColor: colors.card }]}>
+                <View key={highlight._id} style={styles.listItem}>
                   <View style={styles.listItemInfo}>
                     <Ionicons name="videocam" size={20} color={colors.primary} />
-                    <Text style={[styles.listItemTitle, { color: colors.text }]} numberOfLines={1}>
+                    <Text style={[styles.listItemTitle, { color: '#1F2937' }]} numberOfLines={1}>
                       {highlight.title || 'Highlight'}
                     </Text>
                   </View>
@@ -376,27 +376,27 @@ export default function UploadMediaScreen() {
             <>
               <View style={styles.pickerButtons}>
                 <TouchableOpacity
-                  style={[styles.halfPickButton, { borderColor: colors.border, backgroundColor: colors.card }]}
+                  style={styles.halfPickButton}
                   onPress={handlePickVideosFromGallery}
                 >
                   <Ionicons name="images-outline" size={28} color={colors.primary} />
                   <Text style={[styles.halfPickButtonText, { color: colors.primary }]}>
                     Từ thư viện
                   </Text>
-                  <Text style={[styles.halfPickButtonHint, { color: colors.textSecondary }]}>
+                  <Text style={[styles.halfPickButtonHint, { color: '#6B7280' }]}>
                     (Xem thumbnail)
                   </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={[styles.halfPickButton, { borderColor: colors.border, backgroundColor: colors.card }]}
+                  style={styles.halfPickButton}
                   onPress={handlePickVideosFromFiles}
                 >
                   <Ionicons name="folder-outline" size={28} color={colors.primary} />
                   <Text style={[styles.halfPickButtonText, { color: colors.primary }]}>
                     Từ files
                   </Text>
-                  <Text style={[styles.halfPickButtonHint, { color: colors.textSecondary }]}>
+                  <Text style={[styles.halfPickButtonHint, { color: '#6B7280' }]}>
                     (Duyệt thư mục)
                   </Text>
                 </TouchableOpacity>
@@ -415,13 +415,13 @@ export default function UploadMediaScreen() {
                 <>
                   {selectedVideos.map((video, index) => (
                     <View key={index} style={styles.titleInputContainer}>
-                      <Text style={[styles.titleLabel, { color: colors.text }]}>
+                      <Text style={[styles.titleLabel, { color: '#1F2937' }]}>
                         Title video {index + 1}:
                       </Text>
                       <TextInput
-                        style={[styles.input, { borderColor: colors.border, color: colors.text, backgroundColor: colors.card }]}
+                        style={[styles.input, { borderColor: 'rgba(214, 18, 64, 0.2)', color: '#1F2937', backgroundColor: '#FFFFFF' }]}
                         placeholder="VD: Bàn thắng của Rashford phút 15"
-                        placeholderTextColor={colors.textSecondary}
+                        placeholderTextColor="#9CA3AF"
                         value={videoTitles[index]}
                         onChangeText={(text) => {
                           const newTitles = [...videoTitles];
@@ -471,7 +471,7 @@ export default function UploadMediaScreen() {
 
           {selectedPhotos.length > 0 && (
             <>
-              <Text style={[styles.subsectionTitle, { color: colors.text }]}>
+              <Text style={[styles.subsectionTitle, { color: '#1F2937' }]}>
                 Đã chọn ({selectedPhotos.length})
               </Text>
               <View style={styles.photoGrid}>
@@ -493,7 +493,7 @@ export default function UploadMediaScreen() {
           {currentPhotos < 10 && (
             <>
               <TouchableOpacity
-                style={[styles.pickButton, { borderColor: colors.border }]}
+                style={styles.pickButton}
                 onPress={handlePickPhotos}
               >
                 <Ionicons name="images-outline" size={32} color={colors.primary} />
@@ -553,7 +553,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 10,
     marginTop: 15,
-    color: '#FFFFFF',
   },
   hint: {
     fontSize: 12,
@@ -567,9 +566,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginBottom: 15,
     fontSize: 14,
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-    color: '#FFFFFF',
+    backgroundColor: '#FFFFFF',
+    borderColor: 'rgba(214, 18, 64, 0.2)',
+    color: '#1F2937',
     paddingLeft:10,
   },
   buttonRow: {
@@ -584,7 +583,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonOutline: {
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 2,
     borderColor: 'rgba(214, 18, 64, 1)',
   },
@@ -607,9 +606,9 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 12,
     marginBottom: 8,
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: 'rgba(214, 18, 64, 0.1)',
   },
   listItemInfo: {
     flex: 1,
@@ -620,7 +619,6 @@ const styles = StyleSheet.create({
   listItemTitle: {
     flex: 1,
     fontSize: 14,
-    color: '#FFFFFF',
   },
   pickButton: {
     height: 100,
@@ -630,8 +628,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 15,
-    backgroundColor: 'rgba(70, 22, 22, 0.4)',
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: '#FFFFFF',
+    borderColor: 'rgba(214, 18, 64, 0.2)',
   },
   pickButtonText: {
     marginTop: 8,
@@ -651,8 +649,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 10,
-    backgroundColor: 'rgba(70, 22, 22, 0.4)',
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: '#FFFFFF',
+    borderColor: 'rgba(214, 18, 64, 0.2)',
   },
   halfPickButtonText: {
     marginTop: 8,

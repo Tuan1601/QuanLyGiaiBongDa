@@ -84,11 +84,11 @@ export default function MatchStatusScreen() {
       <MatchBackground>
         <ScrollView style={styles.container}>
         <View style={styles.matchInfo}>
-          <Text style={[styles.infoTitle, { color: 'rgba(255, 255, 255, 0.7)' }]}>Trận đấu</Text>
-          <Text style={[styles.matchText, { color: '#FFFFFF' }]}>
+          <Text style={[styles.infoTitle, { color: '#6B7280' }]}>Trận đấu</Text>
+          <Text style={[styles.matchText, { color: '#1F2937' }]}>
             {match?.homeTeam.name} vs {match?.awayTeam.name}
           </Text>
-          <Text style={[styles.roundText, { color: 'rgba(255, 255, 255, 0.7)' }]}>Vòng {match?.round}</Text>
+          <Text style={[styles.roundText, { color: '#6B7280' }]}>Vòng {match?.round}</Text>
         </View>
 
         <View style={styles.statusList}>
@@ -102,8 +102,8 @@ export default function MatchStatusScreen() {
               onPress={() => setSelectedStatus(status.value)}
             >
               <View style={styles.statusContent}>
-                <Text style={[styles.statusLabel, { color: selectedStatus === status.value ? '#FFFFFF' : '#FFFFFF' }]}>{status.label}</Text>
-                <Text style={[styles.statusDescription, { color: selectedStatus === status.value ? 'rgba(255, 255, 255, 0.85)' : 'rgba(255, 255, 255, 0.6)' }]}>
+                <Text style={[styles.statusLabel, { color: selectedStatus === status.value ? '#FFFFFF' : '#1F2937' }]}>{status.label}</Text>
+                <Text style={[styles.statusDescription, { color: selectedStatus === status.value ? 'rgba(255, 255, 255, 0.85)' : '#6B7280' }]}>
                   {status.description}
                 </Text>
               </View>
@@ -145,12 +145,12 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
     marginBottom: 24,
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-    shadowColor: '#4e1a1a44',
+    borderColor: 'rgba(214, 18, 64, 0.1)',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 4,
   },
@@ -176,13 +176,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 18,
     borderRadius: 16,
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: 'rgba(214, 18, 64, 0.1)',
     marginBottom: 12,
-    shadowColor: '#4e1a1a44',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 2,
   },

@@ -64,73 +64,73 @@ export default function StandingsScreen() {
       />
       
       <LeagueBackground>
-         <ScrollView style={styles.container}>
-        {isGroupStage && groups.length > 0 && (
-          <View style={[styles.tabs, { borderBottomColor: colors.border, backgroundColor: colors.background }]}>
-            <TouchableOpacity
-              style={[
-                styles.tab,
-                !selectedGroup && [styles.tabActive, { borderBottomColor: colors.primary }]
-              ]}
-              onPress={() => setSelectedGroup(null)}
-            >
-              <Text style={[
-                styles.tabText,
-                { color: colors.textSecondary },
-                !selectedGroup && [styles.tabTextActive, { color: colors.primary }]
-              ]}>
-                Tất cả
-              </Text>
-            </TouchableOpacity>
-            {groups.map((group) => (
+        <ScrollView style={styles.container}>
+          {isGroupStage && groups.length > 0 && (
+            <View style={[styles.tabs, { borderBottomColor: colors.border, backgroundColor: colors.background }]}>
               <TouchableOpacity
-                key={group}
                 style={[
                   styles.tab,
-                  selectedGroup === group && [styles.tabActive, { borderBottomColor: colors.primary }]
+                  !selectedGroup && [styles.tabActive, { borderBottomColor: colors.primary }]
                 ]}
-                onPress={() => setSelectedGroup(group)}
+                onPress={() => setSelectedGroup(null)}
               >
                 <Text style={[
                   styles.tabText,
                   { color: colors.textSecondary },
-                  selectedGroup === group && [styles.tabTextActive, { color: colors.primary }]
+                  !selectedGroup && [styles.tabTextActive, { color: colors.primary }]
                 ]}>
-                  Bảng {group}
+                  Tất cả
                 </Text>
               </TouchableOpacity>
-            ))}
-          </View>
-        )}
+              {groups.map((group) => (
+                <TouchableOpacity
+                  key={group}
+                  style={[
+                    styles.tab,
+                    selectedGroup === group && [styles.tabActive, { borderBottomColor: colors.primary }]
+                  ]}
+                  onPress={() => setSelectedGroup(group)}
+                >
+                  <Text style={[
+                    styles.tabText,
+                    { color: colors.textSecondary },
+                    selectedGroup === group && [styles.tabTextActive, { color: colors.primary }]
+                  ]}>
+                    Bảng {group}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
 
-        {isLoading ? (
-          <View style={styles.loading}>
-            <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Đang tải...</Text>
-          </View>
-        ) : selectedGroup && standings?.standings ? (
-          <View style={styles.tableContainer}>
-            <StandingsTable standings={standings.standings} />
-          </View>
-        ) : !selectedGroup && isGroupStage && standings?.groups ? (
-          <View>
-            {Object.entries(standings.groups).map(([group, teams]: [string, any]) => (
-              <View key={group} style={[styles.groupSection, { borderBottomColor: colors.card }]}>
-                <Text style={[styles.groupTitle, { color: colors.text }]}>Bảng {group}</Text>
-                <StandingsTable standings={teams} />
-              </View>
-            ))}
-          </View>
-        ) : standings?.standings ? (
-          <View style={styles.tableContainer}>
-            <StandingsTable standings={standings.standings} />
-          </View>
-        ) : (
-          <View style={styles.empty}>
-            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-              Chưa có dữ liệu xếp hạng
-            </Text>
-          </View>
-        )}
+          {isLoading ? (
+            <View style={styles.loading}>
+              <Text style={styles.loadingText}>Đang tải...</Text>
+            </View>
+          ) : selectedGroup && standings?.standings ? (
+            <View style={styles.tableContainer}>
+              <StandingsTable standings={standings.standings} />
+            </View>
+          ) : !selectedGroup && isGroupStage && standings?.groups ? (
+            <View>
+              {Object.entries(standings.groups).map(([group, teams]: [string, any]) => (
+                <View key={group} style={styles.groupSection}>
+                  <Text style={styles.groupTitle}>Bảng {group}</Text>
+                  <StandingsTable standings={teams} />
+                </View>
+              ))}
+            </View>
+          ) : standings?.standings ? (
+            <View style={styles.tableContainer}>
+              <StandingsTable standings={standings.standings} />
+            </View>
+          ) : (
+            <View style={styles.empty}>
+              <Text style={styles.emptyText}>
+                Chưa có dữ liệu xếp hạng
+              </Text>
+            </View>
+          )}
         </ScrollView>
       </LeagueBackground>
     </>
@@ -166,25 +166,23 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.9)',
   },
   tableContainer: {
-    padding: 20,
+    padding: 16,
   },
   groupSection: {
-    padding: 20,
-    borderBottomWidth: 8,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 16,
-    letterSpacing: 0.2,
+    paddingHorizontal: 16,
+    paddingTop: 0,
+    paddingBottom: 20,
   },
   groupTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
-    marginBottom: 16,
-    letterSpacing: 0.2,
+    marginBottom: 12,
+    marginTop: 20,
+    color: 'rgba(255, 255, 255, 0.95)',
+    letterSpacing: 0.3,
   },
   empty: {
     padding: 50,
@@ -192,5 +190,6 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.7)',
   },
 });

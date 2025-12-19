@@ -125,13 +125,19 @@ api.interceptors.response.use(
     }
 
     // Log other API errors for debugging
-    console.error('API Error:', {
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      message: error.message,
-      url: error.config?.url,
-      data: error.response?.data,
-    });
+    // Skip logging expected errors (e.g., logout with invalidated token after password change)
+    const isLogoutWithInvalidToken = 
+      error.config?.url?.includes('/user/logout') && error.response?.status === 400;
+    
+    if (!isLogoutWithInvalidToken) {
+      console.error('API Error:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        message: error.message,
+        url: error.config?.url,
+        data: error.response?.data,
+      });
+    }
 
     return Promise.reject(error);
   }

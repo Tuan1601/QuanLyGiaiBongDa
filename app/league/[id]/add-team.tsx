@@ -1,18 +1,19 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Platform, StatusBar } from 'react-native';
 import { Colors } from '../../../constants/theme';
 import { useColorScheme } from '../../../hooks/use-color-scheme';
 import { useToast } from '../../../hooks/useToast';
+import { useLeagueId } from '../../../hooks/useRouteParams';
 import { leagueService } from '../../../services/league';
 import { teamService } from '../../../services/team';
 import LeagueBackground from '../../../components/league/LeagueBackground';
 
 export default function AddTeamScreen() {
-  const { id } = useLocalSearchParams();
+  const id = useLeagueId();
   const router = useRouter();
   const queryClient = useQueryClient();
   const colors = Colors;

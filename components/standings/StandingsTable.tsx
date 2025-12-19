@@ -56,11 +56,11 @@ export default function StandingsTable({ standings }: StandingsTableProps) {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.card }]}>
+    <View style={styles.container}>
       <View style={styles.tableWrapper}>
         <View style={styles.leftColumn}>
-          <View style={[styles.leftHeader, { borderBottomColor: colors.border }]}>
-            <Text style={[styles.headerCell, { color: colors.textSecondary }]}>
+          <View style={styles.leftHeader}>
+            <Text style={styles.headerCell}>
               Cầu lạc bộ
             </Text>
           </View>
@@ -68,12 +68,12 @@ export default function StandingsTable({ standings }: StandingsTableProps) {
           {standings.map((item) => (
             <TouchableOpacity
               key={item.team._id}
-              style={[styles.leftRow, { borderBottomColor: colors.border }]}
+              style={styles.leftRow}
               onPress={() => router.push(`/team/${item.team._id}`)}
             >
               <View style={[styles.positionBar, { backgroundColor: getPositionBarColor(item.position) }]} />
               
-              <Text style={[styles.position, { color: colors.textSecondary }]}>
+              <Text style={styles.position}>
                 {item.position}
               </Text>
 
@@ -85,7 +85,7 @@ export default function StandingsTable({ standings }: StandingsTableProps) {
                 </View>
               )}
               
-              <Text style={[styles.teamName, { color: colors.text }]} numberOfLines={1}>
+              <Text style={styles.teamName} numberOfLines={1}>
                 {item.team.name}
               </Text>
             </TouchableOpacity>
@@ -98,46 +98,46 @@ export default function StandingsTable({ standings }: StandingsTableProps) {
           style={styles.rightColumn}
         >
           <View>
-            <View style={[styles.rightHeader, { borderBottomColor: colors.border }]}>
-              <Text style={[styles.statHeaderCell, { color: colors.textSecondary }]}>ĐĐ</Text>
-              <Text style={[styles.statHeaderCell, { color: colors.textSecondary }]}>T</Text>
-              <Text style={[styles.statHeaderCell, { color: colors.textSecondary }]}>H</Text>
-              <Text style={[styles.statHeaderCell, { color: colors.textSecondary }]}>B</Text>
-              <Text style={[styles.statHeaderCell, { color: colors.textSecondary }]}>BT</Text>
-              <Text style={[styles.statHeaderCell, { color: colors.textSecondary }]}>SBT</Text>
-              <Text style={[styles.statHeaderCell, { color: colors.textSecondary }]}>HS</Text>
-              <Text style={[styles.ptsHeaderCell, { color: colors.textSecondary }]}>Đ</Text>
-              <Text style={[styles.formHeaderCell, { color: colors.textSecondary }]}>5 trận gần nhất</Text>
+            <View style={styles.rightHeader}>
+              <Text style={styles.statHeaderCell}>ĐĐ</Text>
+              <Text style={styles.statHeaderCell}>T</Text>
+              <Text style={styles.statHeaderCell}>H</Text>
+              <Text style={styles.statHeaderCell}>B</Text>
+              <Text style={styles.statHeaderCell}>BT</Text>
+              <Text style={styles.statHeaderCell}>SBT</Text>
+              <Text style={styles.statHeaderCell}>HS</Text>
+              <Text style={styles.ptsHeaderCell}>Đ</Text>
+              <Text style={styles.formHeaderCell}>5 trận gần nhất</Text>
             </View>
             
             {standings.map((item) => (
               <TouchableOpacity
                 key={item.team._id}
-                style={[styles.rightRow, { borderBottomColor: colors.border }]}
+                style={styles.rightRow}
                 onPress={() => router.push(`/team/${item.team._id}`)}
               >
-                <Text style={[styles.statCell, { color: colors.text }]}>
+                <Text style={styles.statCell}>
                   {item.stats?.played || 0}
                 </Text>
-                <Text style={[styles.statCell, { color: colors.text }]}>
+                <Text style={styles.statCell}>
                   {item.stats?.won || 0}
                 </Text>
-                <Text style={[styles.statCell, { color: colors.text }]}>
+                <Text style={styles.statCell}>
                   {item.stats?.drawn || 0}
                 </Text>
-                <Text style={[styles.statCell, { color: colors.text }]}>
+                <Text style={styles.statCell}>
                   {item.stats?.lost || 0}
                 </Text>
-                <Text style={[styles.statCell, { color: colors.text }]}>
+                <Text style={styles.statCell}>
                   {item.stats?.goalsFor || 0}
                 </Text>
-                <Text style={[styles.statCell, { color: colors.text }]}>
+                <Text style={styles.statCell}>
                   {item.stats?.goalsAgainst || 0}
                 </Text>
-                <Text style={[styles.statCell, { color: colors.text }]}>
+                <Text style={styles.statCell}>
                   {item.stats?.goalDifference || 0}
                 </Text>
-                <Text style={[styles.ptsCell, styles.ptsValue, { color: colors.text }]}>
+                <Text style={[styles.ptsCell, styles.ptsValue]}>
                   {item.stats?.points || 0}
                 </Text>
                 
@@ -152,7 +152,7 @@ export default function StandingsTable({ standings }: StandingsTableProps) {
                       </View>
                     ))
                   ) : (
-                    <Text style={[styles.noFormText, { color: colors.textSecondary }]}>-</Text>
+                    <Text style={styles.noFormText}>-</Text>
                   )}
                 </View>
               </TouchableOpacity>
@@ -168,6 +168,12 @@ const styles = StyleSheet.create({
   container: {
     borderRadius: 12,
     overflow: 'hidden',
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
   tableWrapper: {
     flexDirection: 'row',
@@ -179,7 +185,8 @@ const styles = StyleSheet.create({
   leftHeader: {
     height: 44,
     paddingLeft: 8,
-    borderBottomWidth: 2,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
     justifyContent: 'center',
   },
   leftRow: {
@@ -187,7 +194,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingLeft: 8,
-    borderBottomWidth: 1,
     gap: 6,
     position: 'relative',
   },
@@ -203,6 +209,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     width: 18,
     textAlign: 'center',
+    color: '#6B7280',
   },
   teamLogo: {
     width: 26,
@@ -225,6 +232,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 13,
     fontWeight: '500',
+    color: '#1F2937',
   },
   
   rightColumn: {
@@ -234,14 +242,14 @@ const styles = StyleSheet.create({
     height: 44,
     flexDirection: 'row',
     paddingRight: 12,
-    borderBottomWidth: 2,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
     alignItems: 'center',
   },
   rightRow: {
     height: 52,
     flexDirection: 'row',
     paddingRight: 12,
-    borderBottomWidth: 1,
     alignItems: 'center',
   },
   
@@ -249,35 +257,41 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '600',
     marginLeft: 34,
+    color: '#6B7280',
   },
   statHeaderCell: {
     fontSize: 11,
     fontWeight: '600',
     textAlign: 'center',
     width: 32,
+    color: '#6B7280',
   },
   ptsHeaderCell: {
     fontSize: 11,
     fontWeight: '600',
     textAlign: 'center',
     width: 36,
+    color: '#6B7280',
   },
   formHeaderCell: {
     fontSize: 11,
     fontWeight: '600',
     textAlign: 'right',
     width: 110,
+    color: '#6B7280',
   },
   
   statCell: {
     fontSize: 13,
     textAlign: 'center',
     width: 32,
+    color: '#1F2937',
   },
   ptsCell: {
     fontSize: 13,
     textAlign: 'center',
     width: 36,
+    color: '#1F2937',
   },
   ptsValue: {
     fontWeight: 'bold',
@@ -299,5 +313,6 @@ const styles = StyleSheet.create({
   },
   noFormText: {
     fontSize: 12,
+    color: '#9CA3AF',
   },
 });

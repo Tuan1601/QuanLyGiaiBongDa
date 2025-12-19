@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useRouter, Stack } from 'expo-router';
+import { useLeagueId } from '@/hooks/useRouteParams';
 import React, { useState } from 'react';
 import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View, StatusBar } from 'react-native';
 import TeamCard from '../../../components/team/TeamCard';
@@ -12,8 +13,8 @@ import { leagueService } from '../../../services/league';
 import { teamService } from '../../../services/team';
 import LeagueBackground from '../../../components/league/LeagueBackground';
 
-export default function TeamsListScreen() {
-  const { id } = useLocalSearchParams();
+export default function LeagueTeamsScreen() {
+  const id = useLeagueId();
   const router = useRouter();
   const { user } = useAuth();
   const colors = Colors;

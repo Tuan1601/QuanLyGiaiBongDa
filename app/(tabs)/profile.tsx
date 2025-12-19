@@ -124,12 +124,12 @@ export default function ProfileScreen() {
     >
       <View style={[
         styles.iconContainer,
-        item.id === 'logout' && { backgroundColor: 'rgba(244, 67, 54, 0.15)' }
+        item.id === 'logout' && { backgroundColor: 'rgba(244, 67, 54, 0.1)' }
       ]}>
         <Ionicons 
           name={item.icon as any} 
           size={24} 
-          color={item.id === 'logout' ? colors.lose : '#FFFFFF'} 
+          color={item.id === 'logout' ? colors.lose : colors.primary} 
         />
       </View>
       <Text style={[
@@ -139,7 +139,7 @@ export default function ProfileScreen() {
         {item.title}
       </Text>
       {item.id !== 'logout' && (
-        <Ionicons name="chevron-forward" size={20} color="rgba(255, 255, 255, 0.5)" />
+        <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
       )}
     </TouchableOpacity>
   );
@@ -184,25 +184,35 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.content}>
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Tài khoản</Text>
-            <View style={styles.menuGroup}>
-              {accountMenuItems.map(renderMenuCard)}
-            </View>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Tài khoản</Text>
+          <View style={styles.sectionCard}>
+            {accountMenuItems.map((item, index) => (
+              <React.Fragment key={item.id}>
+                {renderMenuCard(item)}
+                {index < accountMenuItems.length - 1 && <View style={styles.divider} />}
+              </React.Fragment>
+            ))}
           </View>
+        </View>
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Ứng dụng</Text>
-            <View style={styles.menuGroup}>
-              {appMenuItems.map(renderMenuCard)}
-            </View>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Ứng dụng</Text>
+          <View style={styles.sectionCard}>
+            {appMenuItems.map((item, index) => (
+              <React.Fragment key={item.id}>
+                {renderMenuCard(item)}
+                {index < appMenuItems.length - 1 && <View style={styles.divider} />}
+              </React.Fragment>
+            ))}
           </View>
+        </View>
 
-          <View style={styles.section}>
-            <View style={styles.menuGroup}>
-              {logoutItem && renderMenuCard(logoutItem)}
-            </View>
+        <View style={styles.section}>
+          <View style={styles.sectionCard}>
+            {logoutItem && renderMenuCard(logoutItem)}
           </View>
+        </View>
 
           <View style={styles.appInfo}>
             <Text style={styles.appInfoText}>Bóng Đá Phủi v1.0.0</Text>
@@ -286,16 +296,31 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   section: {
-    marginBottom: 24,
+    marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '700',
     color: 'rgba(255, 255, 255, 0.7)',
-    marginBottom: 12,
+    marginBottom: 8,
     marginLeft: 4,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
+  },
+  sectionCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#F3F4F6',
+    marginLeft: 64,
   },
   menuGroup: {
     gap: 12,
@@ -303,30 +328,26 @@ const styles = StyleSheet.create({
   menuCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(59, 5, 5, 0.78)',
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    padding: 14,
   },
   logoutCard: {
-    backgroundColor: 'rgba(244, 67, 54, 0.08)',
-    borderColor: 'rgba(244, 67, 54, 0.2)',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(244, 67, 54, 0.1)',
   },
   iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: 'rgba(214, 18, 64, 0.08)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: 14,
   },
   menuCardText: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#1F2937',
   },
   appInfo: {
     alignItems: 'center',

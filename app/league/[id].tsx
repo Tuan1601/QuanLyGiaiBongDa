@@ -1,6 +1,7 @@
 import { Colors } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useLeagueId } from '@/hooks/useRouteParams';
 import { leagueService } from '@/services/league';
 import { matchService } from '@/services/match';
 import { standingsService } from '@/services/standings';
@@ -9,14 +10,14 @@ import StandingsTable from '@/components/standings/StandingsTable';
 import MatchCard from '@/components/match/MatchCard';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, Image, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { getLeagueToken } from '@/utils/leagueLink';
 import LeagueBackground from '@/components/league/LeagueBackground';
 
 export default function LeagueDetailScreen() {
-  const { id } = useLocalSearchParams();
+  const id = useLeagueId();
   const router = useRouter();
   const { user } = useAuth();
   const colors = Colors;
@@ -353,9 +354,9 @@ export default function LeagueDetailScreen() {
                           </View>
                         )}
                         <View style={styles.teamDetails}>
-                          <Text style={[styles.teamName, { color: '#FFFFFF' }]}>{team.name}</Text>
+                          <Text style={[styles.teamName, { color: '#1F2937' }]}>{team.name}</Text>
                           {team.group && (
-                            <Text style={[styles.teamGroup, { color: 'rgba(255, 255, 255, 0.7)' }]}>Bảng {team.group}</Text>
+                            <Text style={[styles.teamGroup, { color: '#6B7280' }]}>Bảng {team.group}</Text>
                           )}
                         </View>
                       </View>
@@ -523,32 +524,32 @@ export default function LeagueDetailScreen() {
                       <Text style={[styles.statCardValue, { color: colors.primary }]}>
                         {statisticsData.stats?.matchesPlayed || 0}
                       </Text>
-                      <Text style={[styles.statCardLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>Trận đã đấu</Text>
+                      <Text style={[styles.statCardLabel, { color: '#6B7280' }]}>Trận đã đấu</Text>
                     </View>
                     <View style={styles.statCard}>
                       <Text style={[styles.statCardValue, { color: colors.primary }]}>
                         {statisticsData.stats?.totalGoals || 0}
                       </Text>
-                      <Text style={[styles.statCardLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>Bàn thắng</Text>
+                      <Text style={[styles.statCardLabel, { color: '#6B7280' }]}>Bàn thắng</Text>
                     </View>
                     <View style={styles.statCard}>
                       <Text style={[styles.statCardValue, { color: colors.primary }]}>
                         {statisticsData.stats?.averageGoalsPerMatch?.toFixed(1) || '0.0'}
                       </Text>
-                      <Text style={[styles.statCardLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>TB bàn/trận</Text>
+                      <Text style={[styles.statCardLabel, { color: '#6B7280' }]}>TB bàn/trận</Text>
                     </View>
                     <View style={styles.statCard}>
                       <Text style={[styles.statCardValue, { color: colors.primary }]}>
                         {statisticsData.stats?.totalTeams || 0}
                       </Text>
-                      <Text style={[styles.statCardLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>Đội tham gia</Text>
+                      <Text style={[styles.statCardLabel, { color: '#6B7280' }]}>Đội tham gia</Text>
                     </View>
                   </View>
 
                   <View style={styles.topPerformers}>
                     {statisticsData.topScorers && statisticsData.topScorers.length > 0 && (
                       <>
-                        <Text style={[styles.topPerformersTitle, { color: '#FFFFFF' }]}>Tấn công tốt nhất</Text>
+                        <Text style={[styles.topPerformersTitle, { color: '#1F2937' }]}>Tấn công tốt nhất</Text>
                         <TouchableOpacity 
                           style={styles.performerItem}
                           onPress={() => router.push(`/team/${statisticsData.topScorers[0].team._id}` as any)}
@@ -563,7 +564,7 @@ export default function LeagueDetailScreen() {
                                 </Text>
                               </View>
                             )}
-                            <Text style={[styles.performerName, { color: '#FFFFFF' }]}>
+                            <Text style={[styles.performerName, { color: '#1F2937' }]}>
                               {statisticsData.topScorers[0].team.name}
                             </Text>
                           </View>
@@ -576,7 +577,7 @@ export default function LeagueDetailScreen() {
 
                     {statisticsData.bestDefense && statisticsData.bestDefense.length > 0 && (
                       <>
-                        <Text style={[styles.topPerformersTitle, { color: '#FFFFFF' }]}>Phòng thủ tốt nhất</Text>
+                        <Text style={[styles.topPerformersTitle, { color: '#1F2937' }]}>Phòng thủ tốt nhất</Text>
                         <TouchableOpacity 
                           style={styles.performerItem}
                           onPress={() => router.push(`/team/${statisticsData.bestDefense[0].team._id}` as any)}
@@ -591,7 +592,7 @@ export default function LeagueDetailScreen() {
                                 </Text>
                               </View>
                             )}
-                            <Text style={[styles.performerName, { color: '#FFFFFF' }]}>
+                            <Text style={[styles.performerName, { color: '#1F2937' }]}>
                               {statisticsData.bestDefense[0].team.name}
                             </Text>
                           </View>
@@ -629,9 +630,9 @@ export default function LeagueDetailScreen() {
 }
 
 const InfoRow = ({ label, value, colors }: { label: string; value: string; colors: any }) => (
-  <View style={[styles.infoRow, { borderBottomColor: 'rgba(255, 255, 255, 0.1)' }]}>
-    <Text style={[styles.infoLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>{label}</Text>
-    <Text style={[styles.infoValue, { color: '#FFFFFF' }]}>{value}</Text>
+  <View style={[styles.infoRow, { borderBottomColor: '#F3F4F6' }]}>
+    <Text style={[styles.infoLabel, { color: '#6B7280' }]}>{label}</Text>
+    <Text style={[styles.infoValue, { color: '#1F2937' }]}>{value}</Text>
   </View>
 );
 
@@ -775,12 +776,12 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 18,
     marginBottom: 20,
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-    shadowColor: '#4e1a1a44',
+    borderColor: 'rgba(214, 18, 64, 0.1)',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 4,
   },
@@ -809,12 +810,12 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 14,
     gap: 8,
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-    shadowColor: '#4e1a1a44',
+    borderColor: 'rgba(214, 18, 64, 0.1)',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 3,
   },
@@ -854,12 +855,12 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 14,
     marginBottom: 12,
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-    shadowColor: '#4e1a1a44',
+    borderColor: 'rgba(214, 18, 64, 0.1)',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 3,
   },
@@ -1035,12 +1036,12 @@ const styles = StyleSheet.create({
     padding: 18,
     borderRadius: 14,
     alignItems: 'center',
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-    shadowColor: '#4e1a1a44',
+    borderColor: 'rgba(214, 18, 64, 0.1)',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 3,
   },
@@ -1057,12 +1058,12 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 18,
     marginBottom: 12,
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-    shadowColor: '#4e1a1a44',
+    borderColor: 'rgba(214, 18, 64, 0.1)',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 3,
   },

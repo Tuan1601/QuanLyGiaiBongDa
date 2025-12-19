@@ -1,16 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import React, { useState, useMemo } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View, StatusBar } from 'react-native';
 import MatchCard from '../../../components/match/MatchCard';
 import { Colors } from '../../../constants/theme';
 import { useColorScheme } from '../../../hooks/use-color-scheme';
+import { useLeagueId } from '../../../hooks/useRouteParams';
 import { matchService } from '../../../services/match';
 import LeagueBackground from '../../../components/league/LeagueBackground';
 
 export default function MatchesListScreen() {
-  const { id } = useLocalSearchParams();
+  const id = useLeagueId();
   const router = useRouter();
   const colors = Colors;
   const [selectedRound, setSelectedRound] = useState<number | null>(null);

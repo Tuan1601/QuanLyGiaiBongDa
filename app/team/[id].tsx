@@ -115,15 +115,15 @@ export default function TeamDetailScreen() {
             </View>
           )}
           
-          <Text style={[styles.teamName, { color: '#FFFFFF' }]}>{team?.name}</Text>
-          <Text style={[styles.teamShortName, { color: 'rgba(255, 255, 255, 0.7)' }]}>
+          <Text style={[styles.teamName, { color: '#1F2937' }]}>{team?.name}</Text>
+          <Text style={[styles.teamShortName, { color: '#6B7280' }]}>
             {team?.shortName}
           </Text>
           
           {team?.group && (
-            <View style={[styles.groupBadge, { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}>
-              <Ionicons name="grid-outline" size={12} color="#FFFFFF" />
-              <Text style={[styles.groupText, { color: '#FFFFFF' }]}>
+            <View style={[styles.groupBadge, { backgroundColor: 'rgba(214, 18, 64, 0.1)' }]}>
+              <Ionicons name="grid-outline" size={12} color="#B91C3C" />
+              <Text style={[styles.groupText, { color: '#B91C3C' }]}>
                 Bảng {team.group}
               </Text>
             </View>
@@ -132,31 +132,31 @@ export default function TeamDetailScreen() {
 
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
-            <Ionicons name="football-outline" size={20} color="rgba(255, 255, 255, 0.7)" />
-            <Text style={[styles.statValue, { color: '#FFFFFF' }]}>
+            <Ionicons name="football-outline" size={20} color="#6B7280" />
+            <Text style={[styles.statValue, { color: '#1F2937' }]}>
               {team?.stats?.played || 0}
             </Text>
-            <Text style={[styles.statLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>
+            <Text style={[styles.statLabel, { color: '#6B7280' }]}>
               Trận đấu
             </Text>
           </View>
 
           <View style={styles.statItem}>
             <Ionicons name="trophy-outline" size={20} color={colors.win} />
-            <Text style={[styles.statValue, { color: '#FFFFFF' }]}>
+            <Text style={[styles.statValue, { color: '#1F2937' }]}>
               {team?.stats?.won || 0}
             </Text>
-            <Text style={[styles.statLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>
+            <Text style={[styles.statLabel, { color: '#6B7280' }]}>
               Thắng
             </Text>
           </View>
 
           <View style={styles.statItem}>
             <Ionicons name="star-outline" size={20} color={colors.primary} />
-            <Text style={[styles.statValue, { color: '#FFFFFF' }]}>
+            <Text style={[styles.statValue, { color: '#1F2937' }]}>
               {team?.stats?.points || 0}
             </Text>
-            <Text style={[styles.statLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>
+            <Text style={[styles.statLabel, { color: '#6B7280' }]}>
               Điểm
             </Text>
           </View>
@@ -165,7 +165,7 @@ export default function TeamDetailScreen() {
         {team?.form && team.form.length > 0 && (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Text style={[styles.sectionTitle, { color: '#FFFFFF' }]}>
+              <Text style={[styles.sectionTitle, { color: 'rgba(255, 255, 255, 0.95)' }]}>
                 Phong độ gần đây
               </Text>
             </View>
@@ -193,7 +193,7 @@ export default function TeamDetailScreen() {
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: '#FFFFFF' }]}>
+            <Text style={[styles.sectionTitle, { color: 'rgba(255, 255, 255, 0.95)' }]}>
               Thống kê chi tiết
             </Text>
           </View>
@@ -217,19 +217,35 @@ export default function TeamDetailScreen() {
 
         {isOwner && (
           <View style={styles.section}>
-            <TouchableOpacity
-              style={[styles.deleteButton, { backgroundColor: 'rgba(255, 82, 82, 0.15)', borderColor: colors.lose }]}
-              onPress={handleDelete}
-              disabled={deleteMutation.isPending}
-            >
-              <Ionicons name="trash-outline" size={20} color={colors.lose} />
-              <Text style={[styles.deleteButtonText, { color: colors.lose }]}>
-                {deleteMutation.isPending ? 'Đang xóa...' : 'Xóa đội'}
+            <View style={styles.dangerCard}>
+              <View style={styles.dangerHeader}>
+                <Ionicons name="warning" size={20} color="#DC2626" />
+                <Text style={styles.dangerTitle}>Vùng nguy hiểm</Text>
+              </View>
+              
+              <Text style={styles.dangerDescription}>
+                Xóa đội sẽ xóa tất cả dữ liệu liên quan bao gồm thống kê, lịch sử thi đấu và không thể khôi phục.
               </Text>
-            </TouchableOpacity>
-            <Text style={[styles.deleteWarning, { color: 'rgba(255, 255, 255, 0.7)' }]}>
-              ⚠️ Hành động này không thể hoàn tác
-            </Text>
+
+              <TouchableOpacity
+                style={[
+                  styles.deleteButton,
+                  deleteMutation.isPending && styles.deleteButtonDisabled
+                ]}
+                onPress={handleDelete}
+                disabled={deleteMutation.isPending}
+                activeOpacity={0.7}
+              >
+                <Ionicons 
+                  name={deleteMutation.isPending ? "hourglass-outline" : "trash-outline"} 
+                  size={20} 
+                  color="#FFFFFF" 
+                />
+                <Text style={styles.deleteButtonText}>
+                  {deleteMutation.isPending ? 'Đang xóa...' : 'Xóa đội vĩnh viễn'}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
 
@@ -243,13 +259,13 @@ export default function TeamDetailScreen() {
 const StatsRow = ({ icon, label, value, color, colors, isLast }: any) => (
   <View style={[
     styles.statsRowItem,
-    !isLast && { borderBottomWidth: 1, borderBottomColor: 'rgba(255, 255, 255, 0.1)' }
+    !isLast && { borderBottomWidth: 1, borderBottomColor: 'rgba(0, 0, 0, 0.05)' }
   ]}>
     <View style={styles.statsRowLeft}>
       <Ionicons name={icon} size={20} color={color} />
-      <Text style={[styles.statsRowLabel, { color: '#FFFFFF' }]}>{label}</Text>
+      <Text style={[styles.statsRowLabel, { color: '#1F2937' }]}>{label}</Text>
     </View>
-    <Text style={[styles.statsRowValue, { color: '#FFFFFF' }]}>{value}</Text>
+    <Text style={[styles.statsRowValue, { color: '#1F2937' }]}>{value}</Text>
   </View>
 );
 
@@ -278,12 +294,12 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 16,
     borderRadius: 16,
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-    shadowColor: '#4e1a1a44',
+    borderColor: 'rgba(214, 18, 64, 0.1)',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 4,
   },
@@ -340,9 +356,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: 'rgba(214, 18, 64, 0.1)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
   },
   statValue: {
     fontSize: 20,
@@ -367,9 +388,14 @@ const styles = StyleSheet.create({
   card: {
     padding: 16,
     borderRadius: 12,
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: 'rgba(214, 18, 64, 0.1)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
   },
 
   formRow: {
@@ -413,22 +439,59 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
+  // Danger Zone Styles
+  dangerCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(220, 38, 38, 0.2)',
+    shadowColor: '#DC2626',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  dangerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  dangerTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#DC2626',
+    letterSpacing: 0.3,
+  },
+  dangerDescription: {
+    fontSize: 13,
+    lineHeight: 20,
+    color: '#6B7280',
+    marginBottom: 16,
+  },
   deleteButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    backgroundColor: '#DC2626',
+    shadowColor: '#DC2626',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  deleteButtonDisabled: {
+    opacity: 0.6,
   },
   deleteButtonText: {
+    color: '#FFFFFF',
     fontSize: 15,
-    fontWeight: '600',
-  },
-  deleteWarning: {
-    fontSize: 12,
-    textAlign: 'center',
-    marginTop: 8,
+    fontWeight: '700',
+    letterSpacing: 0.3,
   },
 });

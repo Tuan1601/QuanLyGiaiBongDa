@@ -116,7 +116,7 @@ export default function MatchDetailScreen() {
       <MatchBackground>
         <ScrollView style={styles.container}>
         <View style={styles.matchHeader}>
-          <Text style={[styles.round, { color: 'rgba(255, 255, 255, 0.7)' }]}>Vòng {match.round}</Text>
+          <Text style={styles.round}>Vòng {match.round}</Text>
           <View style={styles.teamsContainer}>
             <View style={styles.teamSection}>
               {match.homeTeam.logo ? (
@@ -126,16 +126,16 @@ export default function MatchDetailScreen() {
                   <Text style={styles.logoText}>{match.homeTeam.shortName}</Text>
                 </View>
               )}
-              <Text style={[styles.teamName, { color: '#FFFFFF' }]}>{match.homeTeam.name}</Text>
+              <Text style={[styles.teamName, { color: '#1F2937' }]}>{match.homeTeam.name}</Text>
             </View>
 
             <View style={styles.scoreSection}>
               {match.status === 'finished' ? (
                 <>
                   <View style={styles.scoreDisplay}>
-                    <Text style={[styles.scoreNumber, { color: '#FFFFFF' }]}>{match.score?.home || 0}</Text>
-                    <Text style={[styles.scoreSep, { color: 'rgba(255, 255, 255, 0.5)' }]}>-</Text>
-                    <Text style={[styles.scoreNumber, { color: '#FFFFFF' }]}>{match.score?.away || 0}</Text>
+                    <Text style={[styles.scoreNumber, { color: '#B91C3C' }]}>{match.score?.home || 0}</Text>
+                    <Text style={[styles.scoreSep, { color: '#9CA3AF' }]}>-</Text>
+                    <Text style={[styles.scoreNumber, { color: '#B91C3C' }]}>{match.score?.away || 0}</Text>
                   </View>
                   <View style={[styles.statusBadge, { backgroundColor: colors.win }]}>
                     <Text style={styles.badgeText}>Kết thúc</Text>
@@ -144,9 +144,9 @@ export default function MatchDetailScreen() {
               ) : match.status === 'live' ? (
                 <>
                   <View style={styles.scoreDisplay}>
-                    <Text style={[styles.scoreNumber, { color: '#FFFFFF' }]}>{match.score?.home || 0}</Text>
-                    <Text style={[styles.scoreSep, { color: 'rgba(255, 255, 255, 0.5)' }]}>-</Text>
-                    <Text style={[styles.scoreNumber, { color: '#FFFFFF' }]}>{match.score?.away || 0}</Text>
+                    <Text style={[styles.scoreNumber, { color: '#B91C3C' }]}>{match.score?.home || 0}</Text>
+                    <Text style={[styles.scoreSep, { color: '#9CA3AF' }]}>-</Text>
+                    <Text style={[styles.scoreNumber, { color: '#B91C3C' }]}>{match.score?.away || 0}</Text>
                   </View>
                   <View style={[styles.statusBadge, { backgroundColor: colors.lose }]}>
                     <Text style={styles.badgeText}>LIVE</Text>
@@ -154,9 +154,9 @@ export default function MatchDetailScreen() {
                 </>
               ) : (
                 <>
-                  <Text style={[styles.vsText, { color: '#FFFFFF' }]}>VS</Text>
+                  <Text style={[styles.vsText, { color: '#1F2937' }]}>VS</Text>
                   {match.scheduledDate && (
-                    <Text style={[styles.dateText, { color: 'rgba(255, 255, 255, 0.8)' }]}>
+                    <Text style={[styles.dateText, { color: '#6B7280' }]}>
                       {new Date(match.scheduledDate).toLocaleString('vi-VN')}
                     </Text>
                   )}
@@ -172,7 +172,7 @@ export default function MatchDetailScreen() {
                   <Text style={styles.logoText}>{match.awayTeam.shortName}</Text>
                 </View>
               )}
-              <Text style={[styles.teamName, { color: '#FFFFFF' }]}>{match.awayTeam.name}</Text>
+              <Text style={[styles.teamName, { color: '#1F2937' }]}>{match.awayTeam.name}</Text>
             </View>
           </View>
         </View>
@@ -182,13 +182,13 @@ export default function MatchDetailScreen() {
             {match.venue && (
               <View style={styles.infoRow}>
                 <Ionicons name="location-outline" size={20} color={colors.primary} />
-                <Text style={[styles.infoText, { color: '#FFFFFF' }]}>{match.venue}</Text>
+                <Text style={[styles.infoText, { color: '#1F2937' }]}>{match.venue}</Text>
               </View>
             )}
             {match.referee && (
               <View style={styles.infoRow}>
                 <Ionicons name="person-outline" size={20} color={colors.primary} />
-                <Text style={[styles.infoText, { color: '#FFFFFF' }]}>Trọng tài: {match.referee}</Text>
+                <Text style={[styles.infoText, { color: '#1F2937' }]}>Trọng tài: {match.referee}</Text>
               </View>
             )}
           </View>
@@ -202,7 +202,7 @@ export default function MatchDetailScreen() {
               onPress={() => handleOpenVideo(match.videoUrl)}
             >
               <Ionicons name="play-circle" size={40} color={colors.primary} />
-              <Text style={[styles.videoButtonText, { color: '#FFFFFF' }]}>Xem video full trận</Text>
+              <Text style={[styles.videoButtonText, { color: '#1F2937' }]}>Xem video full trận</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -244,7 +244,7 @@ export default function MatchDetailScreen() {
         {match.notes && (
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: '#FFFFFF' }]}>📝 Ghi chú</Text>
-            <Text style={[styles.notesText, { color: 'rgba(255, 255, 255, 0.85)' }]}>{match.notes}</Text>
+            <Text style={[styles.notesText, { color: '#4B5563' }]}>{match.notes}</Text>
           </View>
         )}
 
@@ -267,7 +267,7 @@ export default function MatchDetailScreen() {
                 onPress={() => router.push(`/match/${id}/status` as any)}
               >
                 <Ionicons name="swap-horizontal-outline" size={20} color={colors.primary} />
-                <Text style={[styles.smallButtonText, { color: '#FFFFFF' }]}>Trạng thái</Text>
+                <Text style={[styles.smallButtonText, { color: '#1F2937' }]}>Trạng thái</Text>
               </TouchableOpacity>
               
               <TouchableOpacity
@@ -275,7 +275,7 @@ export default function MatchDetailScreen() {
                 onPress={() => router.push(`/match/${id}/upload-media` as any)}
               >
                 <Ionicons name="cloud-upload-outline" size={20} color={colors.primary} />
-                <Text style={[styles.smallButtonText, { color: '#FFFFFF' }]}>Upload</Text>
+                <Text style={[styles.smallButtonText, { color: '#1F2937' }]}>Upload</Text>
               </TouchableOpacity>
               
               <TouchableOpacity
@@ -283,7 +283,7 @@ export default function MatchDetailScreen() {
                 onPress={() => router.push(`/match/${id}/actions` as any)}
               >
                 <Ionicons name="ellipsis-horizontal" size={20} color={colors.primary} />
-                <Text style={[styles.smallButtonText, { color: '#FFFFFF' }]}>Khác</Text>
+                <Text style={[styles.smallButtonText, { color: '#1F2937' }]}>Khác</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -295,8 +295,8 @@ export default function MatchDetailScreen() {
             onPress={() => router.push(`/league/${leagueId}/standings` as any)}
           >
             <Ionicons name="podium-outline" size={22} color={colors.primary} />
-            <Text style={[styles.standingsButtonText, { color: '#FFFFFF' }]}>Xem Bảng xếp hạng</Text>
-            <Ionicons name="chevron-forward" size={20} color="rgba(255, 255, 255, 0.5)" />
+            <Text style={[styles.standingsButtonText, { color: '#1F2937' }]}>Xem Bảng xếp hạng</Text>
+            <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
           </TouchableOpacity>
         </View>
         </ScrollView>
@@ -324,14 +324,14 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 24,
     borderRadius: 20,
-    backgroundColor: 'rgba(70, 22, 22, 0.7)',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: 'rgba(214, 18, 64, 0.15)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.5,
+    shadowOpacity: 0.1,
     shadowRadius: 16,
-    elevation: 10,
+    elevation: 8,
   },
   round: {
     fontSize: 13,
@@ -340,6 +340,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     letterSpacing: 1,
     textTransform: 'uppercase',
+    color: '#6B7280',
   },
   teamsContainer: {
     flexDirection: 'row',
@@ -445,12 +446,12 @@ const styles = StyleSheet.create({
     padding: 18,
     marginHorizontal: 16,
     marginBottom: 16,
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-    shadowColor: '#4e1a1a44',
+    borderColor: 'rgba(214, 18, 64, 0.1)',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 4,
   },
@@ -480,12 +481,12 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 16,
     gap: 10,
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-    shadowColor: '#4e1a1a44',
+    borderColor: 'rgba(214, 18, 64, 0.1)',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 4,
   },
@@ -539,9 +540,9 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 12,
     gap: 6,
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: 'rgba(214, 18, 64, 0.1)',
   },
   smallButtonText: {
     fontSize: 13,
@@ -557,12 +558,12 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 16,
     gap: 10,
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-    shadowColor: '#4e1a1a44',
+    borderColor: 'rgba(214, 18, 64, 0.1)',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 4,
   },

@@ -1,14 +1,14 @@
+import { Ionicons } from '@expo/vector-icons';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import * as yup from 'yup';
-import { AnimatedInput } from '../../components/ui/animated-input';
 import { Button } from '../../components/ui/button';
+import TabsBackground from '../../components/tabs/TabsBackground';
 import { Colors } from '../../constants/theme';
 import { useAuth } from '../../contexts/AuthContext';
-import { useColorScheme } from '../../hooks/use-color-scheme';
 import { authService } from '../../services/auth';
 
 const schema = yup.object({
@@ -16,8 +16,7 @@ const schema = yup.object({
   newPassword: yup
     .string()
     .required('Mật khẩu mới là bắt buộc')
-    .min(6, 'Mật khẩu phải có ít nhất 6 ký tự')
-    .matches(/.*[@#$%^&*(),.?":{}|<>].*/, 'Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt (@#$%^&*...)'),
+    .min(6, 'Mật khẩu phải có ít nhất 6 ký tự'),
   confirmPassword: yup
     .string()
     .required('Xác nhận mật khẩu là bắt buộc')
@@ -28,6 +27,9 @@ export default function ChangePasswordScreen() {
   const router = useRouter();
   const { logout } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const colors = Colors;
 
   const { control, handleSubmit, formState: { errors }, reset } = useForm({
@@ -45,6 +47,7 @@ export default function ChangePasswordScreen() {
       await authService.changePassword({
         currentPassword: data.currentPassword,
         newPassword: data.newPassword,
+        confirmPassword: data.confirmPassword,
       });
       
       Alert.alert(
@@ -54,8 +57,13 @@ export default function ChangePasswordScreen() {
           { 
             text: 'OK', 
             onPress: async () => {
-              await logout();
-              router.replace('/login' as any);
+              try {
+                await logout();
+              } catch (error) {
+                console.log('⚠️ Logout after password change - token already invalidated (expected)');
+              } finally {
+                router.replace('/login' as any);
+              }
             }
           }
         ]
@@ -68,34 +76,72 @@ export default function ChangePasswordScreen() {
   };
 
   return (
-    <>
+    <TabsBackground>
+      <StatusBar backgroundColor="rgba(214, 18, 64, 1)" barStyle="light-content" />
       <Stack.Screen
         options={{
           headerShown: true,
           headerTitle: 'Đổi mật khẩu',
-          headerStyle: { backgroundColor: colors.background },
-          headerTintColor: colors.text,
+          headerStyle: { 
+            backgroundColor: 'rgba(214, 18, 64, 1)',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
         }}
       />
       
-      <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.form}>
-          <Text style={[styles.description, { color: colors.textSecondary }]}>
-            Để bảo mật tài khoản, vui lòng nhập mật khẩu hiện tại và mật khẩu mới.
-          </Text>
+      <ScrollView 
+        style={styles.container}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.formCard}>
+          <View style={styles.infoBox}>
+            <Ionicons name="shield-checkmark" size={20} color="#3B82F6" />
+            <Text style={styles.infoText}>
+              Để bảo mật tài khoản, vui lòng nhập mật khẩu hiện tại và mật khẩu mới.
+            </Text>
+          </View>
 
           <Controller
             control={control}
             name="currentPassword"
             render={({ field: { onChange, onBlur, value } }) => (
-              <AnimatedInput
-                label="Mật khẩu hiện tại"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={errors.currentPassword?.message}
-                secureTextEntry
-              />
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Mật khẩu hiện tại</Text>
+                <View style={[styles.inputContainer, errors.currentPassword && styles.inputError]}>
+                  <Ionicons name="lock-closed-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.textInput}
+                    placeholder="Nhập mật khẩu hiện tại"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    secureTextEntry={!showCurrentPassword}
+                    autoCapitalize="none"
+                    placeholderTextColor="#9CA3AF"
+                  />
+                  <TouchableOpacity 
+                    onPress={() => setShowCurrentPassword(!showCurrentPassword)}
+                    style={styles.eyeButton}
+                  >
+                    <Ionicons 
+                      name={showCurrentPassword ? "eye-outline" : "eye-off-outline"} 
+                      size={20} 
+                      color="#9CA3AF" 
+                    />
+                  </TouchableOpacity>
+                </View>
+                {errors.currentPassword && (
+                  <View style={styles.errorContainer}>
+                    <Ionicons name="alert-circle" size={14} color="#DC2626" />
+                    <Text style={styles.errorText}>{errors.currentPassword.message}</Text>
+                  </View>
+                )}
+              </View>
             )}
           />
 
@@ -103,14 +149,38 @@ export default function ChangePasswordScreen() {
             control={control}
             name="newPassword"
             render={({ field: { onChange, onBlur, value } }) => (
-              <AnimatedInput
-                label="Mật khẩu mới"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={errors.newPassword?.message}
-                secureTextEntry
-              />
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Mật khẩu mới</Text>
+                <View style={[styles.inputContainer, errors.newPassword && styles.inputError]}>
+                  <Ionicons name="lock-open-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.textInput}
+                    placeholder="Nhập mật khẩu mới"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    secureTextEntry={!showNewPassword}
+                    autoCapitalize="none"
+                    placeholderTextColor="#9CA3AF"
+                  />
+                  <TouchableOpacity 
+                    onPress={() => setShowNewPassword(!showNewPassword)}
+                    style={styles.eyeButton}
+                  >
+                    <Ionicons 
+                      name={showNewPassword ? "eye-outline" : "eye-off-outline"} 
+                      size={20} 
+                      color="#9CA3AF" 
+                    />
+                  </TouchableOpacity>
+                </View>
+                {errors.newPassword && (
+                  <View style={styles.errorContainer}>
+                    <Ionicons name="alert-circle" size={14} color="#DC2626" />
+                    <Text style={styles.errorText}>{errors.newPassword.message}</Text>
+                  </View>
+                )}
+              </View>
             )}
           />
 
@@ -118,16 +188,51 @@ export default function ChangePasswordScreen() {
             control={control}
             name="confirmPassword"
             render={({ field: { onChange, onBlur, value } }) => (
-              <AnimatedInput
-                label="Xác nhận mật khẩu mới"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={errors.confirmPassword?.message}
-                secureTextEntry
-              />
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Xác nhận mật khẩu mới</Text>
+                <View style={[styles.inputContainer, errors.confirmPassword && styles.inputError]}>
+                  <Ionicons name="checkmark-circle-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.textInput}
+                    placeholder="Nhập lại mật khẩu mới"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    secureTextEntry={!showConfirmPassword}
+                    autoCapitalize="none"
+                    placeholderTextColor="#9CA3AF"
+                  />
+                  <TouchableOpacity 
+                    onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                    style={styles.eyeButton}
+                  >
+                    <Ionicons 
+                      name={showConfirmPassword ? "eye-outline" : "eye-off-outline"} 
+                      size={20} 
+                      color="#9CA3AF" 
+                    />
+                  </TouchableOpacity>
+                </View>
+                {errors.confirmPassword && (
+                  <View style={styles.errorContainer}>
+                    <Ionicons name="alert-circle" size={14} color="#DC2626" />
+                    <Text style={styles.errorText}>{errors.confirmPassword.message}</Text>
+                  </View>
+                )}
+              </View>
             )}
           />
+
+          <View style={styles.requirementsBox}>
+            <View style={styles.requirementRow}>
+              <Ionicons name="shield-checkmark" size={16} color="#10B981" />
+              <Text style={styles.requirementText}>Mật khẩu phải có ít nhất 6 ký tự</Text>
+            </View>
+            <View style={styles.requirementRow}>
+              <Ionicons name="key" size={16} color="#10B981" />
+              <Text style={styles.requirementText}>Nên kết hợp chữ hoa, thường và số</Text>
+            </View>
+          </View>
 
           <Button
             onPress={handleSubmit(onSubmit)}
@@ -139,7 +244,7 @@ export default function ChangePasswordScreen() {
           </Button>
         </View>
       </ScrollView>
-    </>
+    </TabsBackground>
   );
 }
 
@@ -147,16 +252,99 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  form: {
+  scrollContent: {
     padding: 20,
-    gap: 20,
+    paddingBottom: 40,
   },
-  description: {
-    fontSize: 14,
+  formCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  infoBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EFF6FF',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 24,
+  },
+  infoText: {
+    fontSize: 13,
+    color: '#1E40AF',
+    marginLeft: 10,
+    flex: 1,
     lineHeight: 20,
-    marginBottom: 10,
+  },
+  inputGroup: {
+    marginBottom: 20,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 8,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F9FAFB',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderWidth: 1.5,
+    borderColor: '#E5E7EB',
+  },
+  inputError: {
+    borderColor: '#DC2626',
+  },
+  inputIcon: {
+    marginRight: 12,
+  },
+  textInput: {
+    flex: 1,
+    fontSize: 15,
+    color: '#1F2937',
+    paddingVertical: 0,
+  },
+  eyeButton: {
+    padding: 4,
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 6,
+    marginLeft: 4,
+  },
+  errorText: {
+    fontSize: 12,
+    color: '#DC2626',
+    marginLeft: 6,
+    flex: 1,
+  },
+  requirementsBox: {
+    backgroundColor: '#F0FDF4',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 24,
+  },
+  requirementRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  requirementText: {
+    fontSize: 13,
+    color: '#166534',
+    marginLeft: 10,
+    flex: 1,
   },
   submitButton: {
-    marginTop: 20,
+    marginTop: 8,
   },
 });

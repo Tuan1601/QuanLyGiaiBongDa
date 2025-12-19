@@ -142,7 +142,7 @@ export default function EditMatchInfoScreen() {
               onPress={() => setShowDatePicker(true)}
             >
               <Ionicons name="calendar-outline" size={20} color={colors.primary} />
-              <Text style={[styles.dateTimeButtonText, { color: scheduledDate ? '#FFFFFF' : 'rgba(255, 255, 255, 0.5)' }]}>
+              <Text style={[styles.dateTimeButtonText, { color: scheduledDate ? '#1F2937' : '#9CA3AF' }]}>
                 {scheduledDate ? new Date(scheduledDate).toLocaleDateString('vi-VN', {
                   day: '2-digit',
                   month: '2-digit',
@@ -156,7 +156,7 @@ export default function EditMatchInfoScreen() {
               onPress={() => setShowTimePicker(true)}
             >
               <Ionicons name="time-outline" size={20} color={colors.primary} />
-              <Text style={[styles.dateTimeButtonText, { color: scheduledDate ? '#FFFFFF' : 'rgba(255, 255, 255, 0.5)' }]}>
+              <Text style={[styles.dateTimeButtonText, { color: scheduledDate ? '#1F2937' : '#9CA3AF' }]}>
                 {scheduledDate ? new Date(scheduledDate).toLocaleTimeString('vi-VN', {
                   hour: '2-digit',
                   minute: '2-digit'
@@ -187,7 +187,7 @@ export default function EditMatchInfoScreen() {
           <TextInput
             style={styles.input}
             placeholder="VD: Sân Mỹ Đình"
-            placeholderTextColor="rgba(255, 255, 255, 0.5)"
+            placeholderTextColor="#9CA3AF"
             value={venue}
             onChangeText={setVenue}
           />
@@ -196,7 +196,7 @@ export default function EditMatchInfoScreen() {
           <TextInput
             style={styles.input}
             placeholder="VD: Nguyễn Văn A"
-            placeholderTextColor="rgba(255, 255, 255, 0.5)"
+            placeholderTextColor="#9CA3AF"
             value={referee}
             onChangeText={setReferee}
           />
@@ -205,7 +205,7 @@ export default function EditMatchInfoScreen() {
           <TextInput
             style={[styles.input, styles.textArea]}
             placeholder="Ghi chú về trận đấu..."
-            placeholderTextColor="rgba(255, 255, 255, 0.5)"
+            placeholderTextColor="#9CA3AF"
             value={notes}
             onChangeText={setNotes}
             multiline
@@ -251,9 +251,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginBottom: 20,
     fontSize: 16,
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-    color: '#FFFFFF',
+    backgroundColor: '#FFFFFF',
+    borderColor: 'rgba(214, 18, 64, 0.2)',
+    color: '#1F2937',
   },
   textArea: {
     height: 100,
@@ -294,8 +294,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     gap: 8,
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: '#FFFFFF',
+    borderColor: 'rgba(214, 18, 64, 0.2)',
   },
   dateTimeButtonText: {
     fontSize: 14,

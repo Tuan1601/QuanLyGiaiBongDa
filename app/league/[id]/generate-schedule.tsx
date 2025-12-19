@@ -1,16 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import { Alert, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View, StatusBar } from 'react-native';
 import { Colors } from '../../../constants/theme';
 import { useColorScheme } from '../../../hooks/use-color-scheme';
+import { useLeagueId } from '../../../hooks/useRouteParams';
 import { leagueService } from '../../../services/league';
 import { matchService } from '../../../services/match';
 import { teamService } from '../../../services/team';
 import LeagueBackground from '../../../components/league/LeagueBackground';
 
 export default function GenerateScheduleScreen() {
-  const { id } = useLocalSearchParams();
+  const id = useLeagueId();
   const router = useRouter();
   const queryClient = useQueryClient();
   const colors = Colors;
@@ -195,14 +196,14 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     borderRadius: 16,
     padding: 20,
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: 'rgba(214, 18, 64, 0.1)',
     ...Platform.select({
       ios: {
-        shadowColor: '#4e1a1a44',
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
+        shadowOpacity: 0.08,
         shadowRadius: 12,
       },
       android: {
@@ -215,7 +216,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginBottom: 16,
     letterSpacing: 0.2,
-    color: 'rgba(255, 255, 255, 0.95)',
+    color: '#1F2937',
   },
   previewRows: {
     marginBottom: 12,
@@ -226,52 +227,52 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    borderBottomColor: '#F3F4F6',
   },
   previewLabel: {
     fontSize: 15,
     fontWeight: '500',
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: '#6B7280',
   },
   previewValue: {
     fontSize: 15,
     fontWeight: '600',
     letterSpacing: 0.1,
-    color: 'rgba(255, 255, 255, 0.95)',
+    color: '#1F2937',
   },
   highlight: {
     fontSize: 22,
     fontWeight: '700',
-    color: "#ff0000ff",
+    color: '#B91C3C',
   },
   warning: {
     padding: 14,
     borderRadius: 10,
     marginTop: 16,
     borderLeftWidth: 4,
-    borderLeftColor: "#ff0000ff",
-    backgroundColor: 'rgba(255, 165, 0, 0.12)',
+    borderLeftColor: '#F59E0B',
+    backgroundColor: '#FEF3C7',
   },
   warningText: {
     fontSize: 14,
     lineHeight: 20,
     fontWeight: '500',
-    color: "#ff0000ff",
+    color: '#92400E',
   },
   infoCard: {
     borderRadius: 16,
     padding: 20,
     marginBottom: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: '#F0F9FF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: 'rgba(59, 130, 246, 0.2)',
   },
   infoTitle: {
     fontSize: 18,
     fontWeight: '700',
     marginBottom: 16,
     letterSpacing: 0.2,
-    color: 'rgba(255, 255, 255, 0.95)',
+    color: '#1E40AF',
   },
   infoList: {
     gap: 12,
@@ -286,23 +287,23 @@ const styles = StyleSheet.create({
     height: 6,
     borderRadius: 3,
     marginTop: 6,
-    backgroundColor: "#ff0000ff",
+    backgroundColor: '#3B82F6',
   },
   infoText: {
     flex: 1,
     fontSize: 14,
     lineHeight: 20,
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: '#1E40AF',
   },
   button: {
     height: 56,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: "#ff0000ff",
+    backgroundColor: '#B91C3C',
     ...Platform.select({
       ios: {
-        shadowColor: "#ff0000ff",
+        shadowColor: '#B91C3C',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,

@@ -41,6 +41,8 @@ export default function MatchActionsScreen() {
   const deleteMutation = useMutation({
     mutationFn: () => matchService.deleteMatch(id as string),
     onSuccess: () => {
+      const leagueId = typeof match?.league === 'object' ? match.league._id : match?.league;
+      
       queryClient.invalidateQueries({ queryKey: ['matches'] });
       queryClient.invalidateQueries({ queryKey: ['league'] });
       queryClient.invalidateQueries({ queryKey: ['teams'] });
@@ -48,7 +50,7 @@ export default function MatchActionsScreen() {
       queryClient.invalidateQueries({ queryKey: ['group-standings'] });
       queryClient.invalidateQueries({ queryKey: ['statistics'] });
       Alert.alert('Thành công', 'Đã xóa trận đấu', [
-        { text: 'OK', onPress: () => router.replace(`/league/${match?.league}` as any) }
+        { text: 'OK', onPress: () => router.replace(`/league/${leagueId}` as any) }
       ]);
     },
     onError: (error: any) => {
@@ -123,11 +125,11 @@ export default function MatchActionsScreen() {
       <MatchBackground>
         <ScrollView style={styles.container}>
         <View style={styles.matchInfo}>
-          <Text style={[styles.infoTitle, { color: 'rgba(255, 255, 255, 0.7)' }]}>Trận đấu</Text>
-          <Text style={[styles.matchText, { color: '#FFFFFF' }]}>
+          <Text style={[styles.infoTitle, { color: '#6B7280' }]}>Trận đấu</Text>
+          <Text style={[styles.matchText, { color: '#1F2937' }]}>
             {match?.homeTeam.name} vs {match?.awayTeam.name}
           </Text>
-          <Text style={[styles.roundText, { color: 'rgba(255, 255, 255, 0.7)' }]}>Vòng {match?.round}</Text>
+          <Text style={[styles.roundText, { color: '#6B7280' }]}>Vòng {match?.round}</Text>
           {match?.status && (
             <View style={[styles.statusBadge, { backgroundColor: colors.primary }]}>
               <Text style={[styles.statusText, { color: '#FFFFFF' }]}>
@@ -152,8 +154,8 @@ export default function MatchActionsScreen() {
               <Ionicons name="refresh" size={28} color="#FFFFFF" />
             </View>
             <View style={styles.actionContent}>
-              <Text style={[styles.actionTitle, { color: '#FFFFFF' }]}>Reset kết quả</Text>
-              <Text style={[styles.actionDescription, { color: 'rgba(255, 255, 255, 0.7)' }]}>
+              <Text style={[styles.actionTitle, { color: '#1F2937' }]}>Reset kết quả</Text>
+              <Text style={[styles.actionDescription, { color: '#6B7280' }]}>
                 Xóa kết quả, stats về 0, xóa media
               </Text>
             </View>
@@ -169,14 +171,14 @@ export default function MatchActionsScreen() {
               <Ionicons name="trash" size={28} color="#FFFFFF" />
             </View>
             <View style={styles.actionContent}>
-              <Text style={[styles.actionTitle, { color: '#FFFFFF' }]}>Xóa trận đấu</Text>
-              <Text style={[styles.actionDescription, { color: 'rgba(255, 255, 255, 0.7)' }]}>
+              <Text style={[styles.actionTitle, { color: '#1F2937' }]}>Xóa trận đấu</Text>
+              <Text style={[styles.actionDescription, { color: '#6B7280' }]}>
                 {match?.status === 'finished' 
                   ? 'Không thể xóa trận đã có kết quả'
                   : 'Xóa vĩnh viễn, không thể hoàn tác'}
               </Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="rgba(255, 255, 255, 0.5)" />
+            <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
           </TouchableOpacity>
         </View>
 
@@ -202,12 +204,12 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
     marginBottom: 30,
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-    shadowColor: '#4e1a1a44',
+    borderColor: 'rgba(214, 18, 64, 0.1)',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 4,
   },
@@ -249,12 +251,12 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 16,
     marginBottom: 12,
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-    shadowColor: '#4e1a1a44',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
+    borderColor: 'rgba(214, 18, 64, 0.1)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height:3 },
+    shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 3,
   },
@@ -264,12 +266,12 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 16,
     marginBottom: 12,
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-    shadowColor: '#4e1a1a44',
+    borderColor: 'rgba(214, 18, 64, 0.1)',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 3,
   },

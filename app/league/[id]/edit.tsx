@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Platform, StatusBar } from 'react-native';
@@ -10,6 +10,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import * as yup from 'yup';
 import { Colors } from '../../../constants/theme';
 import { useColorScheme } from '../../../hooks/use-color-scheme';
+import { useLeagueId } from '../../../hooks/useRouteParams';
 import { leagueService } from '../../../services/league';
 import LeagueBackground from '../../../components/league/LeagueBackground';
 
@@ -21,7 +22,7 @@ const schema = yup.object({
 });
 
 export default function EditLeagueScreen() {
-  const { id } = useLocalSearchParams();
+  const id = useLeagueId();
   const router = useRouter();
   const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
@@ -193,7 +194,7 @@ export default function EditLeagueScreen() {
         <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
           <View style={styles.card}>
             <View style={styles.cardHeader}>
-              <Ionicons name="image" size={20} color='#ff0000ff' />
+              <Ionicons name="image" size={20} color='#B91C3C' />
               <Text style={styles.cardTitle}>Logo Giải Đấu</Text>
             </View>
             
@@ -234,7 +235,7 @@ export default function EditLeagueScreen() {
 
           <View style={styles.card}>
             <View style={styles.cardHeader}>
-              <Ionicons name="create" size={20} color='#ff0000ff' />
+              <Ionicons name="create" size={20} color='#B91C3C' />
               <Text style={styles.cardTitle}>Thông Tin Cơ Bản</Text>
             </View>
 
@@ -250,7 +251,7 @@ export default function EditLeagueScreen() {
                     onChangeText={onChange}
                     onBlur={onBlur}
                     placeholder="VD: Premier League 2024"
-                    placeholderTextColor="rgba(255, 255, 255, 0.4)"
+                    placeholderTextColor="#9CA3AF"
                   />
                   {errors.name && (
                     <Text style={styles.errorText}>{errors.name.message}</Text>
@@ -271,7 +272,7 @@ export default function EditLeagueScreen() {
                     onChangeText={onChange}
                     onBlur={onBlur}
                     placeholder="Mô tả ngắn về giải đấu..."
-                    placeholderTextColor="rgba(255, 255, 255, 0.4)"
+                    placeholderTextColor="#9CA3AF"
                     multiline
                     numberOfLines={3}
                     textAlignVertical="top"
@@ -286,7 +287,7 @@ export default function EditLeagueScreen() {
 
           <View style={styles.card}>
             <View style={styles.cardHeader}>
-              <Ionicons name="calendar" size={20} color='#ff0000ff'/>
+              <Ionicons name="calendar" size={20} color='#B91C3C'/>
               <Text style={styles.cardTitle}>Thời Gian</Text>
             </View>
 
@@ -374,7 +375,7 @@ export default function EditLeagueScreen() {
 
           <View style={styles.card}>
             <View style={styles.cardHeader}>
-              <Ionicons name="information-circle" size={20} color='#ff0000ff' />
+              <Ionicons name="information-circle" size={20} color='#B91C3C' />
               <Text style={styles.cardTitle}>Thông Tin Khác</Text>
             </View>
             
@@ -444,17 +445,17 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   card: {
-    backgroundColor: 'rgba(53, 16, 16, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: 'rgba(214, 18, 64, 0.1)',
     padding: 20,
     marginBottom: 16,
     ...Platform.select({
       ios: {
-        shadowColor: '#4e1a1a',
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
+        shadowOpacity: 0.08,
         shadowRadius: 12,
       },
       android: {
@@ -471,7 +472,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'rgba(255, 255, 255, 0.95)',
+    color: '#1F2937',
     letterSpacing: 0.2,
   },
   logoContainer: {
@@ -508,10 +509,10 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 12,
     gap: 8,
-    backgroundColor: '#ff0000ff',
+    backgroundColor: '#B91C3C',
     ...Platform.select({
       ios: {
-        shadowColor: '#ff0000ff',
+        shadowColor: '#B91C3C',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,
         shadowRadius: 4,
@@ -540,18 +541,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     marginBottom: 8,
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: '#1F2937',
     letterSpacing: 0.2,
   },
   input: {
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: 'rgba(214, 18, 64, 0.2)',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 15,
-    color: 'rgba(255, 255, 255, 0.95)',
+    color: '#1F2937',
     fontWeight: '500',
   },
   textArea: {
@@ -592,7 +593,7 @@ const styles = StyleSheet.create({
   infoLabel: {
     fontSize: 15,
     fontWeight: '500',
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: '#6B7280',
   },
   infoBadge: {
     backgroundColor: 'rgba(255, 0, 0, 0.15)',
@@ -605,7 +606,7 @@ const styles = StyleSheet.create({
   infoBadgeText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#ff0000ff',
+    color: '#B91C3C',
     letterSpacing: 0.2,
   },
   notice: {
@@ -624,7 +625,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   submitButton: {
-    backgroundColor: '#ff0000ff',
+    backgroundColor: '#B91C3C',
     borderRadius: 14,
     paddingVertical: 16,
     alignItems: 'center',
@@ -632,7 +633,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
     ...Platform.select({
       ios: {
-        shadowColor: '#ff0000ff',
+        shadowColor: '#B91C3C',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.4,
         shadowRadius: 12,

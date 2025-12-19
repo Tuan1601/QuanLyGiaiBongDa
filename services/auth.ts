@@ -106,12 +106,17 @@ export const authService = {
     };
   },
 
-  // PUT /user/change-password
+  // PATCH /user/change-password
   changePassword: async (data: {
     currentPassword: string;
     newPassword: string;
+    confirmPassword?: string;
   }) => {
-    const response = await api.patch('/user/change-password', data);
+    const response = await api.patch('/user/change-password', {
+      oldPassword: data.currentPassword,
+      newPassword: data.newPassword,
+      confirmPassword: data.confirmPassword || data.newPassword,
+    });
     return response.data;
   },
 

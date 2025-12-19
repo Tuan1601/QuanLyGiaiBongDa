@@ -1,17 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import { Alert, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View, StatusBar } from 'react-native';
 import { Colors } from '../../../constants/theme';
 import { useColorScheme } from '../../../hooks/use-color-scheme';
 import { useToast } from '../../../hooks/useToast';
+import { useLeagueId } from '../../../hooks/useRouteParams';
 import { leagueService } from '../../../services/league';
 import { matchService } from '../../../services/match';
 import LeagueBackground from '../../../components/league/LeagueBackground';
 
 export default function LeagueActionsScreen() {
-  const { id } = useLocalSearchParams();
+  const id = useLeagueId();
   const router = useRouter();
   const queryClient = useQueryClient();
   const colors = Colors;
@@ -182,7 +183,7 @@ export default function LeagueActionsScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.actionIconContainer}>
-                <Ionicons name="refresh" size={24} color="#eeff00ff" />
+                <Ionicons name="refresh" size={24} color="#FF9500" />
               </View>
               <View style={styles.actionContent}>
                 <Text style={styles.actionTitle}>
@@ -192,7 +193,7 @@ export default function LeagueActionsScreen() {
                   Đặt lại {totalMatches} trận về 0-0, xóa stats và media
                 </Text>
                 {resetAllMutation.isPending && (
-                  <Text style={[styles.actionStatus, { color: "#ff0000ff" }]}>
+                  <Text style={[styles.actionStatus, { color: '#FF9500' }]}>
                     Đang xử lý...
                   </Text>
                 )}
@@ -264,14 +265,14 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 20,
     marginBottom: 24,
-    backgroundColor: 'rgba(70, 22, 22, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: 'rgba(214, 18, 64, 0.1)',
     ...Platform.select({
       ios: {
-        shadowColor: '#4e1a1a44',
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
+        shadowOpacity: 0.08,
         shadowRadius: 12,
       },
       android: {
@@ -285,13 +286,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
     letterSpacing: 0.3,
-    color: 'rgba(255, 255, 255, 0.95)',
+    color: '#1F2937',
   },
   statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    marginTop:-40,
+    marginTop: -40,
   },
   stat: {
     alignItems: 'center',
@@ -301,18 +302,18 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: '700',
     marginBottom: 4,
-    color: "#ff0000ff",
+    color: '#B91C3C',
   },
   statLabel: {
     fontSize: 13,
     fontWeight: '500',
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: '#6B7280',
   },
   divider: {
     width: 1,
     height: 40,
     marginHorizontal: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: '#E5E7EB',
   },
   section: {
     marginBottom: 24,
@@ -325,12 +326,12 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginBottom: 4,
     letterSpacing: 0.2,
-    color: 'rgba(255, 255, 255, 0.95)',
+    color: '#FFFFFF',
   },
   sectionSubtitle: {
     fontSize: 14,
     lineHeight: 20,
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: 'rgba(255, 255, 255, 0.85)',
   },
   actionCard: {
     flexDirection: 'row',
@@ -338,18 +339,18 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 16,
     marginBottom: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: 'rgba(214, 18, 64, 0.1)',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.08,
         shadowRadius: 8,
       },
       android: {
-        elevation: 2,
+        elevation: 3,
       },
     }),
   },
@@ -373,13 +374,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 4,
     letterSpacing: 0.1,
-    color: 'rgba(255, 255, 255, 0.95)',
+    color: '#1F2937',
   },
   actionDescription: {
     fontSize: 13,
     lineHeight: 18,
     fontWeight: '400',
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: '#6B7280',
   },
   actionStatus: {
     fontSize: 12,
