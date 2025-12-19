@@ -16,36 +16,6 @@ export interface LoginData {
 const TOKEN_KEYS = {
   ACCESS_TOKEN: 'accessToken',
   REFRESH_TOKEN: 'refreshToken',
-  ACCESS_TOKEN_EXPIRY: 'accessTokenExpiry',
-  REFRESH_TOKEN_EXPIRY: 'refreshTokenExpiry',
-};
-
-// Token expiry durations
-const TOKEN_EXPIRY = {
-  ACCESS_TOKEN_MINUTES: 15, 
-  REFRESH_TOKEN_DAYS: 7, 
-};
-
-// Helper to calculate expiry timestamp
-const getExpiryTimestamp = (minutes?: number, days?: number): string => {
-  const now = new Date();
-  if (days) {
-    now.setDate(now.getDate() + days);
-  } else if (minutes) {
-    now.setMinutes(now.getMinutes() + minutes);
-  }
-  return now.toISOString();
-};
-
-// Helper to check if token is expired or near expiry
-const isTokenExpiring = (expiryTimeString: string | null, bufferMinutes = 5): boolean => {
-  if (!expiryTimeString) return true;
-  
-  const expiryTime = new Date(expiryTimeString);
-  const now = new Date();
-  const bufferTime = new Date(now.getTime() + bufferMinutes * 60 * 1000);
-  
-  return bufferTime >= expiryTime;
 };
 
 export const authService = {
@@ -64,19 +34,13 @@ export const authService = {
     console.log('Access token:', accessToken ? `${accessToken.substring(0, 20)}...` : 'MISSING');
     console.log('Refresh token:', refreshToken ? `${refreshToken.substring(0, 20)}...` : 'MISSING');
     
-    // Save tokens with expiry timestamps
+    // Save tokens - NO expiry tracking
     await AsyncStorage.multiSet([
       [TOKEN_KEYS.ACCESS_TOKEN, accessToken],
       [TOKEN_KEYS.REFRESH_TOKEN, refreshToken],
-      [TOKEN_KEYS.ACCESS_TOKEN_EXPIRY, getExpiryTimestamp(TOKEN_EXPIRY.ACCESS_TOKEN_MINUTES)],
-      [TOKEN_KEYS.REFRESH_TOKEN_EXPIRY, getExpiryTimestamp(undefined, TOKEN_EXPIRY.REFRESH_TOKEN_DAYS)],
     ]);
     
-    console.log('✅ Tokens saved with 7-day refresh token expiry');
-    
-    // Verify tokens were saved
-    const savedRefreshToken = await AsyncStorage.getItem(TOKEN_KEYS.REFRESH_TOKEN);
-    console.log('✅ Verified refresh token saved:', savedRefreshToken ? 'YES' : 'NO');
+    console.log('✅ Tokens saved (interceptor will handle refresh)');
     
     return response.data;
   },
@@ -100,77 +64,35 @@ export const authService = {
     await AsyncStorage.multiRemove([
       TOKEN_KEYS.ACCESS_TOKEN,
       TOKEN_KEYS.REFRESH_TOKEN,
-      TOKEN_KEYS.ACCESS_TOKEN_EXPIRY,
-      TOKEN_KEYS.REFRESH_TOKEN_EXPIRY,
     ]);
   },
 
   // POST /user/refresh - Refresh access token
+  // This is now ONLY called by the interceptor, not manually
   refreshToken: async () => {
     const refreshToken = await AsyncStorage.getItem(TOKEN_KEYS.REFRESH_TOKEN);
-    const refreshTokenExpiry = await AsyncStorage.getItem(TOKEN_KEYS.REFRESH_TOKEN_EXPIRY);
     
-    // Check if refresh token is expired
-    if (isTokenExpiring(refreshTokenExpiry, 0)) {
-      console.log('❌ Refresh token expired, clearing tokens');
-      await AsyncStorage.multiRemove([
-        TOKEN_KEYS.ACCESS_TOKEN,
-        TOKEN_KEYS.REFRESH_TOKEN,
-        TOKEN_KEYS.ACCESS_TOKEN_EXPIRY,
-        TOKEN_KEYS.REFRESH_TOKEN_EXPIRY,
-      ]);
-      throw new Error('Refresh token expired');
+    if (!refreshToken) {
+      throw new Error('No refresh token available');
     }
     
     const response = await api.post('/user/refresh', { refreshToken });
     const { accessToken, refreshToken: newRefreshToken } = response.data.tokens;
     
-    // Update tokens with new expiry
+    // Update tokens - NO expiry tracking
     await AsyncStorage.multiSet([
       [TOKEN_KEYS.ACCESS_TOKEN, accessToken],
       [TOKEN_KEYS.REFRESH_TOKEN, newRefreshToken],
-      [TOKEN_KEYS.ACCESS_TOKEN_EXPIRY, getExpiryTimestamp(TOKEN_EXPIRY.ACCESS_TOKEN_MINUTES)],
-      [TOKEN_KEYS.REFRESH_TOKEN_EXPIRY, getExpiryTimestamp(undefined, TOKEN_EXPIRY.REFRESH_TOKEN_DAYS)],
     ]);
     
-    console.log('✅ Tokens refreshed with new 7-day expiry');
+    console.log('✅ Tokens refreshed by interceptor');
     
     return response.data.tokens;
   },
 
-  // Check if access token needs refresh (proactive refresh)
-  shouldRefreshToken: async (): Promise<boolean> => {
-    const accessTokenExpiry = await AsyncStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN_EXPIRY);
-    return isTokenExpiring(accessTokenExpiry, 5); // Refresh 5 minutes before expiry
-  },
-
-  // Get token expiry info for debugging
-  getTokenExpiryInfo: async () => {
-    const [accessExpiry, refreshExpiry] = await AsyncStorage.multiGet([
-      TOKEN_KEYS.ACCESS_TOKEN_EXPIRY,
-      TOKEN_KEYS.REFRESH_TOKEN_EXPIRY,
-    ]);
-    
-    return {
-      accessTokenExpiry: accessExpiry[1],
-      refreshTokenExpiry: refreshExpiry[1],
-      accessTokenExpired: isTokenExpiring(accessExpiry[1], 0),
-      refreshTokenExpired: isTokenExpiring(refreshExpiry[1], 0),
-    };
-  },
-
   // GET /user/profile
   getProfile: async () => {
-    // Proactively refresh token if needed
-    if (await authService.shouldRefreshToken()) {
-      console.log('🔄 Proactively refreshing token before it expires');
-      try {
-        await authService.refreshToken();
-      } catch (error) {
-        console.log('⚠️ Proactive refresh failed, will retry on 401');
-      }
-    }
-    
+    // Interceptor will handle refresh automatically on 401/403
     const response = await api.get('/user/profile');
     return response.data.infoUser;
   },

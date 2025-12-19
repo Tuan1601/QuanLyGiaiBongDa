@@ -6,7 +6,7 @@ const BASE_URL = 'https://fleague-tournament-system.onrender.com/api/v1';
 
 const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 30000, // Tăng timeout lên 30s
+  timeout: 30000,
 });
 
 api.interceptors.request.use(
@@ -17,7 +17,6 @@ api.interceptors.request.use(
     }
 
     // Auto-detect Content-Type based on data
-    // FormData in React Native needs explicit Content-Type
     if (config.data instanceof FormData) {
       config.headers['Content-Type'] = 'multipart/form-data';
     } else if (config.data && typeof config.data === 'object') {
@@ -31,7 +30,6 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => {
-    // Connection successful - hide offline banner if showing
     hideOfflineBanner();
     return response;
   },
@@ -50,18 +48,42 @@ api.interceptors.response.use(
 
       if (error.message === 'Network Error') {
         console.warn('Network Error - No internet connection or server unreachable');
-        showOfflineBanner(); // Show offline indicator
+        showOfflineBanner();
       } else if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
         console.warn('Request timeout - server may be slow or unavailable');
-        showOfflineBanner(); // Show offline indicator
+        showOfflineBanner();
       }
 
       return Promise.reject(error);
     }
 
-    // Handle 401 Unauthorized - Try to refresh token
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      console.log('🔄 Got 401, attempting token refresh for URL:', originalRequest.url);
+    // Handle 401 OR 403 with invalid token - Try to refresh token
+    // Backend returns 403 for invalid/expired tokens
+    if (
+      (error.response?.status === 401 || error.response?.status === 403) &&
+      !originalRequest._retry
+    ) {
+      const errorMessage = error.response?.data?.message || '';
+      
+      // For 403, check if it's actually a token issue
+      // If not related to token, it's a permission error - don't try to refresh
+      if (error.response?.status === 403) {
+        const isTokenError = 
+          errorMessage.toLowerCase().includes('token') ||
+          errorMessage.toLowerCase().includes('unauthorized') ||
+          errorMessage.toLowerCase().includes('authentication');
+        
+        if (!isTokenError) {
+          console.log('⚠️ 403 is permission error (not token) - keeping tokens');
+          console.log('403 message:', errorMessage);
+          return Promise.reject(error);
+        }
+        
+        console.log('🔄 403 with token error - attempting refresh');
+      } else {
+        console.log('🔄 Got 401 - attempting token refresh');
+      }
+
       originalRequest._retry = true;
 
       try {
@@ -78,62 +100,28 @@ api.interceptors.response.use(
 
         const { accessToken, refreshToken: newRefreshToken } = response.data.tokens;
         
-        // Calculate expiry timestamps
-        const accessTokenExpiry = new Date();
-        accessTokenExpiry.setMinutes(accessTokenExpiry.getMinutes() + 15); // 15 minutes (theo doc)
-        
-        const refreshTokenExpiry = new Date();
-        refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 7); // 7 days
-        
-        // Save tokens with expiry
+        // Save NEW tokens - NO expiry tracking
         await AsyncStorage.multiSet([
           ['accessToken', accessToken],
           ['refreshToken', newRefreshToken],
-          ['accessTokenExpiry', accessTokenExpiry.toISOString()],
-          ['refreshTokenExpiry', refreshTokenExpiry.toISOString()],
         ]);
         
-        console.log('✅ Token refreshed successfully with 7-day expiry');
+        console.log('✅ Token refreshed successfully');
 
+        // Retry original request with new token
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
-        console.log('❌ Token refresh failed:', refreshError);
-        await AsyncStorage.multiRemove([
-          'accessToken', 
-          'refreshToken',
-          'accessTokenExpiry',
-          'refreshTokenExpiry',
-        ]);
-        console.log('🚪 Tokens cleared - user will be logged out');
+        console.log('❌ Token refresh failed - clearing tokens');
         
-        // Create a more descriptive error for the user
-        const authError = new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+        // ONLY clear tokens when refresh fails
+        await AsyncStorage.multiRemove(['accessToken', 'refreshToken']);
+        console.log('🚪 User will be logged out');
+        
+        const authError: any = new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
         authError.name = 'AuthenticationError';
         return Promise.reject(authError);
       }
-    }
-
-    // Handle 403 Forbidden - only clear tokens if it's an authentication issue
-    if (error.response?.status === 403) {
-      console.log('❌ Got 403 Forbidden for URL:', originalRequest.url);
-      console.log('403 Response data:', error.response?.data);
-      
-      // Only clear tokens if the error message indicates invalid token
-      const errorMessage = error.response?.data?.message || '';
-      if (errorMessage.includes('Token') || errorMessage.includes('token')) {
-        console.log('🚪 Clearing tokens due to invalid token in 403');
-        await AsyncStorage.multiRemove([
-          'accessToken', 
-          'refreshToken',
-          'accessTokenExpiry',
-          'refreshTokenExpiry',
-        ]);
-      } else {
-        console.log('⚠️ 403 is permission error, not auth error - keeping tokens');
-      }
-      
-      return Promise.reject(new Error(errorMessage || 'Access forbidden'));
     }
 
     // Log other API errors for debugging

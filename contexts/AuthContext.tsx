@@ -63,12 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             } else if (error.response?.status === 401 || error.response?.status === 403) {
                 console.log('🔒 AuthContext: Token invalid (401/403), clearing auth data');
-                await AsyncStorage.multiRemove([
-                    'accessToken', 
-                    'refreshToken',
-                    'accessTokenExpiry',
-                    'refreshTokenExpiry',
-                ]);
+                await AsyncStorage.multiRemove(['accessToken', 'refreshToken']);
                 setUser(null);
             } else if (error.message === 'Authentication failed') {
                 console.log('🚪 AuthContext: Authentication failed, tokens cleared by interceptor');
@@ -101,12 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.error('Logout API call failed:', error);
 
         } finally {
-            await AsyncStorage.multiRemove([
-                'accessToken', 
-                'refreshToken',
-                'accessTokenExpiry',
-                'refreshTokenExpiry',
-            ]);
+            await AsyncStorage.multiRemove(['accessToken', 'refreshToken']);
             setUser(null);
 
             queryClient.clear();
